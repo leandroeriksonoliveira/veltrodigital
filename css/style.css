@@ -274,6 +274,8 @@ section.section-tight { padding:32px 0; }
 .systems-showcase { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; margin-top:32px; }
 .system-card { background:rgba(255,255,255,0.03); border:1px solid var(--card-border); border-radius:var(--radius-sm); padding:24px; text-align:left; }
 .system-card h4 { color:var(--white); margin-bottom:8px; font-size:1.05rem; }
+.system-card h4 a { color:var(--accent); text-decoration:none; transition:var(--transition); }
+.system-card h4 a:hover { color:var(--white); }
 .system-card p { font-size:0.9rem; margin:0; }
 .cards-grid-3 { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
 .cta-inner.med { background:var(--med-gradient); }

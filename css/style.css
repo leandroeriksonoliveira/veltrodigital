@@ -277,6 +277,9 @@ section.section-tight { padding:32px 0; }
 .system-card h4 a { color:var(--accent); text-decoration:none; transition:var(--transition); }
 .system-card h4 a:hover { color:var(--white); }
 .system-card p { font-size:0.9rem; margin:0; }
+.service-examples { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.service-example-img { width:100%; border-radius:var(--radius-sm); border:1px solid var(--card-border); display:block; object-fit:cover; object-position:top; aspect-ratio:16/10; }
+@media (max-width:600px) { .service-examples { grid-template-columns:1fr; } }
 .cards-grid-3 { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
 .cta-inner.med { background:var(--med-gradient); }
 .cta-inner.law { background:var(--law-gradient); }

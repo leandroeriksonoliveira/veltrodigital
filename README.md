@@ -9,7 +9,8 @@ Site institucional da agência **Veltro Digital** — transformação digital pa
 | `/` | `index.html` |
 | `/medicos` | `medicos.html` |
 | `/advogados` | `advogados.html` |
-| `/academias` | `academias.html` |
+| `/esporte` | `esporte.html` |
+| `/arquitetura` | `arquitetura.html` |
 
 ## Desenvolvimento
 

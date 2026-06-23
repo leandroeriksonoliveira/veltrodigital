@@ -73,10 +73,24 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
 document.querySelectorAll('.dropdown > a').forEach(a => {
   a.addEventListener('click', e => {
-    if (window.innerWidth <= 900) {
-      e.preventDefault();
-      a.closest('.dropdown').classList.toggle('open');
-    }
+    if (a.getAttribute('href') === '#') e.preventDefault();
+    const dd = a.closest('.dropdown');
+    const wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    if (!wasOpen) dd.classList.add('open');
+  });
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+
+document.querySelectorAll('.dropdown-menu a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    if (navLinks?.classList.contains('open')) closeMenu();
   });
 });
 
@@ -138,7 +152,9 @@ document.querySelectorAll('.contact-form').forEach(form => {
    ============================================================ */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
+    const href = a.getAttribute('href');
+    if (href === '#') return;
+    const target = document.querySelector(href);
     if (target) {
       e.preventDefault();
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });

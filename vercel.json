@@ -1,9 +1,11 @@
 {
   "version": 2,
   "routes": [
-    { "src": "/medicos",   "dest": "/medicos.html"   },
-    { "src": "/advogados", "dest": "/advogados.html" },
-    { "src": "/academias", "dest": "/academias.html" },
-    { "src": "/(.*)",      "dest": "/$1"             }
+    { "src": "/medicos",     "dest": "/medicos.html"     },
+    { "src": "/advogados",   "dest": "/advogados.html"   },
+    { "src": "/esporte",     "dest": "/esporte.html"     },
+    { "src": "/arquitetura", "dest": "/arquitetura.html" },
+    { "src": "/academias",   "dest": "/esporte.html"     },
+    { "src": "/(.*)",        "dest": "/$1"               }
   ]
 }

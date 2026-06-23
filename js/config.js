@@ -10,9 +10,9 @@ const SITE_CONFIG = {
   emails: {
     medicos: 'medicos@veltrodigital.com.br',
     advogados: 'advogados@veltrodigital.com.br',
-    academias: 'academias@veltrodigital.com.br',
+    esporte: 'esporte@veltrodigital.com.br',
+    arquitetura: 'arquitetura@veltrodigital.com.br',
   },
-  location: 'Volta Redonda, RJ — Brasil',
   instagram: 'https://instagram.com/veltrodigital',
   linkedin: 'https://linkedin.com/company/veltrodigital',
   siteUrl: 'https://veltrodigital.com.br',

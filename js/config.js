@@ -4,8 +4,8 @@
 const SITE_CONFIG = {
   name: 'VeltroDigital',
   tagline: 'Transformação Digital para Profissionais',
-  whatsappPhone: '5524992926421',
-  whatsappDisplay: '(24) 99292-6421',
+  whatsappPhone: '5511986446779',
+  whatsappDisplay: '(11) 98644-6779',
   email: 'contato@veltrodigital.com.br',
   emails: {
     medicos: 'medicos@veltrodigital.com.br',

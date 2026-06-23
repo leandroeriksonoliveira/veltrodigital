@@ -1,0 +1,24 @@
+/**
+ * Configuração central — edite aqui para alterar contatos e links.
+ */
+const SITE_CONFIG = {
+  name: 'VeltroDigital',
+  tagline: 'Transformação Digital para Profissionais',
+  whatsappPhone: '5524992926421',
+  whatsappDisplay: '(24) 99292-6421',
+  email: 'contato@veltrodigital.com.br',
+  emails: {
+    medicos: 'medicos@veltrodigital.com.br',
+    advogados: 'advogados@veltrodigital.com.br',
+    academias: 'academias@veltrodigital.com.br',
+  },
+  location: 'Volta Redonda, RJ — Brasil',
+  instagram: 'https://instagram.com/veltrodigital',
+  linkedin: 'https://linkedin.com/company/veltrodigital',
+  siteUrl: 'https://veltrodigital.com.br',
+};
+
+function getWhatsAppUrl(message) {
+  const text = message || 'Olá! Gostaria de solicitar uma consultoria gratuita com a Veltro Digital.';
+  return `https://wa.me/${SITE_CONFIG.whatsappPhone}?text=${encodeURIComponent(text)}`;
+}

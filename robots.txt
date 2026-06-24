@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://veltrodigital.com.br/sitemap.xml
+Sitemap: https://www.veltrodigital.com.br/sitemap.xml

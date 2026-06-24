@@ -36,8 +36,21 @@ Ou via CLI:
 npx vercel --prod
 ```
 
+## Domínio (www.veltrodigital.com.br)
+
+O projeto está configurado na Vercel. No painel DNS do domínio (Registro.br ou provedor), adicione:
+
+| Tipo | Nome | Valor |
+|------|------|-------|
+| A | `@` | `76.76.21.21` |
+| A | `www` | `76.76.21.21` |
+
+O endereço raiz (`veltrodigital.com.br`) redireciona automaticamente para `www.veltrodigital.com.br`.
+
+Verifique o status em: [Vercel → veltrodigital → Domains](https://vercel.com/leandroeriksonoliveira1/veltrodigital/settings/domains)
+
 ## Contato
 
 - WhatsApp: (11) 98644-6779
 - E-mail: contato@veltrodigital.com.br
-- Local: Volta Redonda, RJ
+- Site: https://www.veltrodigital.com.br

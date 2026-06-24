@@ -15,7 +15,7 @@ const SITE_CONFIG = {
   },
   instagram: 'https://instagram.com/veltrodigital',
   linkedin: 'https://linkedin.com/company/veltrodigital',
-  siteUrl: 'https://veltrodigital.com.br',
+  siteUrl: 'https://www.veltrodigital.com.br',
 };
 
 function getWhatsAppUrl(message) {

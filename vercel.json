@@ -1,5 +1,13 @@
 {
   "version": 2,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "veltrodigital.com.br" }],
+      "destination": "https://www.veltrodigital.com.br/:path*",
+      "permanent": true
+    }
+  ],
   "routes": [
     { "src": "/medicos",     "dest": "/medicos.html"     },
     { "src": "/advogados",   "dest": "/advogados.html"   },

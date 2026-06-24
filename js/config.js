@@ -4,9 +4,13 @@
 const SITE_CONFIG = {
   name: 'VeltroDigital',
   tagline: 'Transformação Digital para Profissionais',
+  legalName: 'Veltro Digital',
+  legalResponsible: 'Leandro Oliveira',
+  cnpj: '',
   whatsappPhone: '5511986446779',
   whatsappDisplay: '(11) 98644-6779',
   email: 'contato@veltrodigital.com.br',
+  dpoEmail: 'privacidade@veltrodigital.com.br',
   emails: {
     medicos: 'medicos@veltrodigital.com.br',
     advogados: 'advogados@veltrodigital.com.br',

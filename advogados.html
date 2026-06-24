@@ -49,8 +49,8 @@
         <a href="#servicos-law" class="btn btn-outline btn-lg">Ver Serviços</a>
       </div>
       <div class="hero-stats anim-4">
-        <div class="stat-item"><div class="stat-number" style="background:var(--law-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">2x</div><div class="stat-label">Mais consultas geradas</div></div>
-        <div class="stat-item"><div class="stat-number" style="background:var(--law-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">100%</div><div class="stat-label">Conformidade OAB</div></div>
+        <div class="stat-item"><div class="stat-number" style="background:var(--law-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">10–20d</div><div class="stat-label">Prazo médio de entrega</div></div>
+        <div class="stat-item"><div class="stat-number" style="background:var(--law-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">OAB</div><div class="stat-label">Diretrizes Prov. 205/2021</div></div>
         <div class="stat-item"><div class="stat-number" style="background:var(--law-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">95+</div><div class="stat-label">Score Google</div></div>
       </div>
     </div>
@@ -76,7 +76,7 @@
       <div class="card law reveal"><span class="card-icon">🏛️</span><h3>Design Institucional</h3><p>Visual sóbrio e sofisticado que transmite a credibilidade que clientes esperam de um escritório jurídico.</p></div>
       <div class="card law reveal" data-delay="100"><span class="card-icon">📝</span><h3>Conteúdo Jurídico</h3><p>Blog e artigos posicionados para SEO dentro das normas do Provimento OAB 205/2021.</p></div>
       <div class="card law reveal" data-delay="200"><span class="card-icon">🔍</span><h3>SEO Especializado</h3><p>Apareça quando potenciais clientes buscam sua área de atuação na sua cidade.</p></div>
-      <div class="card law reveal" data-delay="300"><span class="card-icon">⚖️</span><h3>100% Conforme OAB</h3><p>Todo conteúdo revisado para cumprir o Provimento 205/2021 e proteger sua inscrição.</p></div>
+      <div class="card law reveal" data-delay="300"><span class="card-icon">⚖️</span><h3>Alinhado à OAB</h3><p>Conteúdo desenvolvido conforme o Provimento OAB 205/2021, com revisão orientada à publicidade jurídica ética.</p></div>
     </div>
   </div>
 </section>
@@ -105,6 +105,12 @@
               <select class="law" required><option value="">Selecione sua área</option><option>Direito Civil</option><option>Direito Trabalhista</option><option>Direito Tributário</option><option>Direito Penal</option><option>Direito de Família</option><option>Outra</option></select>
             </div>
             <div class="form-group"><label>Mensagem</label><textarea class="law" placeholder="Conte sobre seu escritório..."></textarea></div>
+            <div class="form-group form-consent">
+              <label class="form-consent-label">
+                <input type="checkbox" class="form-consent-check" required data-form-exclude />
+                <span>Li e concordo com a <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a> e autorizo o tratamento dos meus dados conforme a LGPD.</span>
+              </label>
+            </div>
             <button type="submit" class="btn btn-law btn-lg form-submit" style="width:100%;justify-content:center;">Solicitar Consultoria Gratuita →</button>
           </form>
           <div class="form-success"><div class="success-icon">✅</div><h3>Mensagem enviada!</h3><p>Entraremos em contato em até 24 horas úteis.</p></div>
@@ -142,13 +148,16 @@
         <li><a href="arquitetura.html">Arquitetura &amp; Engenharia</a></li>
       </ul></div>
       <div class="footer-links"><h4>Legal</h4><ul>
-        <li><a href="#">Política de Privacidade</a></li>
-        <li><a href="#">Termos de Uso</a></li>
-        <li><a href="#">LGPD</a></li>
+        <li><a href="politica-de-privacidade.html">Política de Privacidade</a></li>
+        <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+        <li><a href="lgpd.html">LGPD</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 VeltroDigital. Todos os direitos reservados.</p>
+      <div class="footer-bottom-legal">
+        <p class="footer-legal" data-footer-legal></p>
+        <p class="footer-dpo" data-footer-dpo></p>
+      </div>
       <div class="social-links">
         <a href="https://instagram.com/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸</a>
         <a href="https://linkedin.com/company/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">💼</a>

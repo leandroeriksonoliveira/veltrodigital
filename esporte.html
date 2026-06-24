@@ -49,7 +49,7 @@
         <a href="#servicos-gym" class="btn btn-outline btn-lg">Ver Serviços</a>
       </div>
       <div class="hero-stats anim-4">
-        <div class="stat-item"><div class="stat-number" style="background:var(--gym-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">4x</div><div class="stat-label">Mais conversões online</div></div>
+        <div class="stat-item"><div class="stat-number" style="background:var(--gym-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Meta</div><div class="stat-label">Ads + orgânico integrados</div></div>
         <div class="stat-item"><div class="stat-number" style="background:var(--gym-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">30d</div><div class="stat-label">Para ver resultados</div></div>
         <div class="stat-item"><div class="stat-number" style="background:var(--gym-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ROI+</div><div class="stat-label">Retorno comprovado</div></div>
       </div>
@@ -105,6 +105,12 @@
               <select class="gym" required><option value="">Selecione o tipo</option><option>Academia</option><option>Clube esportivo</option><option>Personal Trainer</option><option>Fisioterapia esportiva</option><option>CrossFit / Funcional</option><option>Outro</option></select>
             </div>
             <div class="form-group"><label>Mensagem</label><textarea class="gym" placeholder="Conte sobre seu negócio..."></textarea></div>
+            <div class="form-group form-consent">
+              <label class="form-consent-label">
+                <input type="checkbox" class="form-consent-check" required data-form-exclude />
+                <span>Li e concordo com a <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a> e autorizo o tratamento dos meus dados conforme a LGPD.</span>
+              </label>
+            </div>
             <button type="submit" class="btn btn-gym btn-lg form-submit" style="width:100%;justify-content:center;">Solicitar Consultoria Gratuita →</button>
           </form>
           <div class="form-success"><div class="success-icon">✅</div><h3>Mensagem enviada!</h3><p>Entraremos em contato em até 24 horas úteis.</p></div>
@@ -142,13 +148,16 @@
         <li><a href="arquitetura.html">Arquitetura &amp; Engenharia</a></li>
       </ul></div>
       <div class="footer-links"><h4>Legal</h4><ul>
-        <li><a href="#">Política de Privacidade</a></li>
-        <li><a href="#">Termos de Uso</a></li>
-        <li><a href="#">LGPD</a></li>
+        <li><a href="politica-de-privacidade.html">Política de Privacidade</a></li>
+        <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+        <li><a href="lgpd.html">LGPD</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 VeltroDigital. Todos os direitos reservados.</p>
+      <div class="footer-bottom-legal">
+        <p class="footer-legal" data-footer-legal></p>
+        <p class="footer-dpo" data-footer-dpo></p>
+      </div>
       <div class="social-links">
         <a href="https://instagram.com/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸</a>
         <a href="https://linkedin.com/company/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">💼</a>

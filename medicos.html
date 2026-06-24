@@ -49,9 +49,9 @@
         <a href="#servicos-med" class="btn btn-outline btn-lg">Ver Serviços</a>
       </div>
       <div class="hero-stats anim-4">
-        <div class="stat-item"><div class="stat-number" style="background:var(--med-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">3x</div><div class="stat-label">Mais pacientes online</div></div>
+        <div class="stat-item"><div class="stat-number" style="background:var(--med-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">10–20d</div><div class="stat-label">Prazo médio de entrega</div></div>
         <div class="stat-item"><div class="stat-number" style="background:var(--med-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">97+</div><div class="stat-label">Score no Google</div></div>
-        <div class="stat-item"><div class="stat-number" style="background:var(--med-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">100%</div><div class="stat-label">Conformidade CFM</div></div>
+        <div class="stat-item"><div class="stat-number" style="background:var(--med-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">CFM</div><div class="stat-label">Diretrizes Res. 2.336/2023</div></div>
       </div>
     </div>
   </div>
@@ -76,7 +76,7 @@
       <div class="card med reveal"><span class="card-icon">⚡</span><h3>Site Ultra-Rápido</h3><p>Desenvolvido com as melhores tecnologias do mercado. Carregamento ultrarrápido e score 95+ no Google PageSpeed.</p></div>
       <div class="card med reveal" data-delay="100"><span class="card-icon">📅</span><h3>Agendamento Online</h3><p>Integração com sistemas de agendamento para que pacientes marquem consultas 24/7 sem ligar.</p></div>
       <div class="card med reveal" data-delay="200"><span class="card-icon">🔍</span><h3>SEO Local Avançado</h3><p>Estratégia completa para aparecer quando pacientes buscam sua especialidade na sua cidade.</p></div>
-      <div class="card med reveal" data-delay="300"><span class="card-icon">⚖️</span><h3>100% Conforme CFM</h3><p>Todo conteúdo revisado para cumprir a Resolução CFM 1.974/2011 e proteger seu registro.</p></div>
+      <div class="card med reveal" data-delay="300"><span class="card-icon">⚖️</span><h3>Alinhado ao CFM</h3><p>Conteúdo desenvolvido conforme as diretrizes da Resolução CFM 2.336/2023, com revisão orientada à publicidade médica ética.</p></div>
     </div>
   </div>
 </section>
@@ -105,6 +105,12 @@
               <select class="med" required><option value="">Selecione sua especialidade</option><option>Clínico Geral</option><option>Dermatologista</option><option>Ortopedista</option><option>Ginecologista</option><option>Cardiologista</option><option>Outra</option></select>
             </div>
             <div class="form-group"><label>Mensagem</label><textarea class="med" placeholder="Conte sobre seu consultório..."></textarea></div>
+            <div class="form-group form-consent">
+              <label class="form-consent-label">
+                <input type="checkbox" class="form-consent-check" required data-form-exclude />
+                <span>Li e concordo com a <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a> e autorizo o tratamento dos meus dados conforme a LGPD.</span>
+              </label>
+            </div>
             <button type="submit" class="btn btn-med btn-lg form-submit" style="width:100%;justify-content:center;">Solicitar Consultoria Gratuita →</button>
           </form>
           <div class="form-success"><div class="success-icon">✅</div><h3>Mensagem enviada!</h3><p>Entraremos em contato em até 24 horas úteis.</p></div>
@@ -142,13 +148,16 @@
         <li><a href="arquitetura.html">Arquitetura &amp; Engenharia</a></li>
       </ul></div>
       <div class="footer-links"><h4>Legal</h4><ul>
-        <li><a href="#">Política de Privacidade</a></li>
-        <li><a href="#">Termos de Uso</a></li>
-        <li><a href="#">LGPD</a></li>
+        <li><a href="politica-de-privacidade.html">Política de Privacidade</a></li>
+        <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+        <li><a href="lgpd.html">LGPD</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 VeltroDigital. Todos os direitos reservados.</p>
+      <div class="footer-bottom-legal">
+        <p class="footer-legal" data-footer-legal></p>
+        <p class="footer-dpo" data-footer-dpo></p>
+      </div>
       <div class="social-links">
         <a href="https://instagram.com/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸</a>
         <a href="https://linkedin.com/company/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">💼</a>

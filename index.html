@@ -59,7 +59,7 @@
         <div class="stat-item"><div class="stat-number">30+</div><div class="stat-label">Anos de Experiência</div></div>
         <div class="stat-item"><div class="stat-number">150+</div><div class="stat-label">Projetos Entregues</div></div>
         <div class="stat-item"><div class="stat-number">3</div><div class="stat-label">Países Atendidos</div></div>
-        <div class="stat-item"><div class="stat-number">98%</div><div class="stat-label">Satisfação dos Clientes</div></div>
+        <div class="stat-item"><div class="stat-number">Alto</div><div class="stat-label">Compromisso com resultados</div></div>
       </div>
     </div>
   </div>
@@ -97,7 +97,7 @@
           <li>+30 anos de experiência no mercado tecnológico</li>
           <li>Atuação em Brasil, Estados Unidos e Europa</li>
           <li>Stack moderna: Next.js, React e performance premium</li>
-          <li>Conformidade com CFM, OAB e LGPD</li>
+          <li>Desenvolvido conforme diretrizes CFM, OAB e LGPD</li>
           <li>Consultoria especializada em Inteligência Artificial</li>
           <li>Desenvolvimento de sistemas e aplicativos sob medida</li>
           <li>Suporte contínuo pós-entrega</li>
@@ -237,7 +237,7 @@
     <div class="faq-list">
       <div class="faq-item reveal"><div class="faq-q">Quanto tempo leva para entregar um site? <span class="faq-icon">+</span></div><div class="faq-a">O prazo médio de entrega é de 10 a 20 dias úteis, dependendo da complexidade do projeto.</div></div>
       <div class="faq-item reveal" data-delay="100"><div class="faq-q">O que está incluso nos serviços? <span class="faq-icon">+</span></div><div class="faq-a">Design personalizado, desenvolvimento, integração com WhatsApp, SEO, suporte técnico, atualizações de conteúdo e relatórios de desempenho via Google Analytics 4.</div></div>
-      <div class="faq-item reveal" data-delay="200"><div class="faq-q">Os sites seguem as normas do CFM e da OAB? <span class="faq-icon">+</span></div><div class="faq-a">Sim. Todos os projetos para médicos seguem a Resolução CFM 1.974/2011 e para advogados respeitam o Provimento OAB 205/2021. LGPD inclusa em todos.</div></div>
+      <div class="faq-item reveal" data-delay="200"><div class="faq-q">Os sites seguem as normas do CFM e da OAB? <span class="faq-icon">+</span></div><div class="faq-a">Sim. Projetos para médicos são desenvolvidos conforme as diretrizes da Resolução CFM 2.336/2023 e, para advogados, respeitam o Provimento OAB 205/2021. Tratamento de dados em conformidade com a LGPD.</div></div>
       <div class="faq-item reveal" data-delay="300"><div class="faq-q">Qual tecnologia é utilizada? <span class="faq-icon">+</span></div><div class="faq-a">Utilizamos as melhores tecnologias do mercado, como Next.js e React, garantindo performance máxima, excelente pontuação nos Core Web Vitals e carregamento ultrarrápido.</div></div>
     </div>
   </div>
@@ -267,6 +267,12 @@
               <select required><option value="">Selecione seu segmento</option><option>Médico / Saúde</option><option>Advogado / Escritório</option><option>Esporte</option><option>Arquitetura / Engenharia</option><option>Desenvolvimento de Sistemas</option><option>Consultoria em IA</option><option>Outro</option></select>
             </div>
             <div class="form-group"><label>Mensagem</label><textarea placeholder="Conte um pouco sobre seu projeto..."></textarea></div>
+            <div class="form-group form-consent">
+              <label class="form-consent-label">
+                <input type="checkbox" class="form-consent-check" required data-form-exclude />
+                <span>Li e concordo com a <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a> e autorizo o tratamento dos meus dados conforme a LGPD.</span>
+              </label>
+            </div>
             <button type="submit" class="btn btn-primary btn-lg form-submit" style="width:100%;justify-content:center;">Solicitar Consultoria Gratuita →</button>
           </form>
           <div class="form-success"><div class="success-icon">✅</div><h3>Mensagem enviada!</h3><p>Entraremos em contato em até 24 horas úteis.</p></div>
@@ -304,13 +310,16 @@
         <li><a href="arquitetura.html">Arquitetura &amp; Engenharia</a></li>
       </ul></div>
       <div class="footer-links"><h4>Legal</h4><ul>
-        <li><a href="#">Política de Privacidade</a></li>
-        <li><a href="#">Termos de Uso</a></li>
-        <li><a href="#">LGPD</a></li>
+        <li><a href="politica-de-privacidade.html">Política de Privacidade</a></li>
+        <li><a href="termos-de-uso.html">Termos de Uso</a></li>
+        <li><a href="lgpd.html">LGPD</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 VeltroDigital. Todos os direitos reservados.</p>
+      <div class="footer-bottom-legal">
+        <p class="footer-legal" data-footer-legal></p>
+        <p class="footer-dpo" data-footer-dpo></p>
+      </div>
       <div class="social-links">
         <a href="https://instagram.com/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📸</a>
         <a href="https://linkedin.com/company/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">💼</a>

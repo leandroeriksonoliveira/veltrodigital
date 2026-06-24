@@ -28,6 +28,18 @@ document.querySelectorAll('.wa-social').forEach(el => {
   el.rel = 'noopener noreferrer';
 });
 
+document.querySelectorAll('[data-footer-legal]').forEach(el => {
+  const c = SITE_CONFIG;
+  let text = `© ${new Date().getFullYear()} ${c.legalName} · ${c.legalResponsible}. Todos os direitos reservados.`;
+  if (c.cnpj) text += ` CNPJ: ${c.cnpj}.`;
+  el.textContent = text;
+});
+
+document.querySelectorAll('[data-footer-dpo]').forEach(el => {
+  if (!SITE_CONFIG.dpoEmail) return;
+  el.innerHTML = `Encarregado de dados (DPO): <a href="mailto:${SITE_CONFIG.dpoEmail}">${SITE_CONFIG.dpoEmail}</a>`;
+});
+
 /* Floating WhatsApp button */
 const waFloat = document.createElement('a');
 waFloat.href = getWhatsAppUrl();
@@ -129,6 +141,7 @@ document.querySelectorAll('.contact-form').forEach(form => {
     const data = new FormData(form);
     const fields = {};
     form.querySelectorAll('input, select, textarea').forEach(input => {
+      if (input.dataset.formExclude !== undefined || input.type === 'checkbox') return;
       const label = input.closest('.form-group')?.querySelector('label')?.textContent;
       if (label && input.value.trim()) fields[label] = input.value.trim();
     });

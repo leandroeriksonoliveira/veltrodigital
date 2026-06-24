@@ -14,6 +14,9 @@
     { "src": "/esporte",     "dest": "/esporte.html"     },
     { "src": "/arquitetura", "dest": "/arquitetura.html" },
     { "src": "/academias",   "dest": "/esporte.html"     },
+    { "src": "/politica-de-privacidade", "dest": "/politica-de-privacidade.html" },
+    { "src": "/termos-de-uso",           "dest": "/termos-de-uso.html"           },
+    { "src": "/lgpd",                    "dest": "/lgpd.html"                    },
     { "src": "/(.*)",        "dest": "/$1"               }
   ]
 }

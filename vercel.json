@@ -17,6 +17,8 @@
     { "src": "/politica-de-privacidade", "dest": "/politica-de-privacidade.html" },
     { "src": "/termos-de-uso",           "dest": "/termos-de-uso.html"           },
     { "src": "/lgpd",                    "dest": "/lgpd.html"                    },
+    { "src": "/contabilidade",     "dest": "https://veltro-contabilidade.vercel.app/contabilidade" },
+    { "src": "/contabilidade/(.*)", "dest": "https://veltro-contabilidade.vercel.app/contabilidade/$1" },
     { "src": "/(.*)",        "dest": "/$1"               }
   ]
 }

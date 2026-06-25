@@ -4,3 +4,6 @@
 .env.*
 *.log
 node_modules/
+
+# App de contabilidade (projeto Vercel separado: veltro-contabilidade)
+Controle Financeiro Veltro/

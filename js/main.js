@@ -32,6 +32,7 @@ document.querySelectorAll('[data-footer-legal]').forEach(el => {
   const c = SITE_CONFIG;
   let text = `© ${new Date().getFullYear()} ${c.legalName} · ${c.legalResponsible}. Todos os direitos reservados.`;
   if (c.cnpj) text += ` CNPJ: ${c.cnpj}.`;
+  if (c.legalAddress) text += ` ${c.legalAddress}.`;
   el.textContent = text;
 });
 

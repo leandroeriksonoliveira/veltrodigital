@@ -6,7 +6,8 @@ const SITE_CONFIG = {
   tagline: 'Transformação Digital para Profissionais',
   legalName: 'Veltro Digital',
   legalResponsible: 'Leandro Oliveira',
-  cnpj: '',
+  cnpj: '', // Preencher quando disponível — exibido automaticamente no rodapé
+  legalAddress: 'São Paulo, SP, Brasil',
   whatsappPhone: '5511986446779',
   whatsappDisplay: '(11) 98644-6779',
   email: 'contato@veltrodigital.com.br',

@@ -150,6 +150,29 @@ section.section-tight { padding:32px 0; }
 .card.ai::before { background:var(--ai-gradient); }
 .card-icon { font-size:2.2rem; margin-bottom:20px; display:block; }
 .card h3   { margin-bottom:12px; color:var(--white); }
+.card h2   { margin-bottom:12px; color:var(--white); }
+.service-card-content h2 {
+  margin-bottom:10px;
+  font-size:clamp(1.2rem,2vw,1.5rem);
+  font-family:var(--font-display);
+  font-weight:700;
+  line-height:1.2;
+  color:var(--white);
+}
+.section-lead {
+  max-width:600px;
+  margin:16px auto 0;
+  font-size:1.05rem;
+  color:var(--text-muted);
+}
+.subsection-title {
+  margin:16px 0;
+  font-size:clamp(1.8rem,3.5vw,2.8rem);
+  font-family:var(--font-display);
+  font-weight:700;
+  line-height:1.2;
+  color:var(--white);
+}
 
 /* ABOUT */
 .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }

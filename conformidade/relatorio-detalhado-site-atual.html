@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relatório de Conformidade — Veltro Digital</title>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2235;
+      --border: #243049;
+      --primary: #00C6FF;
+      --accent: #A855F7;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --radius: 12px;
+      --print-navy: #1a365d;
+      --print-text: #1a1a1a;
+      --print-muted: #4a4a4a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .print-only { display: none; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+    }
+    .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      font-size: 10px; font-weight: 700; padding: 5px 12px;
+      border-radius: 20px; letter-spacing: 0.6px; text-transform: uppercase;
+    }
+    .pill-lgpd { background: rgba(0,198,255,0.12); color: var(--primary); border: 1px solid rgba(0,198,255,0.3); }
+    .pill-cdc  { background: rgba(168,85,247,0.12); color: var(--accent); border: 1px solid rgba(168,85,247,0.3); }
+    .pill-emp  { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+    .btn-print {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff; border: none; border-radius: 10px;
+      padding: 10px 18px; font-size: 13px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(0,198,255,0.2);
+    }
+    .btn-print svg { width: 18px; height: 18px; }
+    .link-back { color: var(--primary); font-size: 13px; text-decoration: none; }
+    .link-back:hover { text-decoration: underline; }
+    .header {
+      background: linear-gradient(135deg, #0c1228 0%, #151d3a 50%, #0c1228 100%);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 36px 32px; margin-bottom: 24px;
+    }
+    .header h1 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .header h1 em { color: var(--primary); font-style: normal; }
+    .header-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .header-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    .meta-item { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+    .meta-item label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+    .meta-item span { font-size: 13px; font-weight: 600; }
+    .scoreboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 14px; text-align: center; position: relative; overflow: hidden; }
+    .score-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .score-card.conformes::before { background: var(--success); }
+    .score-card.atencao::before { background: var(--warning); }
+    .score-card.falhas::before { background: var(--danger); }
+    .score-card.criticos::before { background: #dc2626; }
+    .score-num { font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+    .score-card.conformes .score-num { color: var(--success); }
+    .score-card.atencao .score-num { color: var(--warning); }
+    .score-card.falhas .score-num { color: var(--danger); }
+    .score-card.criticos .score-num { color: #dc2626; }
+    .score-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+    .veredito {
+      background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.04));
+      border: 1px solid rgba(245,158,11,0.35); border-radius: var(--radius);
+      padding: 20px 24px; margin-bottom: 28px;
+      display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start;
+    }
+    .veredito-icon { font-size: 36px; }
+    .veredito-text h2 { font-size: 17px; font-weight: 700; color: var(--warning); margin-bottom: 6px; }
+    .veredito-text p { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 720px; }
+    .compare-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin-bottom: 24px;
+    }
+    .compare-header { padding: 14px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 14px; }
+    .section { margin-bottom: 18px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius) var(--radius) 0 0; cursor: pointer;
+    }
+    .section-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(0,198,255,0.15); color: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+    }
+    .section-title { flex: 1; font-size: 14px; font-weight: 600; }
+    .section-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+    .item {
+      display: grid; grid-template-columns: 28px 1fr auto; gap: 12px;
+      padding: 14px 18px; border-bottom: 1px solid rgba(36,48,73,0.6);
+      background: var(--surface); align-items: start;
+    }
+    .item:last-child { border-bottom: none; }
+    .item-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .item-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .item-desc strong { color: #cbd5e1; }
+    .item-action {
+      display: inline-block; margin-top: 6px; font-size: 11px; padding: 3px 8px;
+      border-radius: 4px; background: rgba(0,198,255,0.1); border: 1px solid rgba(0,198,255,0.25); color: var(--primary);
+    }
+    .item-badge { font-size: 10px; font-weight: 700; padding: 4px 9px; border-radius: 20px; white-space: nowrap; }
+    .badge-ok { background: rgba(34,197,94,0.12); color: var(--success); border: 1px solid rgba(34,197,94,0.3); }
+    .badge-warn { background: rgba(245,158,11,0.12); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+    .badge-fail { background: rgba(239,68,68,0.12); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+    .badge-critical { background: rgba(220,38,38,0.15); color: #f87171; border: 1px solid rgba(220,38,38,0.4); }
+    .penalty-intro, .penalty-note { font-size: 13px; line-height: 1.6; color: var(--muted); padding: 14px 18px; }
+    .penalty-table, .summary-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .penalty-table th, .summary-table th {
+      background: var(--surface2); padding: 10px 12px; text-align: left;
+      font-size: 10px; color: var(--muted); text-transform: uppercase;
+    }
+    .penalty-table td, .summary-table td {
+      padding: 12px; border-bottom: 1px solid rgba(36,48,73,0.5);
+      background: var(--surface); vertical-align: top; line-height: 1.55;
+    }
+    .action-plan { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+    .action-plan-header { padding: 16px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); font-weight: 700; }
+    .action-group { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+    .action-group:last-child { border-bottom: none; }
+    .action-group-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; color: var(--warning); }
+    .action-item { display: flex; gap: 12px; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+    .action-item:last-child { margin-bottom: 0; }
+    .action-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; flex-shrink: 0;
+      background: rgba(245,158,11,0.2); color: var(--warning);
+    }
+    .risk-pill { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .risk-alto { background: rgba(239,68,68,0.15); color: #f87171; }
+    .risk-medio { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .risk-baixo { background: rgba(34,197,94,0.15); color: var(--success); }
+    .disclaimer {
+      background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25);
+      border-radius: var(--radius); padding: 14px 18px; font-size: 12px; color: var(--muted); line-height: 1.6;
+    }
+    .footer { text-align: center; margin-top: 28px; font-size: 11px; color: var(--muted); }
+
+/*
+  Impressão profissional — site-compliance-audit
+  Copiar o bloco @media print INTEIRO para relatório detalhado e resumo numérico.
+  Variáveis :root obrigatórias: --print-navy, --print-text, --print-muted
+*/
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 16mm 18mm 20mm 18mm;
+  }
+
+  html, body {
+    width: 100%;
+    height: auto;
+    background: #fff !important;
+    color: var(--print-text) !important;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .wrap {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  /* ── Masthead ── */
+  .print-masthead {
+    border-bottom: 2.5pt solid var(--print-navy);
+    padding-bottom: 10pt;
+    margin-bottom: 14pt;
+  }
+
+  .print-masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16pt;
+    margin-bottom: 8pt;
+  }
+
+  .print-masthead-brand {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 1.2pt;
+    text-transform: uppercase;
+    color: var(--print-navy) !important;
+  }
+
+  .print-masthead-ref {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8pt;
+    color: var(--print-muted) !important;
+    text-align: right;
+    line-height: 1.5;
+  }
+
+  .print-masthead h1 {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 17pt;
+    font-weight: 700;
+    color: var(--print-text) !important;
+    margin: 0 0 4pt;
+    line-height: 1.2;
+  }
+
+  .print-masthead-sub {
+    font-size: 10pt;
+    color: var(--print-muted) !important;
+  }
+
+  .print-masthead-sub strong {
+    color: var(--print-text) !important;
+    font-weight: 600;
+  }
+
+  /* ── Highlight score + síntese ── */
+  .print-highlight {
+    display: flex;
+    align-items: stretch;
+    border: 1pt solid #b0b8c4;
+    margin-bottom: 14pt;
+    page-break-inside: avoid;
+  }
+
+  .print-highlight-score {
+    flex: 0 0 28%;
+    background: #f0f4f8 !important;
+    border-right: 1pt solid #b0b8c4;
+    padding: 12pt 14pt;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .print-highlight-score .label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8pt;
+    color: var(--print-muted) !important;
+    margin-bottom: 4pt;
+  }
+
+  .print-highlight-score .value {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 28pt;
+    font-weight: 800;
+    color: #8b0000 !important;
+    line-height: 1;
+  }
+
+  .print-highlight-score .value.ok { color: #14532d !important; }
+  .print-highlight-score .value.warn { color: #7c4a03 !important; }
+
+  .print-highlight-score .status {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #8b0000 !important;
+    margin-top: 4pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+
+  .print-highlight-summary {
+    flex: 1;
+    padding: 12pt 14pt;
+    font-size: 9.5pt;
+    color: var(--print-text) !important;
+  }
+
+  .print-highlight-summary p { margin-bottom: 6pt; }
+  .print-highlight-summary p:last-child { margin-bottom: 0; }
+  .print-highlight-summary ul { margin: 6pt 0 0 14pt; padding: 0; }
+  .print-highlight-summary li { margin-bottom: 3pt; }
+
+  /* ── Ocultar chrome de tela ── */
+  .topbar,
+  .header,
+  .scoreboard,
+  .veredito { display: none !important; }
+
+  /* ── Seções (detalhado + resumo) ── */
+  .section {
+    background: #fff !important;
+    border: 1pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    margin-bottom: 12pt !important;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  .section-head,
+  .section-header {
+    background: #fff !important;
+    color: #1a365d !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0.9pt;
+    text-transform: uppercase;
+    padding: 7pt 12pt 7pt 10pt !important;
+    border-bottom: 1.5pt solid #1a365d !important;
+    border-left: 4pt solid #1a365d !important;
+    border-radius: 0 !important;
+    cursor: default;
+  }
+
+  .section-num,
+  .section-header span:last-child { display: none !important; }
+
+  .section-title {
+    color: #1a365d !important;
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+  }
+
+  .section-body {
+    border: none !important;
+    background: #fff !important;
+  }
+
+  /* ── Itens de checklist ── */
+  .item {
+    display: grid !important;
+    grid-template-columns: 18pt 1fr auto !important;
+    gap: 8pt !important;
+    padding: 8pt 12pt !important;
+    border-bottom: 0.5pt solid #d4dae0 !important;
+    background: #fff !important;
+    page-break-inside: avoid;
+  }
+
+  .item:nth-child(even) { background: #f7f9fb !important; }
+
+  .item-title {
+    color: var(--print-text) !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 9.5pt !important;
+    font-weight: 600 !important;
+  }
+
+  .item-desc {
+    color: var(--print-muted) !important;
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
+  }
+
+  .item-desc strong { color: var(--print-text) !important; }
+
+  .item-action {
+    background: #eef2f7 !important;
+    border: 0.5pt solid #b0b8c4 !important;
+    color: #1a365d !important;
+    font-size: 8pt !important;
+    padding: 2pt 5pt !important;
+  }
+
+  .item-badge {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 7pt !important;
+    padding: 2pt 6pt !important;
+    border-radius: 10pt !important;
+    border: 0.5pt solid #999 !important;
+    background: #fff !important;
+    color: var(--print-text) !important;
+  }
+
+  .badge-critical { color: #8b0000 !important; border-color: #8b0000 !important; }
+  .badge-fail { color: #8b0000 !important; }
+  .badge-warn { color: #7c4a03 !important; }
+  .badge-ok { color: #14532d !important; }
+
+  /* ── Tabelas ── */
+  .summary-table,
+  .penalty-table,
+  table {
+    font-size: 9pt;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .summary-table th,
+  .penalty-table th,
+  table th {
+    background: #e8edf2 !important;
+    color: var(--print-text) !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 6pt 10pt !important;
+    border-bottom: 1pt solid #9aa5b4 !important;
+    text-transform: uppercase;
+  }
+
+  .summary-table td,
+  .penalty-table td,
+  table td {
+    color: var(--print-text) !important;
+    padding: 6pt 10pt !important;
+    border-bottom: 0.5pt solid #d4dae0 !important;
+    vertical-align: top;
+    background: #fff !important;
+  }
+
+  tbody tr:nth-child(even) td { background: #f7f9fb !important; }
+  tbody tr:last-child td { border-bottom: none !important; }
+
+  .penalty-table td:first-child { font-weight: 600; white-space: nowrap; }
+
+  td.num {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13pt;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  td.num.danger { color: #8b0000 !important; }
+  td.num.warning { color: #7c4a03 !important; }
+  td.num.success { color: #14532d !important; }
+  td.num.primary { color: #1e3a8a !important; }
+
+  .risk-pill {
+    font-size: 7.5pt !important;
+    padding: 1pt 5pt !important;
+    border: 0.5pt solid #999 !important;
+    background: #fff !important;
+    color: var(--print-text) !important;
+  }
+
+  /* ── Penalidades / plano / disclaimer ── */
+  .penalty-intro,
+  .penalty-note {
+    background: #f7f9fb !important;
+    border: 0.5pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    color: var(--print-text) !important;
+    font-size: 9pt !important;
+    padding: 8pt 10pt !important;
+    margin-bottom: 10pt !important;
+  }
+
+  .penalty-intro strong,
+  .penalty-note strong { color: var(--print-text) !important; }
+
+  .action-plan {
+    border: 1pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    page-break-inside: avoid;
+  }
+
+  .action-plan-header {
+    background: #e8edf2 !important;
+    color: #1a365d !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 9pt;
+    font-weight: 700;
+    border-bottom: 1pt solid #9aa5b4 !important;
+  }
+
+  .action-group-title { font-size: 8.5pt !important; }
+  .action-item { font-size: 9pt !important; color: var(--print-text) !important; }
+
+  .disclaimer {
+    background: #f7f9fb !important;
+    border: 0.5pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    color: var(--print-muted) !important;
+    font-size: 8.5pt !important;
+    page-break-inside: avoid;
+  }
+
+  .disclaimer strong { color: var(--print-text) !important; }
+
+  .screen-footer,
+  .footer { display: none !important; }
+
+  /* ── Rodapé fixo ── */
+  .print-doc-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6pt 18mm 0;
+    border-top: 0.5pt solid #b0b8c4;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 7.5pt;
+    color: var(--print-muted) !important;
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+  }
+
+  .print-doc-footer .legal {
+    max-width: 72%;
+    line-height: 1.35;
+  }
+
+  body { padding-bottom: 22mm !important; }
+
+  a { color: var(--print-text) !important; text-decoration: none; }
+  code { font-size: 8.5pt; background: #eef2f7 !important; padding: 0 3pt; }
+}
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="print-masthead print-only">
+    <div class="print-masthead-top">
+      <div class="print-masthead-brand">Auditoria de Conformidade Digital</div>
+      <div class="print-masthead-ref">
+        Ref. CONF-VEL-2026-002-DET<br />
+        25 de junho de 2026<br />
+        Uso interno
+      </div>
+    </div>
+    <h1>Relatório detalhado de conformidade — Veltro Digital</h1>
+    <p class="print-masthead-sub">
+      <strong>Profissional:</strong> Veltro Digital · Agência B2B<br />
+      <strong>Site analisado:</strong> www.veltrodigital.com.br<br />
+      <strong>Base normativa:</strong> LGPD Lei 13.709/2018 · CDC · Marco Civil da Internet<br />
+      <strong>Commit:</strong> ee206c0
+    </p>
+  </header>
+
+  <div class="print-highlight print-only">
+    <div class="print-highlight-score">
+      <div class="label">Conformidade do site</div>
+      <div class="value warn">81%</div>
+      <div class="status">Aprovado com ressalvas</div>
+    </div>
+    <div class="print-highlight-summary">
+      <p><strong>Veredito:</strong> Base LGPD e documentação legal implementadas. Quatro itens residuais de atenção — sem críticos.</p>
+      <ul>
+        <li>21 itens avaliados · 17 conformes · 0 não conformes · 0 críticos · 4 em atenção</li>
+        <li>Evolução v1→v2: 38% (2 críticos) → 81% (0 críticos)</li>
+        <li>Resumo numérico: resumo-numerico-site-atual.html</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="topbar no-print">
+    <a class="link-back" href="resumo-numerico-site-atual.html">← Resumo numérico</a>
+    <div class="pills">
+      <span class="pill pill-emp">Empresa B2B</span>
+      <span class="pill pill-lgpd">LGPD</span>
+      <span class="pill pill-cdc">CDC + Marco Civil</span>
+    </div>
+    <button type="button" class="btn-print" onclick="window.print()" title="Imprimir ou salvar como PDF">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="6 9 6 2 18 2 18 9"/>
+        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+        <rect x="6" y="14" width="12" height="8"/>
+      </svg>
+      Imprimir PDF
+    </button>
+  </div>
+
+  <div class="header no-print">
+    <h1>Relatório de Conformidade — <em>Veltro Digital</em></h1>
+    <p class="header-sub">
+      Auditoria remota do site institucional de agência de transformação digital.
+      Classificação: <strong>Empresa B2B — agência digital</strong> (não profissional liberal regulado).
+      Bases aplicadas: LGPD, CDC (Art. 30–31), Marco Civil da Internet.
+      Reauditoria pós-correções (commit <code>ee206c0</code>).
+    </p>
+    <div class="header-meta">
+      <div class="meta-item"><label>Empresa</label><span>Veltro Digital</span></div>
+      <div class="meta-item"><label>URL Auditada</label><span>www.veltrodigital.com.br</span></div>
+      <div class="meta-item"><label>Segmento</label><span>Agência digital / IA / Dev</span></div>
+      <div class="meta-item"><label>Data</label><span>25/06/2026</span></div>
+      <div class="meta-item"><label>Páginas analisadas</label><span>index, medicos, advogados, esporte, arquitetura + legais</span></div>
+      <div class="meta-item"><label>Versão</label><span>2.0 — Reauditoria</span></div>
+    </div>
+  </div>
+
+  <div class="scoreboard no-print">
+    <div class="score-card conformes"><div class="score-num">17</div><div class="score-label">Conformes</div></div>
+    <div class="score-card atencao"><div class="score-num">4</div><div class="score-label">Atenção</div></div>
+    <div class="score-card falhas"><div class="score-num">0</div><div class="score-label">Não conformes</div></div>
+    <div class="score-card criticos"><div class="score-num">0</div><div class="score-label">Críticos</div></div>
+  </div>
+
+  <div class="veredito no-print">
+    <div class="veredito-icon">🟡</div>
+    <div class="veredito-text">
+      <h2>APROVADO COM RESSALVAS — 81%</h2>
+      <p>
+        O site evoluiu significativamente desde a auditoria v1 (38%, 2 críticos). A base LGPD está implementada: Política de Privacidade publicada com transferência internacional (WhatsApp/Meta), Termos de Uso, página LGPD, consentimento em todos os formulários das 5 páginas, DPO identificado e referências normativas atualizadas (CFM 2.336/2023, OAB 205/2021). Permanecem <strong>4 itens de atenção</strong> residuais — CNPJ ausente, depoimentos de saúde na home, copy B2B em medicos.html e portfólio com clientes de saúde — sem bloqueadores legais ativos.
+      </p>
+    </div>
+  </div>
+
+  <div class="compare-box no-print">
+    <div class="compare-header">Evolução v1 → v2 (comparativo)</div>
+    <div style="overflow-x:auto;">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th>v1 (24/06/2026)</th>
+            <th>v2 atual (25/06/2026)</th>
+            <th>Δ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Índice de conformidade</td>
+            <td>38% (8/21)</td>
+            <td><strong>81% (17/21)</strong></td>
+            <td><span class="risk-pill risk-baixo">+43 p.p.</span></td>
+          </tr>
+          <tr>
+            <td>Itens críticos</td>
+            <td>2 (política ausente, CFM desatualizada)</td>
+            <td><strong>0</strong></td>
+            <td><span class="risk-pill risk-baixo">Resolvido</span></td>
+          </tr>
+          <tr>
+            <td>Não conformes</td>
+            <td>6</td>
+            <td><strong>0</strong></td>
+            <td><span class="risk-pill risk-baixo">Resolvido</span></td>
+          </tr>
+          <tr>
+            <td>Em atenção</td>
+            <td>5</td>
+            <td><strong>4</strong></td>
+            <td><span class="risk-pill risk-baixo">−1</span></td>
+          </tr>
+          <tr>
+            <td>Infrações mapeadas</td>
+            <td>6</td>
+            <td><strong>0</strong></td>
+            <td><span class="risk-pill risk-baixo">Exposição baixa</span></td>
+          </tr>
+          <tr>
+            <td>Principais correções</td>
+            <td colspan="3">Política de Privacidade · Termos · LGPD · consentimento · CFM 2.336/2023 · remoção de promessas 100%/98%/3x · DPO · sitemap.xml</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Seção 1 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num">1</div>
+      <div class="section-title">LGPD — Privacidade e Proteção de Dados</div>
+      <span>▼</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">HTTPS com HSTS ativo</div>
+          <div class="item-desc">Site servido via HTTPS na Vercel com <code>strict-transport-security: max-age=63072000</code>. Conforme Art. 46 LGPD (medidas de segurança).</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Política de Privacidade publicada</div>
+          <div class="item-desc">Página <code>politica-de-privacidade.html</code> acessível pelo rodapé. Documenta finalidades, bases legais, direitos do titular e <strong>transferência internacional de dados</strong> via WhatsApp/Meta (operador terceiro). Corrigido desde v1 (link quebrado).</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Termos de Uso publicados</div>
+          <div class="item-desc">Página dedicada de Termos de Uso linkada no rodapé de todas as páginas. Adequado para prestadora de serviços digitais B2B.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Página LGPD dedicada</div>
+          <div class="item-desc">Terceiro link legal no rodapé aponta para documento LGPD específico, alinhado ao discurso comercial de conformidade inclusa nos projetos.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Consentimento em todos os formulários (5 páginas)</div>
+          <div class="item-desc">Checkbox obrigatório de aceite à Política de Privacidade implementado em <code>index.html</code>, <code>medicos.html</code>, <code>advogados.html</code>, <code>esporte.html</code> e <code>arquitetura.html</code> antes do redirect ao WhatsApp via <code>main.js</code>.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Sem cookies de rastreamento</div>
+          <div class="item-desc">Análise de <code>js/main.js</code> e <code>js/config.js</code>: ausência de Google Analytics, gtag ou pixels no site institucional. Banner de cookies não obrigatório no estado atual — implementar se GA4 for adicionado.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Encarregado de Dados (DPO) identificado</div>
+          <div class="item-desc">Canal <strong>privacidade@veltrodigital.com.br</strong> publicado na Política de Privacidade para exercício de direitos do titular (acesso, exclusão, portabilidade).</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção 2 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num">2</div>
+      <div class="section-title">CDC e Marco Civil — Transparência Empresarial</div>
+      <span>▼</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Informações de contato verificáveis</div>
+          <div class="item-desc">WhatsApp <strong>(11) 98644-6779</strong>, e-mail <strong>contato@veltrodigital.com.br</strong> e e-mails segmentados (medicos@, advogados@, etc.) via <code>config.js</code>. Redes Instagram e LinkedIn funcionais.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>⚠️</div>
+        <div>
+          <div class="item-title">CNPJ e razão social não preenchidos</div>
+          <div class="item-desc">Campos <code>legalName</code>, <code>responsible</code> e endereço em São Paulo permanecem vazios em <code>js/config.js</code>. Rodapé exibe apenas <em>"© 2026 VeltroDigital"</em>. Marco Civil (Art. 7º, VIII) e CDC recomendam identificação clara do fornecedor.</div>
+          <span class="item-action">Preencher CNPJ, razão social e endereço em config.js</span>
+        </div>
+        <span class="item-badge badge-warn">ATENÇÃO</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Modelo B2B sem preços públicos</div>
+          <div class="item-desc">Serviços sob consultoria personalizada, sem tabela de preços fixa. Modelo adequado; propostas comerciais formalizadas em contrato.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Identificação do responsável / fundador</div>
+          <div class="item-desc">Seção "Sobre" identifica <strong>Leandro Oliveira</strong> como líder da agência, com experiência declarada. Boa prática de transparência empresarial.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção 3 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num">3</div>
+      <div class="section-title">Conformidade Regulatória — Promessas comerciais (CFM/OAB)</div>
+      <span>▼</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Referência normativa CFM atualizada</div>
+          <div class="item-desc">FAQ e <code>medicos.html</code> citam corretamente a <strong>Resolução CFM 2.336/2023</strong> (vigente desde mar/2024). Corrigido desde v1 (1.974/2011 revogada).</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Ausência de promessas absolutas (100% / 98% / 3x)</div>
+          <div class="item-desc">Estatísticas enganosas removidas: <em>"98% Satisfação"</em>, <em>"100% Conformidade CFM/OAB"</em> e <em>"3x Mais pacientes"</em> não constam mais no site. Conforme CDC Art. 30.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Provimento OAB 205/2021 citado corretamente</div>
+          <div class="item-desc">Página <code>advogados.html</code> referencia corretamente o Provimento OAB 205/2021 em múltiplos pontos.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>⚠️</div>
+        <div>
+          <div class="item-title">Depoimentos de saúde com estrelas na home</div>
+          <div class="item-desc">Seção "Depoimentos" inclui relatos de médica e fisioterapeuta com estrelas. <strong>Permitido em site de agência</strong> (CDC), mas templates entregues a clientes de saúde não devem replicar esse formato (vedado pelo CFM 2.336/2023).</div>
+          <span class="item-action">Garantir que templates médicos não incluam depoimentos/estrelas</span>
+        </div>
+        <span class="item-badge badge-warn">ATENÇÃO</span>
+      </div>
+      <div class="item">
+        <div>⚠️</div>
+        <div>
+          <div class="item-title">Linguagem de captação em medicos.html</div>
+          <div class="item-desc"><code>medicos.html</code> utiliza copy B2B de captação (<em>"Atraia mais pacientes qualificados"</em>). <strong>Adequado para marketing da agência</strong>, mas o site entregue ao médico deve usar linguagem sóbria conforme CFM.</div>
+          <span class="item-action">Manter separação entre copy comercial (Veltro) e copy entregue (cliente)</span>
+        </div>
+        <span class="item-badge badge-warn">ATENÇÃO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção 4 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num">4</div>
+      <div class="section-title">Boas Práticas Técnicas e UX</div>
+      <span>▼</span>
+    </div>
+    <div class="section-body">
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Site estático performático (HTML/CSS/JS)</div>
+          <div class="item-desc">Arquitetura leve, sem dependências pesadas no carregamento inicial. Alinhado ao discurso de performance premium.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Formulários WhatsApp com consentimento</div>
+          <div class="item-desc">Envio redireciona para WhatsApp com dados estruturados após validação do checkbox LGPD. UX clara com mensagem de sucesso.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Meta tags, idioma e canonical</div>
+          <div class="item-desc"><code>lang="pt-BR"</code>, meta description, Open Graph e tag <code>canonical</code> presentes nas páginas principais.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>✅</div>
+        <div>
+          <div class="item-title">Sitemap.xml publicado</div>
+          <div class="item-desc">Arquivo <code>sitemap.xml</code> disponível na raiz do domínio, listando páginas indexáveis. Boa prática SEO e transparência de estrutura.</div>
+        </div>
+        <span class="item-badge badge-ok">CONFORME</span>
+      </div>
+      <div class="item">
+        <div>⚠️</div>
+        <div>
+          <div class="item-title">Portfólio exibe sites de clientes (saúde)</div>
+          <div class="item-desc">Imagens de exemplo incluem sites de médicos e clínicas. Verificar periodicamente se clientes do portfólio permanecem em conformidade CFM — responsabilidade compartilhada na cadeia de serviço.</div>
+          <span class="item-action">Auditar portfólio publicado a cada trimestre</span>
+        </div>
+        <span class="item-badge badge-warn">ATENÇÃO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção 5 -->
+  <div class="section">
+    <div class="section-header" onclick="toggle(this)">
+      <div class="section-num">5</div>
+      <div class="section-title">Penalidades, Multas e Consequências Jurídicas</div>
+      <span>▼</span>
+    </div>
+    <div class="section-body" style="padding:18px;">
+      <div class="penalty-intro">
+        <strong>Exposição atual:</strong> <span class="risk-pill risk-baixo">Baixa</span> —
+        0 infrações ativas mapeadas (0 não conformes, 0 críticos). As 4 pendências são de atenção preventiva, sem sanção iminente.
+        Tabelas abaixo são <strong>referência regulatória</strong> para monitoramento contínuo.
+      </div>
+
+      <table class="penalty-table" style="margin-bottom:16px;">
+        <thead>
+          <tr><th>Esfera / Autoridade</th><th>Consequência ou penalidade possível</th><th>Fundamentação legal</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ANPD / LGPD</td>
+            <td>Advertência · Multa até 2% do faturamento (teto R$ 50.000.000/infração) · Multa diária · Publicização · Bloqueio/eliminação de dados · Suspensão do tratamento (até 6 meses) · Proibição parcial/total</td>
+            <td>Lei 13.709/2018 Art. 52 · Res. CD/ANPD 4/2023</td>
+          </tr>
+          <tr>
+            <td>CDC / Procon</td>
+            <td>Multa administrativa · Recolhimento de produto/serviço · Publicidade enganosa ou abusiva · Indenização ao consumidor · Inversão do ônus da prova</td>
+            <td>CDC Arts. 6º, 30, 37, 42, 56–60</td>
+          </tr>
+          <tr>
+            <td>Marco Civil</td>
+            <td>Guarda de registros de acesso por 6 meses · Responsabilidade por dados em trânsito · Notificação de incidentes</td>
+            <td>Lei 12.965/2014 Arts. 9º, 10, 15</td>
+          </tr>
+          <tr>
+            <td>CFM (referência — clientes saúde)</td>
+            <td>Notificação CODAME · Processo Ético-Profissional · Suspensão até 30 dias · Cassação ad referendum</td>
+            <td>Res. CFM 2.336/2023 · Lei 3.268/57 Art. 22</td>
+          </tr>
+          <tr>
+            <td>OAB (referência — clientes advocacia)</td>
+            <td>Advertência · Repreensão · Suspensão · Exclusão · Multa administrativa seccional</td>
+            <td>Lei 8.906/94 · Prov. OAB 205/2021</td>
+          </tr>
+          <tr>
+            <td>Reputacional</td>
+            <td>Perda de credibilidade comercial · Impacto em captação B2B · Exposição em mídia ou redes</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="penalty-note">
+        <strong>Nota:</strong> Com 0 infrações ativas, nenhuma penalidade está em curso. Os itens de atenção (CNPJ, depoimentos, copy B2B, portfólio) representam risco <strong>médio preventivo</strong> — mitigável com as ações do plano residual abaixo.
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela resumo -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px;">
+    <div style="padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border);font-weight:700;font-size:14px;">Tabela Resumo</div>
+    <div style="overflow-x:auto;">
+      <table class="summary-table">
+        <thead><tr><th>Categoria</th><th>Status</th><th>Risco</th></tr></thead>
+        <tbody>
+          <tr><td>HTTPS / HSTS</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Política de Privacidade</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Termos de Uso / LGPD</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Consentimento em formulários</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>DPO identificado</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Cookies / rastreamento</td><td>✅ Conforme (ausente)</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>CNPJ / razão social</td><td>⚠️ Atenção</td><td><span class="risk-pill risk-medio">Médio</span></td></tr>
+          <tr><td>Referência CFM 2.336/2023</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Promessas absolutas removidas</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Provimento OAB 205/2021</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+          <tr><td>Depoimentos saúde (home)</td><td>⚠️ Atenção</td><td><span class="risk-pill risk-medio">Médio</span></td></tr>
+          <tr><td>Copy captação medicos.html</td><td>⚠️ Atenção</td><td><span class="risk-pill risk-medio">Médio</span></td></tr>
+          <tr><td>Portfólio clientes saúde</td><td>⚠️ Atenção</td><td><span class="risk-pill risk-medio">Médio</span></td></tr>
+          <tr><td>Sitemap / meta / canonical</td><td>✅ Conforme</td><td><span class="risk-pill risk-baixo">Baixo</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Plano de ação residual -->
+  <div class="action-plan">
+    <div class="action-plan-header">Plano de Ação — Itens Residuais</div>
+    <div class="action-group">
+      <div class="action-group-title">Até 15 dias</div>
+      <div class="action-item">
+        <div class="action-num">1</div>
+        <div><strong>CNPJ e razão social</strong> — Preencher <code>legalName</code>, <code>responsible</code> e endereço em <code>js/config.js</code>; exibir no rodapé de todas as páginas.</div>
+      </div>
+      <div class="action-item">
+        <div class="action-num">2</div>
+        <div><strong>Checklist de templates médicos</strong> — Documentar que depoimentos com estrelas da home Veltro não devem ser replicados em sites entregues a clientes de saúde.</div>
+      </div>
+    </div>
+    <div class="action-group">
+      <div class="action-group-title">Até 30 dias</div>
+      <div class="action-item">
+        <div class="action-num">3</div>
+        <div><strong>Separar copy comercial</strong> — Manter linguagem de captação em <code>medicos.html</code> (OK para agência), com guia interno para copy sóbrio nos projetos entregues.</div>
+      </div>
+      <div class="action-item">
+        <div class="action-num">4</div>
+        <div><strong>Auditar portfólio</strong> — Revisar periodicamente sites de clientes de saúde exibidos no portfólio com o skill site-compliance-audit.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Nota:</strong> Relatório orientativo baseado em análise remota de <strong>www.veltrodigital.com.br</strong> em 25/06/2026 (commit ee206c0). Classificação: empresa/agência B2B (LGPD + CDC + Marco Civil). Não substitui assessoria jurídica. Índice de conformidade: <strong>81%</strong> (17/21 itens) — Aprovado com Ressalvas, 0 críticos. Evolução desde v1: 38% → 81%, críticos 2 → 0. Resumo numérico em <a href="resumo-numerico-site-atual.html" style="color:var(--primary);">resumo-numerico-site-atual.html</a>.
+  </div>
+
+  <div class="footer screen-footer no-print">
+    <p>Auditoria gerada pelo skill <strong>site-compliance-audit</strong> · 25/06/2026 · CONF-VEL-2026-002-DET</p>
+  </div>
+
+  <footer class="print-doc-footer print-only">
+    <span class="legal">Documento orientativo. Não substitui parecer jurídico nem parecer do conselho profissional. Validar com assessoria especializada.</span>
+    <span>CONF-VEL-2026-002-DET · v2.0</span>
+  </footer>
+
+</div>
+
+<script>
+  function toggle(h) {
+    const b = h.nextElementSibling;
+    b.style.display = b.style.display === 'none' ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>

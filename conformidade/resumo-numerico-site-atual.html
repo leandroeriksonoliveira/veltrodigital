@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumo numérico — Conformidade site-atual | Veltro Digital</title>
+  <style>
+    :root {
+      --bg: #0c0e18;
+      --surface: #121528;
+      --border: #2a3055;
+      --primary: #00C6FF;
+      --accent: #A855F7;
+      --danger: #e84545;
+      --warning: #f39c12;
+      --success: #27c96e;
+      --text: #e4e9f8;
+      --muted: #8b96b8;
+      --radius: 12px;
+      --print-navy: #1a365d;
+      --print-text: #1a1a1a;
+      --print-muted: #4a4a4a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px 16px 64px;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn-print {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .link-back { color: var(--primary); font-size: 13px; text-decoration: none; }
+    .link-back:hover { text-decoration: underline; }
+    .print-only { display: none; }
+    .header {
+      background: linear-gradient(135deg, #0c1228, #151d3a);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    .header h1 { font-size: 22px; margin-bottom: 6px; }
+    .header p { color: var(--muted); font-size: 14px; }
+    .badge {
+      display: inline-block;
+      margin-top: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(243, 156, 18, 0.4);
+      color: var(--warning);
+      background: rgba(243, 156, 18, 0.1);
+    }
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .section-head {
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      border-bottom: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      padding: 14px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    tr:last-child td { border-bottom: none; }
+    td.num {
+      text-align: right;
+      font-weight: 700;
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+    td.num.danger { color: var(--danger); }
+    td.num.warning { color: var(--warning); }
+    td.num.success { color: var(--success); }
+    td.num.primary { color: var(--primary); }
+    .footer { margin-top: 24px; font-size: 13px; color: var(--muted); }
+    .footer a { color: var(--primary); }
+
+/*
+  Impressão profissional — site-compliance-audit
+  Copiar o bloco @media print INTEIRO para relatório detalhado e resumo numérico.
+  Variáveis :root obrigatórias: --print-navy, --print-text, --print-muted
+*/
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 16mm 18mm 20mm 18mm;
+  }
+
+  html, body {
+    width: 100%;
+    height: auto;
+    background: #fff !important;
+    color: var(--print-text) !important;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .wrap {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  /* ── Masthead ── */
+  .print-masthead {
+    border-bottom: 2.5pt solid var(--print-navy);
+    padding-bottom: 10pt;
+    margin-bottom: 14pt;
+  }
+
+  .print-masthead-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16pt;
+    margin-bottom: 8pt;
+  }
+
+  .print-masthead-brand {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 1.2pt;
+    text-transform: uppercase;
+    color: var(--print-navy) !important;
+  }
+
+  .print-masthead-ref {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8pt;
+    color: var(--print-muted) !important;
+    text-align: right;
+    line-height: 1.5;
+  }
+
+  .print-masthead h1 {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 17pt;
+    font-weight: 700;
+    color: var(--print-text) !important;
+    margin: 0 0 4pt;
+    line-height: 1.2;
+  }
+
+  .print-masthead-sub {
+    font-size: 10pt;
+    color: var(--print-muted) !important;
+  }
+
+  .print-masthead-sub strong {
+    color: var(--print-text) !important;
+    font-weight: 600;
+  }
+
+  /* ── Highlight score + síntese ── */
+  .print-highlight {
+    display: flex;
+    align-items: stretch;
+    border: 1pt solid #b0b8c4;
+    margin-bottom: 14pt;
+    page-break-inside: avoid;
+  }
+
+  .print-highlight-score {
+    flex: 0 0 28%;
+    background: #f0f4f8 !important;
+    border-right: 1pt solid #b0b8c4;
+    padding: 12pt 14pt;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .print-highlight-score .label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8pt;
+    color: var(--print-muted) !important;
+    margin-bottom: 4pt;
+  }
+
+  .print-highlight-score .value {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 28pt;
+    font-weight: 800;
+    color: #8b0000 !important;
+    line-height: 1;
+  }
+
+  .print-highlight-score .value.ok { color: #14532d !important; }
+  .print-highlight-score .value.warn { color: #7c4a03 !important; }
+
+  .print-highlight-score .status {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #8b0000 !important;
+    margin-top: 4pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5pt;
+  }
+
+  .print-highlight-summary {
+    flex: 1;
+    padding: 12pt 14pt;
+    font-size: 9.5pt;
+    color: var(--print-text) !important;
+  }
+
+  .print-highlight-summary p { margin-bottom: 6pt; }
+  .print-highlight-summary p:last-child { margin-bottom: 0; }
+  .print-highlight-summary ul { margin: 6pt 0 0 14pt; padding: 0; }
+  .print-highlight-summary li { margin-bottom: 3pt; }
+
+  /* ── Ocultar chrome de tela ── */
+  .topbar,
+  .header,
+  .scoreboard,
+  .veredito { display: none !important; }
+
+  /* ── Seções (detalhado + resumo) ── */
+  .section {
+    background: #fff !important;
+    border: 1pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    margin-bottom: 12pt !important;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+  .section-head,
+  .section-header {
+    background: #fff !important;
+    color: #1a365d !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0.9pt;
+    text-transform: uppercase;
+    padding: 7pt 12pt 7pt 10pt !important;
+    border-bottom: 1.5pt solid #1a365d !important;
+    border-left: 4pt solid #1a365d !important;
+    border-radius: 0 !important;
+    cursor: default;
+  }
+
+  .section-num,
+  .section-header span:last-child { display: none !important; }
+
+  .section-title {
+    color: #1a365d !important;
+    font-size: 8.5pt !important;
+    font-weight: 700 !important;
+  }
+
+  .section-body {
+    border: none !important;
+    background: #fff !important;
+  }
+
+  /* ── Itens de checklist ── */
+  .item {
+    display: grid !important;
+    grid-template-columns: 18pt 1fr auto !important;
+    gap: 8pt !important;
+    padding: 8pt 12pt !important;
+    border-bottom: 0.5pt solid #d4dae0 !important;
+    background: #fff !important;
+    page-break-inside: avoid;
+  }
+
+  .item:nth-child(even) { background: #f7f9fb !important; }
+
+  .item-title {
+    color: var(--print-text) !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 9.5pt !important;
+    font-weight: 600 !important;
+  }
+
+  .item-desc {
+    color: var(--print-muted) !important;
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
+  }
+
+  .item-desc strong { color: var(--print-text) !important; }
+
+  .item-action {
+    background: #eef2f7 !important;
+    border: 0.5pt solid #b0b8c4 !important;
+    color: #1a365d !important;
+    font-size: 8pt !important;
+    padding: 2pt 5pt !important;
+  }
+
+  .item-badge {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 7pt !important;
+    padding: 2pt 6pt !important;
+    border-radius: 10pt !important;
+    border: 0.5pt solid #999 !important;
+    background: #fff !important;
+    color: var(--print-text) !important;
+  }
+
+  .badge-critical { color: #8b0000 !important; border-color: #8b0000 !important; }
+  .badge-fail { color: #8b0000 !important; }
+  .badge-warn { color: #7c4a03 !important; }
+  .badge-ok { color: #14532d !important; }
+
+  /* ── Tabelas ── */
+  .summary-table,
+  .penalty-table,
+  table {
+    font-size: 9pt;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .summary-table th,
+  .penalty-table th,
+  table th {
+    background: #e8edf2 !important;
+    color: var(--print-text) !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 8pt;
+    font-weight: 700;
+    padding: 6pt 10pt !important;
+    border-bottom: 1pt solid #9aa5b4 !important;
+    text-transform: uppercase;
+  }
+
+  .summary-table td,
+  .penalty-table td,
+  table td {
+    color: var(--print-text) !important;
+    padding: 6pt 10pt !important;
+    border-bottom: 0.5pt solid #d4dae0 !important;
+    vertical-align: top;
+    background: #fff !important;
+  }
+
+  tbody tr:nth-child(even) td { background: #f7f9fb !important; }
+  tbody tr:last-child td { border-bottom: none !important; }
+
+  .penalty-table td:first-child { font-weight: 600; white-space: nowrap; }
+
+  td.num {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13pt;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  td.num.danger { color: #8b0000 !important; }
+  td.num.warning { color: #7c4a03 !important; }
+  td.num.success { color: #14532d !important; }
+  td.num.primary { color: #1e3a8a !important; }
+
+  .risk-pill {
+    font-size: 7.5pt !important;
+    padding: 1pt 5pt !important;
+    border: 0.5pt solid #999 !important;
+    background: #fff !important;
+    color: var(--print-text) !important;
+  }
+
+  /* ── Penalidades / plano / disclaimer ── */
+  .penalty-intro,
+  .penalty-note {
+    background: #f7f9fb !important;
+    border: 0.5pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    color: var(--print-text) !important;
+    font-size: 9pt !important;
+    padding: 8pt 10pt !important;
+    margin-bottom: 10pt !important;
+  }
+
+  .penalty-intro strong,
+  .penalty-note strong { color: var(--print-text) !important; }
+
+  .action-plan {
+    border: 1pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    page-break-inside: avoid;
+  }
+
+  .action-plan-header {
+    background: #e8edf2 !important;
+    color: #1a365d !important;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 9pt;
+    font-weight: 700;
+    border-bottom: 1pt solid #9aa5b4 !important;
+  }
+
+  .action-group-title { font-size: 8.5pt !important; }
+  .action-item { font-size: 9pt !important; color: var(--print-text) !important; }
+
+  .disclaimer {
+    background: #f7f9fb !important;
+    border: 0.5pt solid #b0b8c4 !important;
+    border-radius: 0 !important;
+    color: var(--print-muted) !important;
+    font-size: 8.5pt !important;
+    page-break-inside: avoid;
+  }
+
+  .disclaimer strong { color: var(--print-text) !important; }
+
+  .screen-footer,
+  .footer { display: none !important; }
+
+  /* ── Rodapé fixo ── */
+  .print-doc-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6pt 18mm 0;
+    border-top: 0.5pt solid #b0b8c4;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 7.5pt;
+    color: var(--print-muted) !important;
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+  }
+
+  .print-doc-footer .legal {
+    max-width: 72%;
+    line-height: 1.35;
+  }
+
+  body { padding-bottom: 22mm !important; }
+
+  a { color: var(--print-text) !important; text-decoration: none; }
+  code { font-size: 8.5pt; background: #eef2f7 !important; padding: 0 3pt; }
+}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <div class="topbar no-print">
+      <a class="link-back" href="relatorio-detalhado-site-atual.html">← Relatório completo</a>
+      <button class="btn-print" onclick="window.print()">Imprimir / Salvar PDF</button>
+    </div>
+
+    <header class="print-masthead print-only">
+      <div class="print-masthead-top">
+        <div class="print-masthead-brand">Auditoria de Conformidade Digital</div>
+        <div class="print-masthead-ref">
+          Ref. CONF-VEL-2026-002<br />
+          25 de junho de 2026<br />
+          Uso interno
+        </div>
+      </div>
+      <h1>Resumo numérico — Não conformidades e penalidades</h1>
+      <p class="print-masthead-sub">
+        <strong>Profissional:</strong> Veltro Digital · Agência B2B<br />
+        <strong>Site analisado:</strong> www.veltrodigital.com.br<br />
+        <strong>Base normativa:</strong> LGPD Lei 13.709/2018 · CDC · Marco Civil da Internet<br />
+        <strong>Commit:</strong> ee206c0
+      </p>
+    </header>
+
+    <div class="print-highlight print-only">
+      <div class="print-highlight-score">
+        <div class="label">Conformidade do site</div>
+        <div class="value warn">81%</div>
+        <div class="status">Aprovado com ressalvas</div>
+      </div>
+      <div class="print-highlight-summary">
+        <p><strong>Síntese:</strong> Site institucional com base LGPD implementada (política, termos, consentimento, DPO). Quatro itens residuais de atenção — sem críticos nem não conformidades.</p>
+        <ul>
+          <li>21 itens avaliados · 0 em não conformidade · 0 críticos · 4 em atenção · 17 conformes</li>
+          <li>0 infrações ativas mapeadas — exposição jurídica baixa</li>
+          <li>Multa LGPD: até 2% do faturamento (teto R$ 50.000.000/infração)</li>
+        </ul>
+      </div>
+    </div>
+
+    <header class="header no-print">
+      <h1>Resumo numérico — Conformidade</h1>
+      <p>Site: www.veltrodigital.com.br</p>
+      <p style="margin-top:4px">Veltro Digital · 25/06/2026 · commit ee206c0</p>
+      <span class="badge">Aprovado com ressalvas — 81%</span>
+    </header>
+
+    <section class="section">
+      <div class="section-head">Não conformidades</div>
+      <table>
+        <thead><tr><th>Indicador</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Índice de conformidade</td><td class="num warning">81%</td></tr>
+          <tr><td>Total de itens avaliados</td><td class="num primary">21</td></tr>
+          <tr><td>Itens em não conformidade</td><td class="num success">0</td></tr>
+          <tr><td>Itens críticos</td><td class="num success">0</td></tr>
+          <tr><td>Itens em atenção</td><td class="num warning">4</td></tr>
+          <tr><td>Itens conformes</td><td class="num success">17</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <div class="section-head">Penalidades e multas (possíveis)</div>
+      <table>
+        <thead><tr><th>Indicador</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Infrações mapeadas (ativas)</td><td class="num success">0</td></tr>
+          <tr><td>Riscos de gravidade alta</td><td class="num success">0</td></tr>
+          <tr><td>Riscos de gravidade média</td><td class="num warning">4</td></tr>
+          <tr><td>Riscos reputacionais</td><td class="num warning">1</td></tr>
+          <tr><td>Exposição jurídica atual</td><td class="num success">Baixa</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <div class="section-head">CDC / Marco Civil (referência)</div>
+      <table>
+        <thead><tr><th>Sanção</th><th style="text-align:right">Quantidade / limite</th></tr></thead>
+        <tbody>
+          <tr><td>Tipos de sanção administrativa (CDC)</td><td class="num primary">5</td></tr>
+          <tr><td>Multas consumeristas (Procon/CDC)</td><td class="num primary">Conforme caso</td></tr>
+          <tr><td>Guarda de logs (Marco Civil)</td><td class="num primary">6 meses</td></tr>
+          <tr><td>Publicidade enganosa (CDC Art. 37)</td><td class="num primary">Referência</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <div class="section-head">ANPD / LGPD</div>
+      <table>
+        <thead><tr><th>Sanção</th><th style="text-align:right">Quantidade / limite</th></tr></thead>
+        <tbody>
+          <tr><td>Multa máxima (% faturamento)</td><td class="num danger">2%</td></tr>
+          <tr><td>Teto por infração</td><td class="num danger">R$ 50.000.000</td></tr>
+          <tr><td>Multa pessoa física (infração grave)</td><td class="num danger">R$ 12.000</td></tr>
+          <tr><td>Tipos de sanção LGPD mapeados</td><td class="num primary">7</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="footer screen-footer no-print">
+      Detalhes em <a href="relatorio-detalhado-site-atual.html">relatorio-detalhado-site-atual.html</a>
+    </p>
+
+    <footer class="print-doc-footer print-only">
+      <span class="legal">Documento orientativo. Não substitui parecer jurídico nem parecer do conselho profissional. Validar com assessoria especializada.</span>
+      <span>CONF-VEL-2026-002 · v2.0</span>
+    </footer>
+
+  </div>
+</body>
+</html>

@@ -37,7 +37,17 @@
           <a href="arquitetura.html"><span class="icon">📐</span> Arquitetura &amp; Engenharia</a>
         </div>
       </li>
-      <li><a href="#servicos">Serviços</a></li>
+      <li class="dropdown">
+        <a href="#" role="button" aria-haspopup="true">Serviços</a>
+        <div class="dropdown-menu">
+          <a href="#servicos"><span class="icon">📋</span> Todos os serviços</a>
+          <a href="#servico-aquisicao"><span class="icon">🎯</span> Aquisição de Clientes</a>
+          <a href="#servico-presenca"><span class="icon">🌐</span> Sites &amp; Presença Digital</a>
+          <a href="#servico-estrutura"><span class="icon">⚙️</span> Estrutura Digital &amp; Sistemas</a>
+          <a href="#conformidade" class="dropdown-highlight"><span class="icon">🛡️</span> Conformidade Digital</a>
+          <a href="#servico-ia"><span class="icon">🤖</span> Consultoria em IA</a>
+        </div>
+      </li>
       <li><a href="#contato">Contato</a></li>
       <li><a href="#contato" class="nav-cta">Consultoria Grátis</a></li>
     </ul>
@@ -50,12 +60,12 @@
   <div class="hero-orb orb2"></div>
   <div class="container">
     <div class="hero-content">
-      <div class="hero-badge anim-1"><span class="dot"></span>Marketing Digital · Estrutura · Aquisição de Clientes</div>
-      <h1 class="anim-2">Presença digital, estrutura e<br/><span class="gradient-text">aquisição de clientes</span> para escalar seu negócio</h1>
-      <p class="anim-3">A Veltro Digital estrutura empresas com sites de alta performance, processos digitais organizados e estratégias de captação de leads — para você crescer com previsibilidade no online.</p>
+      <div class="hero-badge anim-1"><span class="dot"></span>Sites · Conformidade LGPD · Aquisição de Clientes</div>
+      <h1 class="anim-2">Presença digital, <span class="gradient-text">conformidade</span> e<br/>aquisição de clientes para escalar seu negócio</h1>
+      <p class="anim-3">A Veltro Digital estrutura empresas com sites de alta performance, relatório de conformidade digital (LGPD, Marco Civil e órgãos reguladores) e estratégias de captação de leads — para você crescer com segurança jurídica e previsibilidade no online.</p>
       <div class="hero-actions anim-4">
         <a href="#contato" class="btn btn-primary btn-lg">Solicitar Consultoria Gratuita ↗</a>
-        <a href="#segmentos" class="btn btn-outline btn-lg">Ver Segmentos</a>
+        <a href="#conformidade" class="btn btn-outline btn-lg">Relatório de Conformidade</a>
       </div>
       <div class="hero-stats anim-4">
         <div class="stat-item"><div class="stat-number">30+</div><div class="stat-label">Anos de experiência do fundador</div></div>
@@ -114,11 +124,37 @@
 <section id="servicos" style="background:rgba(0,0,0,0.2);">
   <div class="container">
     <div class="text-center mb-40">
-      <span class="section-tag reveal">Nossos Pilares</span>
-      <p class="reveal section-lead" data-delay="100">Três frentes integradas para posicionar sua empresa, organizar a operação e atrair clientes qualificados.</p>
+      <span class="section-tag reveal">Nossos Serviços</span>
+      <h2 class="reveal" data-delay="100">Soluções digitais completas para o seu negócio</h2>
+      <p class="reveal section-lead" data-delay="150">Sites, sistemas, IA, aquisição de clientes e conformidade regulatória — tudo integrado para você crescer com segurança.</p>
     </div>
+
+    <div id="conformidade" class="service-featured compliance-featured reveal">
+      <div class="about-grid" style="gap:40px;align-items:center;">
+        <div>
+          <span class="section-tag compliance">Destaque · Conformidade Digital</span>
+          <h2 class="subsection-title" style="margin-top:12px;">Relatório de Conformidade Digital</h2>
+          <p style="margin-bottom:14px;">Auditoria completa do seu site contra as exigências da <strong style="color:var(--white);">LGPD</strong>, do <strong style="color:var(--white);">Marco Civil da Internet</strong>, do <strong style="color:var(--white);">CDC</strong> e dos órgãos reguladores da sua profissão — CFM, OAB, CREA, CAU e demais conselhos aplicáveis.</p>
+          <p style="margin-bottom:14px;">Sites fora das normas podem sofrer <strong style="color:var(--white);">penalidades já previstas em lei</strong>: multas da ANPD (até 2% do faturamento, limitadas a R$ 50 milhões por infração), advertências públicas, bloqueio de dados e sanções ético-disciplinares em conselhos de classe.</p>
+          <ul class="about-features">
+            <li>Checklist técnico e jurídico com priorização de riscos</li>
+            <li>LGPD, Marco Civil e normas CFM, OAB e reguladores setoriais</li>
+            <li>Plano de ação com correções recomendadas e prazos sugeridos</li>
+          </ul>
+          <p style="margin-top:16px;font-size:0.85rem;color:var(--text-muted);">Relatório orientativo para gestão de riscos digitais. Não substitui parecer jurídico individualizado.</p>
+          <div style="margin-top:24px;"><a href="#contato" class="btn btn-primary">Solicitar relatório de conformidade →</a></div>
+        </div>
+        <div class="systems-showcase">
+          <div class="system-card"><h4>LGPD · ANPD</h4><p>Advertência, multa simples ou diária, publicização da infração e bloqueio ou eliminação de dados (Art. 52).</p></div>
+          <div class="system-card"><h4>Marco Civil da Internet</h4><p>Responsabilidade civil e sanções por violação de privacidade e tratamento inadequado de dados.</p></div>
+          <div class="system-card"><h4>CFM · OAB · Conselhos</h4><p>Publicidade irregular pode gerar advertências, suspensões e outras sanções disciplinares.</p></div>
+          <div class="system-card"><h4>Índice de conformidade</h4><p>Relatório numerado com itens conformes, em atenção e não conformes.</p></div>
+        </div>
+      </div>
+    </div>
+
     <div class="cards-grid cards-grid-services">
-      <div class="card service-card reveal">
+      <div id="servico-aquisicao" class="card service-card reveal">
         <div class="service-card-content">
           <span class="card-icon">🎯</span>
           <h2>Aquisição de Clientes</h2>
@@ -131,7 +167,7 @@
           </div>
         </div>
       </div>
-      <div class="card service-card reveal" data-delay="100">
+      <div id="servico-presenca" class="card service-card reveal" data-delay="100">
         <div class="service-card-content">
           <span class="card-icon">🌐</span>
           <h2>Presença Digital</h2>
@@ -144,7 +180,7 @@
           </div>
         </div>
       </div>
-      <div class="card service-card reveal" data-delay="200">
+      <div id="servico-estrutura" class="card service-card reveal" data-delay="200">
         <div class="service-card-content">
           <span class="card-icon">⚙️</span>
           <h2>Estrutura Digital</h2>
@@ -160,42 +196,11 @@
     </div>
     <div class="text-center" style="margin-top:40px;">
       <a href="#contato" class="btn btn-primary btn-lg">Entre em contato para o seu negócio →</a>
-      <p style="margin-top:16px;font-size:0.9rem;color:var(--text-muted);">Já tem um site? <a href="#conformidade" style="color:var(--accent);text-decoration:none;font-weight:600;">Solicite o Relatório de Conformidade Digital</a></p>
     </div>
   </div>
 </section>
 
-<section id="conformidade" class="section-compact">
-  <div class="container">
-    <div class="about-grid" style="gap:48px;align-items:center;">
-      <div class="reveal">
-        <span class="section-tag compliance">Conformidade Digital</span>
-        <h2 class="subsection-title">Relatório de Conformidade Digital</h2>
-        <p style="margin-bottom:16px;">Auditoria completa do seu site contra as exigências da <strong style="color:var(--white);">LGPD</strong>, do <strong style="color:var(--white);">Marco Civil da Internet</strong>, do <strong style="color:var(--white);">CDC</strong> e dos órgãos reguladores da sua profissão — CFM, OAB, CREA, CAU e demais conselhos aplicáveis ao seu segmento.</p>
-        <p style="margin-bottom:16px;">O relatório mapeia riscos antes que virem problema. Sites fora das normas podem sofrer <strong style="color:var(--white);">penalidades já previstas em lei</strong>: multas da ANPD (até 2% do faturamento, limitadas a R$ 50 milhões por infração), advertências públicas, bloqueio ou eliminação de dados, e — para profissionais regulados — sanções ético-disciplinares junto ao conselho de classe.</p>
-        <ul class="about-features">
-          <li>Checklist técnico e jurídico com priorização de riscos</li>
-          <li>LGPD: privacidade, consentimento, cookies e transferência de dados</li>
-          <li>Marco Civil: responsabilidade por conteúdo, dados e registros de acesso</li>
-          <li>Normas CFM, OAB e reguladores setoriais da sua profissão</li>
-          <li>Plano de ação com correções recomendadas e prazos sugeridos</li>
-        </ul>
-        <p style="margin-top:20px;font-size:0.85rem;color:var(--text-muted);">Relatório orientativo para gestão de riscos digitais. Não substitui parecer jurídico individualizado.</p>
-        <div style="margin-top:28px;"><a href="#contato" class="btn btn-primary">Solicitar relatório de conformidade →</a></div>
-      </div>
-      <div class="reveal" data-delay="150">
-        <div class="systems-showcase">
-          <div class="system-card"><h4>LGPD · ANPD</h4><p>Advertência, multa simples ou diária, publicização da infração e bloqueio ou eliminação de dados (Art. 52 da Lei 13.709/2018).</p></div>
-          <div class="system-card"><h4>Marco Civil da Internet</h4><p>Responsabilidade civil e sanções por violação de privacidade, guarda de registros e tratamento inadequado de dados pessoais.</p></div>
-          <div class="system-card"><h4>CFM · OAB · Conselhos</h4><p>Publicidade irregular e descumprimento de resoluções podem gerar advertências, suspensões e outras sanções disciplinares.</p></div>
-          <div class="system-card"><h4>Índice de conformidade</h4><p>Relatório numerado com itens conformes, em atenção e não conformes — objetivo para tomada de decisão.</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section-compact">
+<section id="servico-ia" class="section-compact">
   <div class="container">
     <div class="about-grid" style="gap:48px;align-items:center;">
       <div class="reveal">
@@ -313,6 +318,7 @@
         <li><a href="index.html#sobre">Sobre nós</a></li>
         <li><a href="index.html#servicos">Serviços</a></li>
         <li><a href="index.html#conformidade">Conformidade Digital</a></li>
+        <li><a href="index.html#servico-ia">Consultoria em IA</a></li>
         <li><a href="index.html#contato">Contato</a></li>
       </ul></div>
       <div class="footer-links"><h4>Segmentos</h4><ul>

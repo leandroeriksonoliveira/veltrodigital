@@ -66,6 +66,7 @@ section.section-tight { padding:32px 0; }
 .section-tag.gym { color:var(--gym-accent); background:rgba(255,76,76,0.08);  border-color:rgba(255,76,76,0.2); }
 .section-tag.arch { color:var(--arch-accent); background:rgba(74,144,217,0.08); border-color:rgba(74,144,217,0.2); }
 .section-tag.ai { color:var(--ai-accent); background:rgba(168,85,247,0.08); border-color:rgba(168,85,247,0.2); }
+.section-tag.compliance { color:#22c55e; background:rgba(34,197,94,0.08); border-color:rgba(34,197,94,0.2); }
 
 /* NAVBAR */
 .navbar { position:fixed; top:0; left:0; width:100%; z-index:1000; padding:18px 0; transition:var(--transition); }

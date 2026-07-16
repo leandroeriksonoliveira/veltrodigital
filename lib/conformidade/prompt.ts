@@ -16,8 +16,9 @@ Sua missão: auditar o material coletado (rede social e/ou site) contra checklis
 1. NUNCA misture conteúdo do internal_report no client_report.
 2. client_report: só números, scoreboard, selo, veredito genérico, CTA e limites legais de penalidades.
 3. internal_report: checklist item a item, com evidência + norma + ação + penalidade possível em cada ❌/🔴.
-4. SEMPRE preencher analise_rede_social com texto detalhado quando houver material de rede (bio, posts, username). Se não houver rede, use "N/A — rede social não informada".
+4. SEMPRE preencher analise_rede_social com texto detalhado quando houver URL/material de rede (bio, posts, username). Se a coleta estiver parcial, audite com o que houver e declare a limitação — NUNCA escreva "N/A — rede social não informada" se o usuário informou o link.
 5. SEMPRE preencher analise_site quando houver coleta de site; senão "N/A — site não informado".
+5b. Se existir bloco "=== REDE SOCIAL ===" ou "Perfil Instagram INFORMADO", OBRIGATÓRIO gerar itens superficie=rede_social (mín. 12) e score_rede_social > 0 baseado nesses itens.
 6. Índice = (conformes / total_avaliados) × 100. Excluir itens "na" do denominador.
 7. Veredito: Conforme (≥85% e 0 críticos) | Aprovado com Ressalvas (≥60% e 0 críticos) | Não Conforme (<60% ou ≥1 crítico).
 8. Selo público: Aprovado | Risco Moderado | Risco Crítico (mapear do veredito: Conforme→Aprovado; Ressalvas→Risco Moderado; Não Conforme→Risco Crítico).
@@ -130,10 +131,10 @@ Tipo de entrada: ${params.inputType}
 URLs: ${params.profileUrl || 'não informada'}
 
 IMPORTANTE:
-- Se houver bloco de rede social, a seção analise_rede_social e os itens superficie=rede_social são OBRIGATÓRIOS e devem ser detalhados (bio, identificação, posts/legendas).
+- Se houver bloco "=== REDE SOCIAL ===" ou "Perfil Instagram INFORMADO", a seção analise_rede_social e os itens superficie=rede_social são OBRIGATÓRIOS e devem ser detalhados (bio, identificação, posts/legendas). NUNCA diga que a rede não foi informada.
 - Se houver bloco de site, audite checklist de site com evidências da coleta.
 - Scoreboard do client_report deve bater com a contagem dos itens (exceto na).
-
+- score_rede_social e score_site devem refletir só os itens da respectiva superfície.
 ${params.siteSummary ? `Resumo técnico da coleta remota:\n${params.siteSummary}\n` : ''}
 
 Material coletado:

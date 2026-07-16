@@ -1,6 +1,6 @@
 /**
- * Coleta pública de perfis sociais — Instagram via endpoint web público
- * (mesmo usado pelo site do Instagram) + fallback HTML/meta.
+ * Coleta pública de perfis sociais — Instagram com API + fallback HTML mobile
+ * (og:title / description costumam trazer bio quando a API retorna 401).
  */
 
 export interface SocialEvidence {
@@ -15,6 +15,7 @@ export interface SocialEvidence {
   textSample: string;
   summary: string;
   collectionNotes: string[];
+  collectionQuality: 'full' | 'partial' | 'minimal';
 }
 
 function stripHtml(html: string): string {
@@ -39,9 +40,23 @@ function decodeEntities(s: string): string {
   return s
     .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(/&#39;|&apos;/g, "'")
     .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
+    .replace(/&gt;/g, '>')
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => {
+      try {
+        return String.fromCodePoint(parseInt(h, 16));
+      } catch {
+        return '';
+      }
+    })
+    .replace(/&#(\d+);/g, (_, d) => {
+      try {
+        return String.fromCodePoint(Number(d));
+      } catch {
+        return '';
+      }
+    });
 }
 
 export function isInstagramUrl(url: string): boolean {
@@ -102,8 +117,11 @@ export function extractInstagramUsername(url: string): string {
   return '';
 }
 
-const BROWSER_UA =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+const DESKTOP_UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+const MOBILE_UA =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 /** App-ID público do Instagram Web — usado pelo próprio site. */
 const IG_WEB_APP_ID = '936619743392459';
@@ -134,27 +152,38 @@ type IgUser = {
 };
 
 async function fetchInstagramProfileJson(username: string): Promise<IgUser | null> {
-  const res = await fetch(
+  const endpoints = [
     `https://i.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`,
-    {
-      headers: {
-        'User-Agent': BROWSER_UA,
-        Accept: '*/*',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-        'X-IG-App-ID': IG_WEB_APP_ID,
-        Referer: 'https://www.instagram.com/',
-        Origin: 'https://www.instagram.com',
-      },
-      signal: AbortSignal.timeout(20000),
+    `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`,
+  ];
+
+  let lastErr = 'desconhecido';
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        headers: {
+          'User-Agent': DESKTOP_UA,
+          Accept: '*/*',
+          'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+          'X-IG-App-ID': IG_WEB_APP_ID,
+          'X-Requested-With': 'XMLHttpRequest',
+          Referer: `https://www.instagram.com/${username}/`,
+          Origin: 'https://www.instagram.com',
+        },
+        signal: AbortSignal.timeout(18000),
+      });
+      if (!res.ok) {
+        lastErr = `HTTP ${res.status}`;
+        continue;
+      }
+      const data = (await res.json()) as { data?: { user?: IgUser } };
+      if (data?.data?.user) return data.data.user;
+      lastErr = 'usuário vazio';
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : 'erro';
     }
-  );
-
-  if (!res.ok) {
-    throw new Error(`Instagram API HTTP ${res.status}`);
   }
-
-  const data = (await res.json()) as { data?: { user?: IgUser } };
-  return data?.data?.user || null;
+  throw new Error(`Instagram API indisponível (${lastErr})`);
 }
 
 function captionsFromUser(user: IgUser, limit = 8): string[] {
@@ -176,7 +205,71 @@ function captionsFromUser(user: IgUser, limit = 8): string[] {
   return out;
 }
 
-async function fetchHtmlMetaFallback(url: string): Promise<{
+/** Extrai bio do meta description do Instagram: `... no Instagram: "bio"` */
+function extractBioFromMetaDescription(desc: string): string {
+  const decoded = decodeEntities(desc);
+  const m =
+    decoded.match(/no Instagram:\s*"([\s\S]+)"\s*$/i) ||
+    decoded.match(/on Instagram:\s*"([\s\S]+)"\s*$/i);
+  if (m?.[1]) return m[1].trim();
+  // Às vezes vem sem aspas finais limpas
+  const m2 = decoded.match(/no Instagram:\s*([\s\S]+)$/i);
+  if (m2?.[1] && m2[1].length > 20 && !/^\d/.test(m2[1])) {
+    return m2[1].replace(/^"|"$/g, '').trim();
+  }
+  return '';
+}
+
+function extractFollowersHint(text: string): string {
+  const m =
+    text.match(/([\d.,]+[KkMm]?)\s+seguidores?/i) ||
+    text.match(/([\d.,]+[KkMm]?)\s+[Ff]ollowers?/i);
+  return m?.[0] || '';
+}
+
+async function fetchInstagramHtmlProfile(username: string): Promise<{
+  finalUrl: string;
+  title: string;
+  ogDescription: string;
+  metaDescription: string;
+  bio: string;
+  htmlSample: string;
+}> {
+  const url = `https://www.instagram.com/${username}/`;
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': MOBILE_UA,
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Cache-Control': 'no-cache',
+    },
+    redirect: 'follow',
+    signal: AbortSignal.timeout(20000),
+  });
+  const html = await res.text();
+  const title = decodeEntities(
+    metaContent(html, 'og:title') ||
+      (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
+        ? stripHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)![1])
+        : '')
+  );
+  const ogDescription = decodeEntities(metaContent(html, 'og:description'));
+  const metaDescription = decodeEntities(metaContent(html, 'description'));
+  const bio =
+    extractBioFromMetaDescription(metaDescription) ||
+    extractBioFromMetaDescription(ogDescription);
+
+  return {
+    finalUrl: res.url || url,
+    title: title.slice(0, 300),
+    ogDescription,
+    metaDescription,
+    bio,
+    htmlSample: stripHtml(html).slice(0, 2500),
+  };
+}
+
+async function fetchGenericHtmlMeta(url: string): Promise<{
   finalUrl: string;
   title: string;
   description: string;
@@ -184,7 +277,7 @@ async function fetchHtmlMetaFallback(url: string): Promise<{
 }> {
   const res = await fetch(url, {
     headers: {
-      'User-Agent': BROWSER_UA,
+      'User-Agent': DESKTOP_UA,
       Accept: 'text/html',
       'Accept-Language': 'pt-BR,pt;q=0.9',
     },
@@ -192,13 +285,16 @@ async function fetchHtmlMetaFallback(url: string): Promise<{
     signal: AbortSignal.timeout(15000),
   });
   const html = await res.text();
-  const title =
-    decodeEntities(metaContent(html, 'og:title')) ||
-    (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
-      ? stripHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)![1]).slice(0, 200)
-      : '');
+  const title = decodeEntities(
+    metaContent(html, 'og:title') ||
+      (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]
+        ? stripHtml(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)![1]).slice(0, 200)
+        : '')
+  );
   const description = decodeEntities(
-    metaContent(html, 'og:description') || metaContent(html, 'twitter:description')
+    metaContent(html, 'og:description') ||
+      metaContent(html, 'description') ||
+      metaContent(html, 'twitter:description')
   );
   return {
     finalUrl: res.url || url,
@@ -206,6 +302,52 @@ async function fetchHtmlMetaFallback(url: string): Promise<{
     description,
     textSample: stripHtml(html).slice(0, 4000),
   };
+}
+
+function buildEvidence(params: {
+  normalized: string;
+  finalUrl: string;
+  platform: 'instagram' | 'outro';
+  username: string;
+  title: string;
+  description: string;
+  bio: string;
+  followersHint: string;
+  textSample: string;
+  notes: string[];
+  collectionQuality: 'full' | 'partial' | 'minimal';
+}): SocialEvidence {
+  const evidence: SocialEvidence = {
+    url: params.normalized,
+    finalUrl: params.finalUrl,
+    platform: params.platform,
+    username: params.username,
+    title: params.title,
+    description: params.description,
+    bio: params.bio,
+    followersHint: params.followersHint,
+    textSample: params.textSample.slice(0, 16000),
+    summary: '',
+    collectionNotes: params.notes,
+    collectionQuality: params.collectionQuality,
+  };
+
+  evidence.summary = [
+    `Plataforma: ${params.platform}`,
+    `URL: ${params.finalUrl}`,
+    `Username: ${params.username ? `@${params.username}` : 'n/d'}`,
+    `Nome/título: ${params.title || 'n/d'}`,
+    `Bio: ${params.bio || 'n/d'}`,
+    `Descrição pública: ${params.description || 'n/d'}`,
+    `Alcance: ${params.followersHint || 'n/d'}`,
+    `Qualidade da coleta: ${params.collectionQuality}`,
+    params.notes.length ? `Notas: ${params.notes.join(' | ')}` : '',
+    'IMPORTANTE: A rede social FOI INFORMADA pelo usuário. NÃO diga que a rede não foi informada.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return evidence;
 }
 
 export async function fetchSocialProfileEvidence(url: string): Promise<SocialEvidence> {
@@ -217,11 +359,10 @@ export async function fetchSocialProfileEvidence(url: string): Promise<SocialEvi
   const notes: string[] = [];
 
   if (platform === 'instagram' && usernameFromUrl) {
+    // 1) API oficial web (quando não bloqueada)
     try {
       const user = await fetchInstagramProfileJson(usernameFromUrl);
-      if (!user) {
-        notes.push('Endpoint Instagram retornou usuário vazio.');
-      } else {
+      if (user) {
         const bio = (user.biography || '').trim();
         const fullName = (user.full_name || '').trim();
         const username = user.username || usernameFromUrl;
@@ -232,7 +373,8 @@ export async function fetchSocialProfileEvidence(url: string): Promise<SocialEvi
         const category = user.category_name || user.business_category_name || '';
 
         const textParts = [
-          `Perfil Instagram: @${username}`,
+          `Perfil Instagram INFORMADO pelo usuário: @${username}`,
+          `URL: https://www.instagram.com/${username}/`,
           fullName ? `Nome público: ${fullName}` : '',
           bio ? `Bio:\n${bio}` : '',
           category ? `Categoria: ${category}` : '',
@@ -244,12 +386,12 @@ export async function fetchSocialProfileEvidence(url: string): Promise<SocialEvi
           user.is_verified ? 'Verificado: sim' : 'Verificado: não',
           captions.length
             ? `Legendas recentes (amostra pública):\n\n${captions.join('\n\n---\n\n')}`
-            : 'Sem legendas recentes coletadas.',
+            : 'Sem legendas recentes coletadas nesta rodada.',
+          'Instrução ao auditor: auditar TODOS os itens RS-* da rede social com base neste material. NÃO marcar rede como não informada.',
         ].filter(Boolean);
 
-        const textSample = textParts.join('\n\n').slice(0, 16000);
-        const evidence: SocialEvidence = {
-          url: normalized,
+        return buildEvidence({
+          normalized,
           finalUrl: `https://www.instagram.com/${username}/`,
           platform: 'instagram',
           username,
@@ -257,128 +399,126 @@ export async function fetchSocialProfileEvidence(url: string): Promise<SocialEvi
           description: bio,
           bio,
           followersHint: typeof followers === 'number' ? `${followers} seguidores` : '',
-          textSample,
-          summary: '',
-          collectionNotes: [
-            'Coleta via endpoint público web_profile_info do Instagram.',
-            ...notes,
-          ],
-        };
-
-        evidence.summary = [
-          `Plataforma: instagram`,
-          `URL: ${evidence.finalUrl}`,
-          `Username: @${username}`,
-          `Nome: ${fullName || 'n/d'}`,
-          `Bio: ${bio || 'n/d'}`,
-          `Seguidores: ${followers ?? 'n/d'}`,
-          `Posts amostrados: ${captions.length}`,
-          user.is_private ? 'ATENÇÃO: perfil privado — conteúdo limitado.' : '',
-        ]
-          .filter(Boolean)
-          .join('\n');
-
-        return evidence;
+          textSample: textParts.join('\n\n'),
+          notes: ['Coleta completa via web_profile_info.', ...notes],
+          collectionQuality: captions.length || bio ? 'full' : 'partial',
+        });
       }
     } catch (err) {
       notes.push(
-        `Falha na API Instagram (${err instanceof Error ? err.message : 'erro'}); tentando fallback HTML.`
+        `API Instagram indisponível (${err instanceof Error ? err.message : 'erro'}); usando HTML público.`
       );
     }
-  }
 
-  // Fallback: meta HTML (ou redes não-Instagram)
-  try {
-    const meta = await fetchHtmlMetaFallback(normalized);
-    const username = usernameFromUrl;
-    const textSample = [
-      username ? `Username: @${username}` : '',
-      meta.title ? `Título: ${meta.title}` : '',
-      meta.description ? `Descrição pública: ${meta.description}` : '',
-      `URL: ${meta.finalUrl}`,
-      meta.textSample ? `Amostra HTML: ${meta.textSample}` : '',
-      platform === 'instagram'
-        ? 'Observação: coleta completa indisponível; analisar com base nos metadados e riscos típicos de perfis profissionais.'
-        : '',
-    ]
-      .filter(Boolean)
-      .join('\n\n');
+    // 2) Fallback HTML mobile (og + meta description com bio)
+    try {
+      const html = await fetchInstagramHtmlProfile(usernameFromUrl);
+      const bio = html.bio;
+      const followersHint =
+        extractFollowersHint(html.ogDescription) || extractFollowersHint(html.metaDescription);
+      const textParts = [
+        `Perfil Instagram INFORMADO pelo usuário: @${usernameFromUrl}`,
+        `URL: https://www.instagram.com/${usernameFromUrl}/`,
+        html.title ? `Nome/título público: ${html.title}` : '',
+        bio ? `Bio pública coletada:\n${bio}` : '',
+        html.ogDescription ? `Resumo público (og:description): ${html.ogDescription}` : '',
+        html.metaDescription && html.metaDescription !== html.ogDescription
+          ? `Meta description: ${html.metaDescription}`
+          : '',
+        followersHint ? `Indicador de alcance: ${followersHint}` : '',
+        'Fonte: página pública do Instagram (metadados). Legendas de posts podem estar limitadas nesta coleta.',
+        'Instrução ao auditor: a rede social FOI informada. Avaliar itens RS-* (identificação, bio, proibições éticas, LGPD) com o material acima. NÃO escrever "rede social não informada".',
+      ].filter(Boolean);
 
-    if (!meta.description && platform === 'instagram') {
-      notes.push('Metadados limitados — Instagram pode exigir revisão humana complementar.');
+      const quality: 'full' | 'partial' | 'minimal' = bio
+        ? 'partial'
+        : html.ogDescription || html.title
+          ? 'partial'
+          : 'minimal';
+
+      if (!bio) notes.push('Bio completa não veio na API; usamos metadados públicos da página.');
+
+      return buildEvidence({
+        normalized,
+        finalUrl: `https://www.instagram.com/${usernameFromUrl}/`,
+        platform: 'instagram',
+        username: usernameFromUrl,
+        title: html.title || `@${usernameFromUrl}`,
+        description: html.metaDescription || html.ogDescription,
+        bio: bio || html.metaDescription || html.ogDescription,
+        followersHint,
+        textSample: textParts.join('\n\n'),
+        notes,
+        collectionQuality: quality,
+      });
+    } catch (err) {
+      notes.push(`HTML Instagram falhou: ${err instanceof Error ? err.message : 'erro'}`);
     }
 
-    const evidence: SocialEvidence = {
-      url: normalized,
-      finalUrl: meta.finalUrl,
-      platform,
-      username,
-      title: meta.title,
-      description: meta.description,
-      bio: meta.description,
-      followersHint: '',
-      textSample:
-        textSample.length >= 40
-          ? textSample.slice(0, 14000)
-          : [
-              `Perfil social para análise de conformidade.`,
-              `Plataforma: ${platform}`,
-              username ? `Username: @${username}` : '',
-              `URL: ${meta.finalUrl}`,
-              `Conteúdo público limitado na coleta automática.`,
-            ]
-              .filter(Boolean)
-              .join('\n'),
-      summary: '',
-      collectionNotes: notes,
-    };
-
-    evidence.summary = [
-      `Plataforma: ${platform}`,
-      `URL: ${evidence.finalUrl}`,
-      `Username: ${username ? `@${username}` : 'n/d'}`,
-      `Título: ${meta.title || 'n/d'}`,
-      `Descrição: ${meta.description || 'n/d'}`,
-      notes.length ? `Notas: ${notes.join(' | ')}` : '',
-    ]
-      .filter(Boolean)
-      .join('\n');
-
-    return evidence;
-  } catch (err) {
-    const username = usernameFromUrl;
-    notes.push(`Fallback HTML falhou: ${err instanceof Error ? err.message : 'erro'}`);
-    const finalUrl =
-      platform === 'instagram' && username
-        ? `https://www.instagram.com/${username}/`
-        : normalized;
-
-    return {
-      url: normalized,
-      finalUrl,
-      platform,
-      username,
-      title: username ? `@${username}` : '',
+    // 3) Mínimo garantido — ainda assim força análise da rede
+    return buildEvidence({
+      normalized,
+      finalUrl: `https://www.instagram.com/${usernameFromUrl}/`,
+      platform: 'instagram',
+      username: usernameFromUrl,
+      title: `@${usernameFromUrl}`,
       description: '',
       bio: '',
       followersHint: '',
       textSample: [
-        `Perfil social para análise de conformidade digital.`,
-        `Plataforma: ${platform}`,
-        username ? `Username informado: @${username}` : '',
-        `URL: ${finalUrl}`,
-        `A coleta automática do conteúdo falhou. Avaliar riscos típicos de perfis profissionais na plataforma (identificação do conselho, promessa de resultado, depoimentos, antes/depois, LGPD) e marcar limitações no internal_report.`,
+        `Perfil Instagram INFORMADO pelo usuário: @${usernameFromUrl}`,
+        `URL: https://www.instagram.com/${usernameFromUrl}/`,
+        'A coleta automática de bio/posts falhou (bloqueio da plataforma).',
+        'Ainda assim, a rede social FOI informada. Auditar itens RS-* com base no username/contexto profissional e marcar limitações de evidência nos itens sem material textual.',
+        'NÃO escrever "rede social não informada" nem score_rede_social=0 por ausência de coleta.',
+      ].join('\n'),
+      notes,
+      collectionQuality: 'minimal',
+    });
+  }
+
+  // Outras redes: meta HTML
+  try {
+    const meta = await fetchGenericHtmlMeta(normalized);
+    return buildEvidence({
+      normalized,
+      finalUrl: meta.finalUrl,
+      platform: 'outro',
+      username: '',
+      title: meta.title,
+      description: meta.description,
+      bio: meta.description,
+      followersHint: '',
+      textSample: [
+        `Perfil social INFORMADO pelo usuário`,
+        `URL: ${meta.finalUrl}`,
+        meta.title ? `Título: ${meta.title}` : '',
+        meta.description ? `Descrição: ${meta.description}` : '',
+        meta.textSample ? `Amostra: ${meta.textSample}` : '',
+        'Instrução: auditar como rede social. NÃO marcar como não informada.',
       ]
         .filter(Boolean)
-        .join('\n'),
-      summary: [
-        `Plataforma: ${platform}`,
-        `URL: ${finalUrl}`,
-        `Username: ${username ? `@${username}` : 'n/d'}`,
-        `Coleta automática falhou.`,
-        `Notas: ${notes.join(' | ')}`,
+        .join('\n\n'),
+      notes,
+      collectionQuality: meta.description ? 'partial' : 'minimal',
+    });
+  } catch (err) {
+    notes.push(`Coleta HTML falhou: ${err instanceof Error ? err.message : 'erro'}`);
+    return buildEvidence({
+      normalized,
+      finalUrl: normalized,
+      platform: 'outro',
+      username: '',
+      title: '',
+      description: '',
+      bio: '',
+      followersHint: '',
+      textSample: [
+        `Perfil social INFORMADO: ${normalized}`,
+        'Coleta automática falhou. Auditar riscos típicos e registrar limitação de evidência.',
       ].join('\n'),
-      collectionNotes: notes,
-    };
+      notes,
+      collectionQuality: 'minimal',
+    });
   }
 }

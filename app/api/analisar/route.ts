@@ -8,11 +8,16 @@ import {
 } from '@/lib/conformidade/repository';
 import { runComplianceAnalysis } from '@/lib/conformidade/llm';
 import { fetchSiteEvidence } from '@/lib/conformidade/site-audit';
+import {
+  fetchSocialProfileEvidence,
+  isInstagramUrl,
+  isSocialUrl,
+} from '@/lib/conformidade/social-audit';
 import { notifyCommercial } from '@/lib/conformidade/notify';
-import { PROFESSION_LABELS, type Profession } from '@/lib/conformidade/types';
+import { PROFESSION_LABELS, type InputType, type Profession } from '@/lib/conformidade/types';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 const BodySchema = z.object({
   name: z.string().min(2).max(120),
@@ -30,13 +35,16 @@ const BodySchema = z.object({
     'arquiteto',
     'outro',
   ]),
-  profile_url: z.string().url().optional().or(z.literal('')),
-  input_type: z.enum(['texto', 'imagem', 'site', 'link_referencia']),
-  content_text: z.string().max(30000).optional(),
-  image_base64: z.string().max(4_000_000).optional(),
-  site_url: z.string().optional(),
+  profile_url: z.string().max(500).optional().default(''),
+  site_url: z.string().max(500).optional().default(''),
   consent: z.literal(true),
 });
+
+function normalizeUrl(url: string): string {
+  const t = url.trim();
+  if (!t) return '';
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,51 +61,79 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let contentText = (body.content_text || '').trim();
-    let siteSummary: string | undefined;
-    let profileUrl = body.profile_url || body.site_url || '';
-    let inputType = body.input_type;
+    let socialUrl = normalizeUrl(body.profile_url || '');
+    let siteUrl = normalizeUrl(body.site_url || '');
 
-    if (body.input_type === 'site' || body.site_url) {
-      const url = body.site_url || body.profile_url;
-      if (!url) {
-        return NextResponse.json({ error: 'Informe a URL do site institucional.' }, { status: 400 });
-      }
-      const evidence = await fetchSiteEvidence(url);
-      siteSummary = evidence.summary;
-      contentText = contentText
-        ? `${contentText}\n\n--- Conteúdo extraído do site ---\n${evidence.textSample}`
-        : evidence.textSample;
-      profileUrl = evidence.finalUrl;
-      inputType = 'site';
+    // Se o usuário colou o Instagram no campo do site (ou vice-versa), corrige
+    if (!socialUrl && siteUrl && isSocialUrl(siteUrl)) {
+      socialUrl = siteUrl;
+      siteUrl = '';
+    }
+    if (socialUrl && siteUrl && isSocialUrl(siteUrl) && !isSocialUrl(socialUrl)) {
+      const tmp = socialUrl;
+      socialUrl = siteUrl;
+      siteUrl = tmp;
+    }
+    if (siteUrl && isInstagramUrl(siteUrl) && !socialUrl) {
+      socialUrl = siteUrl;
+      siteUrl = '';
     }
 
-    if (body.input_type === 'link_referencia' && !contentText) {
+    if (!socialUrl && !siteUrl) {
       return NextResponse.json(
-        {
-          error:
-            'Por políticas das plataformas, não fazemos scraping automático. Cole a bio/post ou envie um print do conteúdo.',
-          code: 'MANUAL_CONTENT_REQUIRED',
-        },
+        { error: 'Informe o link da rede social e/ou do site.' },
         { status: 400 }
       );
     }
 
-    if (body.input_type === 'imagem' && body.image_base64) {
-      contentText =
-        contentText ||
-        '[Usuário enviou print/imagem do post. Analisar com base na descrição/texto fornecido junto à imagem e nas normas da profissão. Se o texto estiver vazio, indicar no internal_report a necessidade de revisão humana do print.]';
+    const contentParts: string[] = [];
+    const summaryParts: string[] = [];
+    let primaryUrl = socialUrl || siteUrl;
+
+    // Coleta rede + site em paralelo quando ambos existem
+    const tasks: Promise<void>[] = [];
+
+    if (socialUrl) {
+      tasks.push(
+        (async () => {
+          const evidence = await fetchSocialProfileEvidence(socialUrl);
+          primaryUrl = evidence.finalUrl;
+          summaryParts.push(`=== REDE SOCIAL ===\n${evidence.summary}`);
+          contentParts.push(`--- Conteúdo público da rede social ---\n${evidence.textSample}`);
+        })()
+      );
     }
+
+    if (siteUrl && !isSocialUrl(siteUrl)) {
+      tasks.push(
+        (async () => {
+          const evidence = await fetchSiteEvidence(siteUrl);
+          if (!socialUrl) primaryUrl = evidence.finalUrl;
+          summaryParts.push(`=== SITE INSTITUCIONAL ===\n${evidence.summary}`);
+          contentParts.push(`--- Conteúdo extraído do site ---\n${evidence.textSample}`);
+        })()
+      );
+    }
+
+    await Promise.all(tasks);
+
+    const contentText = contentParts.join('\n\n').trim();
+    const siteSummary = summaryParts.join('\n\n');
 
     if (!contentText || contentText.length < 20) {
       return NextResponse.json(
         {
           error:
-            'Envie o texto da bio/post, o conteúdo do site, ou uma descrição do print (mín. 20 caracteres).',
+            'Não foi possível coletar conteúdo público dos links. Verifique as URLs e tente novamente.',
         },
         { status: 400 }
       );
     }
+
+    let inputType: InputType = 'misto';
+    if (socialUrl && siteUrl && !isSocialUrl(siteUrl)) inputType = 'misto';
+    else if (socialUrl) inputType = 'link_referencia';
+    else inputType = 'site';
 
     const professionLabel = PROFESSION_LABELS[body.profession as Profession];
     const analysis = await runComplianceAnalysis({
@@ -105,7 +141,7 @@ export async function POST(req: NextRequest) {
       profession: body.profession,
       professionLabel,
       inputType,
-      profileUrl,
+      profileUrl: [socialUrl, siteUrl].filter(Boolean).join(' | '),
       contentText,
       siteSummary,
     });
@@ -115,7 +151,8 @@ export async function POST(req: NextRequest) {
       email: body.email || null,
       phone: body.phone || null,
       profession: body.profession,
-      profile_url: profileUrl || null,
+      profile_url: socialUrl || primaryUrl || null,
+      site_url: siteUrl && !isSocialUrl(siteUrl) ? siteUrl : null,
       input_type: inputType,
     });
 
@@ -131,7 +168,10 @@ export async function POST(req: NextRequest) {
       client_report_id: clientReport.id,
       profession: body.profession,
       report: ir,
-      raw_ai_response: analysis,
+      raw_ai_response: {
+        ...analysis,
+        collected_urls: { social: socialUrl || null, site: siteUrl || null },
+      },
     });
 
     await notifyCommercial({

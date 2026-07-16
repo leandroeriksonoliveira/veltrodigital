@@ -8,6 +8,7 @@ export type LeadRow = {
   phone: string | null;
   profession: string;
   profile_url: string | null;
+  site_url: string | null;
   input_type: string;
   created_at: string;
 };
@@ -44,17 +45,19 @@ export async function insertLead(input: {
   phone?: string | null;
   profession: string;
   profile_url?: string | null;
+  site_url?: string | null;
   input_type: string;
 }): Promise<LeadRow> {
   const sql = getSql();
   const rows = await sql`
-    INSERT INTO leads (name, email, phone, profession, profile_url, input_type)
+    INSERT INTO leads (name, email, phone, profession, profile_url, site_url, input_type)
     VALUES (
       ${input.name},
       ${input.email || null},
       ${input.phone || null},
       ${input.profession},
       ${input.profile_url || null},
+      ${input.site_url || null},
       ${input.input_type}
     )
     RETURNING *
@@ -126,6 +129,7 @@ export async function listLeadsWithReports(limit = 100) {
       l.phone,
       l.profession,
       l.profile_url,
+      l.site_url,
       l.input_type,
       l.created_at,
       c.score_geral,

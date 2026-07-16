@@ -10,7 +10,7 @@ export type Profession =
   | 'arquiteto'
   | 'outro';
 
-export type InputType = 'texto' | 'imagem' | 'site' | 'link_referencia';
+export type InputType = 'texto' | 'imagem' | 'site' | 'link_referencia' | 'misto';
 
 export type Selo = 'Aprovado' | 'Risco Moderado' | 'Risco Crítico';
 

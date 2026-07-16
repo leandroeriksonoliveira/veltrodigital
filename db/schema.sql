@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS leads (
   phone text,
   profession text NOT NULL,
   profile_url text,
-  input_type text NOT NULL CHECK (input_type IN ('texto', 'imagem', 'site', 'link_referencia')),
+  site_url text,
+  input_type text NOT NULL CHECK (input_type IN ('texto', 'imagem', 'site', 'link_referencia', 'misto')),
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

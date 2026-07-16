@@ -135,8 +135,11 @@ export default function AdminReportsPage() {
             </button>
             <h2 style={{ marginTop: 20 }}>{String(detail.lead?.name || '')}</h2>
             <p className="hint">
-              {String(detail.lead?.profession || '')} · {String(detail.lead?.email || 'sem e-mail')} ·{' '}
-              {String(detail.lead?.profile_url || 'sem URL')}
+              {String(detail.lead?.profession || '')} · {String(detail.lead?.email || 'sem e-mail')}
+              <br />
+              Rede: {String(detail.lead?.profile_url || '—')}
+              <br />
+              Site: {String(detail.lead?.site_url || '—')}
             </p>
 
             {detail.client_report && (

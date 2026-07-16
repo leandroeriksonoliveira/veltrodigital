@@ -34,6 +34,12 @@ Exigir identificação do registro profissional e vedar sensacionalismo / promes
 ### Sites institucionais (quando input_type=site)
 Avaliar também: política de privacidade, consentimento em formulários, cookies, HTTPS, identificação profissional, ausência de claims absolutos.
 
+### Perfis de rede social (quando input_type=link_referencia ou misto)
+O sistema pode enviar bio, nome público, categoria, link externo e legendas recentes coletadas do perfil. Avaliar identificação profissional, promessa de resultado, depoimentos, antes/depois, preços, sensacionalismo e LGPD com base nesse material público.
+
+### Análise combinada (quando input_type=misto)
+Avaliar rede social E site institucional juntos. O score deve refletir o conjunto; no internal_report, separe achados de rede vs site quando possível.
+
 ## CRITÉRIO DE SELO
 - Aprovado: score_geral >= 85 e sem indícios críticos
 - Risco Moderado: score_geral 60–84
@@ -91,9 +97,9 @@ export function buildUserPrompt(params: {
 Profissional: ${params.name}
 Profissão: ${params.professionLabel} (${params.profession})
 Tipo de entrada: ${params.inputType}
-URL de referência (apenas contexto humano, NÃO scrapear): ${params.profileUrl || 'não informada'}
+URL de referência / perfil: ${params.profileUrl || 'não informada'}
 
-${params.siteSummary ? `Resumo técnico do site institucional (coleta remota):\n${params.siteSummary}\n` : ''}
+${params.siteSummary ? `Resumo técnico da coleta remota (site ou perfil social):\n${params.siteSummary}\n` : ''}
 
 Conteúdo a analisar:
 """

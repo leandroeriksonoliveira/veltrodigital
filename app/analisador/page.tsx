@@ -3,8 +3,6 @@
 import { FormEvent, useMemo, useState } from 'react';
 import Link from 'next/link';
 
-type Mode = 'texto' | 'site' | 'link_referencia' | 'imagem';
-
 type ClientReport = {
   score_geral: number;
   score_lgpd: number;
@@ -41,11 +39,9 @@ function seloClass(selo: string) {
 }
 
 export default function AnalisadorPage() {
-  const [mode, setMode] = useState<Mode>('texto');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [report, setReport] = useState<ClientReport | null>(null);
-  const [imageBase64, setImageBase64] = useState<string>('');
 
   const waLink = useMemo(() => {
     const msg =
@@ -59,16 +55,22 @@ export default function AnalisadorPage() {
     setReport(null);
     setLoading(true);
     const fd = new FormData(e.currentTarget);
+    const profileUrl = String(fd.get('profile_url') || '').trim();
+    const siteUrl = String(fd.get('site_url') || '').trim();
+
+    if (!profileUrl && !siteUrl) {
+      setError('Informe ao menos o link da rede social ou do site.');
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       name: String(fd.get('name') || ''),
       email: String(fd.get('email') || ''),
       phone: String(fd.get('phone') || ''),
       profession: String(fd.get('profession') || ''),
-      profile_url: String(fd.get('profile_url') || ''),
-      site_url: String(fd.get('site_url') || ''),
-      content_text: String(fd.get('content_text') || ''),
-      input_type: mode,
-      image_base64: imageBase64 || undefined,
+      profile_url: profileUrl,
+      site_url: siteUrl,
       consent: true as const,
     };
 
@@ -88,19 +90,6 @@ export default function AnalisadorPage() {
     }
   }
 
-  function onFile(file?: File | null) {
-    if (!file) {
-      setImageBase64('');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result || '');
-      setImageBase64(result);
-    };
-    reader.readAsDataURL(file);
-  }
-
   return (
     <div className="shell">
       <div className="container">
@@ -115,14 +104,13 @@ export default function AnalisadorPage() {
 
         <span className="tag">Conformidade Digital</span>
         <h1>
-          Analisador de Conformidade
+          Análise rápida de
           <br />
-          em Redes e Sites
+          conformidade digital
         </h1>
         <p className="lead">
-          Avalie bio, posts ou site institucional com base em LGPD, Marco Civil da Internet e normas
-          do seu conselho de classe. Você recebe uma nota numérica e o panorama de penalidades
-          possíveis — sem expor o diagnóstico detalhado nesta tela.
+          Cole o link da sua rede social e, se tiver, o do site. Em poucos minutos você recebe as
+          notas — o relatório completo fica disponível para a equipe Veltro Digital.
         </p>
 
         {!report ? (
@@ -131,7 +119,7 @@ export default function AnalisadorPage() {
 
             <div className="grid-2">
               <div>
-                <label htmlFor="name">Nome completo</label>
+                <label htmlFor="name">Seu nome</label>
                 <input id="name" name="name" required placeholder="Dr(a). Seu nome" />
               </div>
               <div>
@@ -149,109 +137,29 @@ export default function AnalisadorPage() {
               </div>
             </div>
 
+            <label htmlFor="profile_url">Link da rede social</label>
+            <input
+              id="profile_url"
+              name="profile_url"
+              type="url"
+              placeholder="https://www.instagram.com/seu.perfil/"
+            />
+            <p className="hint">Instagram, LinkedIn, Facebook ou similar.</p>
+
+            <label htmlFor="site_url">Link do site (se tiver)</label>
+            <input id="site_url" name="site_url" type="url" placeholder="https://seusite.com.br" />
+            <p className="hint">Opcional. Se preencher, analisamos rede + site juntos.</p>
+
             <div className="grid-2">
-              <div>
-                <label htmlFor="email">E-mail (opcional)</label>
-                <input id="email" name="email" type="email" placeholder="seu@email.com" />
-              </div>
               <div>
                 <label htmlFor="phone">WhatsApp (opcional)</label>
                 <input id="phone" name="phone" placeholder="(11) 98644-6779" />
               </div>
+              <div>
+                <label htmlFor="email">E-mail (opcional)</label>
+                <input id="email" name="email" type="email" placeholder="seu@email.com" />
+              </div>
             </div>
-
-            <div className="tabs" role="tablist">
-              {(
-                [
-                  ['texto', 'Texto / bio / post'],
-                  ['site', 'Site institucional'],
-                  ['link_referencia', 'Link de perfil'],
-                  ['imagem', 'Print / imagem'],
-                ] as [Mode, string][]
-              ).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={`tab ${mode === id ? 'active' : ''}`}
-                  onClick={() => setMode(id)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {mode === 'site' && (
-              <>
-                <label htmlFor="site_url">URL do site</label>
-                <input id="site_url" name="site_url" placeholder="https://seusite.com.br" required />
-                <p className="hint">
-                  Coletamos evidências públicas (HTML) para cruzar com a skill de conformidade de
-                  sites — política, LGPD, identificação profissional etc.
-                </p>
-                <label htmlFor="content_text_site">Observações adicionais (opcional)</label>
-                <textarea id="content_text_site" name="content_text" placeholder="Contexto extra..." />
-              </>
-            )}
-
-            {mode === 'link_referencia' && (
-              <>
-                <label htmlFor="profile_url">Link do perfil (Instagram, LinkedIn, etc.)</label>
-                <input
-                  id="profile_url"
-                  name="profile_url"
-                  placeholder="https://instagram.com/seu.perfil"
-                />
-                <p className="hint">
-                  Não fazemos scraping automático (viola termos das plataformas). Cole abaixo a bio
-                  ou o texto do post — o link fica só como referência para nosso time comercial.
-                </p>
-                <label htmlFor="content_text_link">Cole a bio / texto do post</label>
-                <textarea
-                  id="content_text_link"
-                  name="content_text"
-                  required
-                  placeholder="Cole aqui o texto da bio, legendas ou roteiro..."
-                />
-              </>
-            )}
-
-            {mode === 'texto' && (
-              <>
-                <label htmlFor="profile_url_opt">Link de referência (opcional)</label>
-                <input id="profile_url_opt" name="profile_url" placeholder="https://..." />
-                <label htmlFor="content_text">Texto da bio, post ou roteiro</label>
-                <textarea
-                  id="content_text"
-                  name="content_text"
-                  required
-                  placeholder="Cole o conteúdo a analisar..."
-                />
-              </>
-            )}
-
-            {mode === 'imagem' && (
-              <>
-                <label htmlFor="image">Upload do print</label>
-                <input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(ev) => onFile(ev.target.files?.[0])}
-                />
-                <p className="hint">
-                  Descreva também o texto visível no print (OCR manual) para maior precisão da
-                  análise.
-                </p>
-                <label htmlFor="content_text_img">Texto visível no print</label>
-                <textarea
-                  id="content_text_img"
-                  name="content_text"
-                  required
-                  placeholder="Transcreva o texto do print..."
-                />
-                <input type="hidden" name="profile_url" value="" />
-              </>
-            )}
 
             <label className="consent">
               <input type="checkbox" name="consent" required />
@@ -266,7 +174,7 @@ export default function AnalisadorPage() {
             </label>
 
             <button className="btn" type="submit" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Analisando…' : 'Gerar nota de conformidade →'}
+              {loading ? 'Analisando seus links…' : 'Ver minha nota de conformidade →'}
             </button>
             <p className="disclaimer">
               Relatório orientativo. Não substitui parecer jurídico individualizado nem decisão de
@@ -275,8 +183,8 @@ export default function AnalisadorPage() {
           </form>
         ) : (
           <div className="card">
-            <span className="tag">Relatório do cliente</span>
-            <h2>Sua nota de conformidade</h2>
+            <span className="tag">Sua nota</span>
+            <h2>Resultado da conformidade</h2>
             <div className={`selo ${seloClass(report.selo)}`}>{report.selo}</div>
 
             <div className="scores">
@@ -306,7 +214,10 @@ export default function AnalisadorPage() {
                 <li>{report.penalidades_resumo.multa_anpd_max}</li>
                 <li>{report.penalidades_resumo.multa_pf_referencia}</li>
                 <li>{report.penalidades_resumo.suspensao_conselho}</li>
-                <li>{report.penalidades_resumo.sanções_eticas || (report.penalidades_resumo as { sancoes_eticas?: string }).sancoes_eticas}</li>
+                <li>
+                  {report.penalidades_resumo.sanções_eticas ||
+                    (report.penalidades_resumo as { sancoes_eticas?: string }).sancoes_eticas}
+                </li>
                 <li>{report.penalidades_resumo.riscos_imagem}</li>
               </ul>
             </div>
@@ -320,8 +231,8 @@ export default function AnalisadorPage() {
               </button>
             </div>
             <p className="disclaimer">
-              Os detalhes técnicos da análise ficam restritos à equipe Veltro Digital. Esta tela
-              exibe apenas a nota, o selo e os limites de penalidades previstos em lei.
+              O relatório completo (red flags, trechos e recomendações) fica disponível apenas para
+              a equipe Veltro Digital em /admin/reports.
             </p>
           </div>
         )}

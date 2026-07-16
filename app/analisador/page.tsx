@@ -57,21 +57,28 @@ export default function AnalisadorPage() {
     const fd = new FormData(e.currentTarget);
     const profileUrl = String(fd.get('profile_url') || '').trim();
     const siteUrl = String(fd.get('site_url') || '').trim();
+    const email = String(fd.get('email') || '').trim();
+    const phone = String(fd.get('phone') || '').trim();
 
     if (!profileUrl && !siteUrl) {
       setError('Informe ao menos o link da rede social ou do site.');
       setLoading(false);
       return;
     }
+    if (!email && !phone) {
+      setError('Informe ao menos um contato: WhatsApp ou e-mail.');
+      setLoading(false);
+      return;
+    }
 
     const payload = {
       name: String(fd.get('name') || ''),
-      email: String(fd.get('email') || ''),
-      phone: String(fd.get('phone') || ''),
+      email,
+      phone,
       profession: String(fd.get('profession') || ''),
       profile_url: profileUrl,
       site_url: siteUrl,
-      consent: true as const,
+      consent: fd.get('consent') === 'on',
     };
 
     try {
@@ -152,14 +159,15 @@ export default function AnalisadorPage() {
 
             <div className="grid-2">
               <div>
-                <label htmlFor="phone">WhatsApp (opcional)</label>
+                <label htmlFor="phone">WhatsApp</label>
                 <input id="phone" name="phone" placeholder="(11) 98644-6779" />
               </div>
               <div>
-                <label htmlFor="email">E-mail (opcional)</label>
+                <label htmlFor="email">E-mail</label>
                 <input id="email" name="email" type="email" placeholder="seu@email.com" />
               </div>
             </div>
+            <p className="hint">Informe pelo menos um contato: WhatsApp ou e-mail.</p>
 
             <label className="consent">
               <input type="checkbox" name="consent" required />

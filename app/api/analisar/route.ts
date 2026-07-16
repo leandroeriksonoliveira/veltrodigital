@@ -19,26 +19,31 @@ import { PROFESSION_LABELS, type InputType, type Profession } from '@/lib/confor
 export const runtime = 'nodejs';
 export const maxDuration = 90;
 
-const BodySchema = z.object({
-  name: z.string().min(2).max(120),
-  email: z.string().email().optional().or(z.literal('')),
-  phone: z.string().max(40).optional(),
-  profession: z.enum([
-    'medico',
-    'advogado',
-    'fisioterapeuta',
-    'psicologo',
-    'dentista',
-    'veterinario',
-    'enfermeiro',
-    'nutricionista',
-    'arquiteto',
-    'outro',
-  ]),
-  profile_url: z.string().max(500).optional().default(''),
-  site_url: z.string().max(500).optional().default(''),
-  consent: z.literal(true),
-});
+const BodySchema = z
+  .object({
+    name: z.string().trim().min(2).max(120),
+    email: z.string().trim().email().optional().or(z.literal('')),
+    phone: z.string().trim().max(40).optional().default(''),
+    profession: z.enum([
+      'medico',
+      'advogado',
+      'fisioterapeuta',
+      'psicologo',
+      'dentista',
+      'veterinario',
+      'enfermeiro',
+      'nutricionista',
+      'arquiteto',
+      'outro',
+    ]),
+    profile_url: z.string().max(500).optional().default(''),
+    site_url: z.string().max(500).optional().default(''),
+    consent: z.literal(true),
+  })
+  .refine((body) => Boolean(body.email || body.phone), {
+    message: 'Informe ao menos um contato: WhatsApp ou e-mail.',
+    path: ['phone'],
+  });
 
 function normalizeUrl(url: string): string {
   const t = url.trim();
@@ -203,7 +208,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'IA não configurada no servidor.' }, { status: 503 });
     }
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Dados inválidos.', details: err.flatten() }, { status: 400 });
+      const detail = err.issues[0]?.message;
+      return NextResponse.json(
+        { error: detail || 'Dados inválidos.', details: err.flatten() },
+        { status: 400 }
+      );
     }
     return NextResponse.json({ error: message }, { status: 500 });
   }

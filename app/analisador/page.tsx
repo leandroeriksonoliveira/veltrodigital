@@ -3,13 +3,30 @@
 import { FormEvent, useMemo, useState } from 'react';
 import Link from 'next/link';
 
+type Scoreboard = {
+  total_avaliados: number;
+  conformes: number;
+  atencao: number;
+  nao_conformes: number;
+  criticos: number;
+  indice: number;
+  infracoes_mapeadas: number;
+  riscos_alta: number;
+  riscos_media: number;
+  riscos_reputacionais: number;
+};
+
 type ClientReport = {
   score_geral: number;
   score_lgpd: number;
   score_marco_civil: number;
   score_etica_profissional: number;
+  score_rede_social?: number | null;
+  score_site?: number | null;
   selo: 'Aprovado' | 'Risco Moderado' | 'Risco Crítico';
+  veredito?: string;
   cta_generico: string;
+  scoreboard?: Scoreboard;
   penalidades_resumo: {
     multa_anpd_max: string;
     multa_pf_referencia: string;
@@ -97,6 +114,8 @@ export default function AnalisadorPage() {
     }
   }
 
+  const sb = report?.scoreboard;
+
   return (
     <div className="shell">
       <div className="container">
@@ -116,8 +135,8 @@ export default function AnalisadorPage() {
           conformidade digital
         </h1>
         <p className="lead">
-          Cole o link da sua rede social e, se tiver, o do site. Em poucos minutos você recebe as
-          notas — o relatório completo fica disponível para a equipe Veltro Digital.
+          Cole o link da sua rede social e, se tiver, o do site. Você recebe o resumo numérico; o
+          relatório completo fica com a equipe Veltro Digital.
         </p>
 
         {!report ? (
@@ -191,11 +210,46 @@ export default function AnalisadorPage() {
           </form>
         ) : (
           <div className="card">
-            <span className="tag">Sua nota</span>
+            <span className="tag">Resumo numérico</span>
             <h2>Resultado da conformidade</h2>
             <div className={`selo ${seloClass(report.selo)}`}>{report.selo}</div>
+            {report.veredito && (
+              <p className="hint" style={{ marginTop: 8 }}>
+                Veredito: <strong>{report.veredito}</strong>
+                {sb ? ` · Índice ${sb.indice}%` : ''}
+              </p>
+            )}
 
-            <div className="scores">
+            {sb && (
+              <div className="scores" style={{ marginTop: 20 }}>
+                <div className="score-box">
+                  <div className="n">{sb.indice}</div>
+                  <div className="l">Índice %</div>
+                </div>
+                <div className="score-box">
+                  <div className="n">{sb.total_avaliados}</div>
+                  <div className="l">Itens avaliados</div>
+                </div>
+                <div className="score-box">
+                  <div className="n">{sb.conformes}</div>
+                  <div className="l">Conformes</div>
+                </div>
+                <div className="score-box">
+                  <div className="n">{sb.atencao}</div>
+                  <div className="l">Atenção</div>
+                </div>
+                <div className="score-box">
+                  <div className="n">{sb.nao_conformes}</div>
+                  <div className="l">Não conformes</div>
+                </div>
+                <div className="score-box">
+                  <div className="n">{sb.criticos}</div>
+                  <div className="l">Críticos</div>
+                </div>
+              </div>
+            )}
+
+            <div className="scores" style={{ marginTop: 12 }}>
               <div className="score-box">
                 <div className="n">{report.score_geral}</div>
                 <div className="l">Geral</div>
@@ -210,11 +264,35 @@ export default function AnalisadorPage() {
               </div>
               <div className="score-box">
                 <div className="n">{report.score_etica_profissional}</div>
-                <div className="l">Ética profissional</div>
+                <div className="l">Ética</div>
               </div>
+              {typeof report.score_rede_social === 'number' && (
+                <div className="score-box">
+                  <div className="n">{report.score_rede_social}</div>
+                  <div className="l">Rede social</div>
+                </div>
+              )}
+              {typeof report.score_site === 'number' && (
+                <div className="score-box">
+                  <div className="n">{report.score_site}</div>
+                  <div className="l">Site</div>
+                </div>
+              )}
             </div>
 
-            <p>{report.cta_generico}</p>
+            {sb && (
+              <div className="penalties" style={{ marginTop: 16 }}>
+                <h2 style={{ fontSize: '1.1rem' }}>Riscos mapeados (números)</h2>
+                <ul>
+                  <li>Infrações mapeadas: {sb.infracoes_mapeadas}</li>
+                  <li>Riscos de gravidade alta: {sb.riscos_alta}</li>
+                  <li>Riscos de gravidade média: {sb.riscos_media}</li>
+                  <li>Riscos reputacionais: {sb.riscos_reputacionais}</li>
+                </ul>
+              </div>
+            )}
+
+            <p style={{ marginTop: 16 }}>{report.cta_generico}</p>
 
             <div className="penalties">
               <h2 style={{ fontSize: '1.2rem' }}>Penalidades possíveis (limites legais)</h2>
@@ -239,8 +317,8 @@ export default function AnalisadorPage() {
               </button>
             </div>
             <p className="disclaimer">
-              O relatório completo (red flags, trechos e recomendações) fica disponível apenas para
-              a equipe Veltro Digital em /admin/reports.
+              O relatório detalhado (checklist, evidências da rede social e do site, plano 7/15/30
+              dias) fica disponível apenas para a equipe Veltro Digital em /admin/reports.
             </p>
           </div>
         )}

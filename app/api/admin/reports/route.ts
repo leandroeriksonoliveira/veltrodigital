@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
       phone: row.phone,
       profession: row.profession,
       profile_url: row.profile_url,
+      site_url: row.site_url,
       input_type: row.input_type,
       created_at: row.created_at,
       score_geral: row.score_geral,

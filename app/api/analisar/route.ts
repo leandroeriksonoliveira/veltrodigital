@@ -196,8 +196,12 @@ export async function POST(req: NextRequest) {
         score_lgpd: cr.score_lgpd,
         score_marco_civil: cr.score_marco_civil,
         score_etica_profissional: cr.score_etica_profissional,
+        score_rede_social: cr.score_rede_social ?? null,
+        score_site: cr.score_site ?? null,
         selo: cr.selo,
+        veredito: cr.veredito,
         cta_generico: cr.cta_generico,
+        scoreboard: cr.scoreboard,
         penalidades_resumo: cr.penalidades_resumo,
       },
     });

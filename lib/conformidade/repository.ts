@@ -33,9 +33,18 @@ export type InternalReportRow = {
   profession: string;
   diagnostico_geral: string;
   red_flags: InternalReport['red_flags'];
-  penalidades_estimadas: InternalReport['penalidades_estimadas'];
+  penalidades_estimadas: InternalReport['penalidades_estimadas'] & {
+    scoreboard?: InternalReport['scoreboard'];
+    penalidades_tabela?: InternalReport['penalidades_tabela'];
+    plano_acao?: InternalReport['plano_acao'];
+    itens?: InternalReport['itens'];
+    analise_rede_social?: string;
+    analise_site?: string;
+    veredito?: string;
+  };
   recomendacoes_correcao: string;
   resumo_para_time_comercial: string;
+  raw_ai_response?: unknown;
   created_at: string;
 };
 
@@ -71,6 +80,13 @@ export async function insertClientReport(input: {
 }): Promise<ClientReportRow> {
   const sql = getSql();
   const r = input.report;
+  const penalidadesPack = {
+    ...r.penalidades_resumo,
+    scoreboard: r.scoreboard,
+    veredito: r.veredito,
+    score_rede_social: r.score_rede_social ?? null,
+    score_site: r.score_site ?? null,
+  };
   const rows = await sql`
     INSERT INTO client_reports (
       lead_id, score_geral, score_lgpd, score_marco_civil, score_etica_profissional,
@@ -84,7 +100,7 @@ export async function insertClientReport(input: {
       ${r.score_etica_profissional},
       ${r.selo},
       ${r.cta_generico},
-      ${JSON.stringify(r.penalidades_resumo)}::jsonb
+      ${JSON.stringify(penalidadesPack)}::jsonb
     )
     RETURNING *
   `;
@@ -100,6 +116,17 @@ export async function insertInternalReport(input: {
 }): Promise<void> {
   const sql = getSql();
   const r = input.report;
+  // Empacota campos novos da skill no jsonb existente (sem migration)
+  const penalidadesPack = {
+    ...r.penalidades_estimadas,
+    scoreboard: r.scoreboard,
+    penalidades_tabela: r.penalidades_tabela,
+    plano_acao: r.plano_acao,
+    itens: r.itens,
+    analise_rede_social: r.analise_rede_social,
+    analise_site: r.analise_site,
+    veredito: r.veredito,
+  };
   await sql`
     INSERT INTO internal_reports (
       lead_id, client_report_id, profession, diagnostico_geral, red_flags,
@@ -111,7 +138,7 @@ export async function insertInternalReport(input: {
       ${input.profession},
       ${r.diagnostico_geral},
       ${JSON.stringify(r.red_flags)}::jsonb,
-      ${JSON.stringify(r.penalidades_estimadas)}::jsonb,
+      ${JSON.stringify(penalidadesPack)}::jsonb,
       ${r.recomendacoes_correcao},
       ${r.resumo_para_time_comercial},
       ${JSON.stringify(input.raw_ai_response)}::jsonb

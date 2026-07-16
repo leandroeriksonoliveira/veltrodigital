@@ -1,56 +1,58 @@
-# VeltroDigital
+# Veltro Digital
 
-Site institucional da agência **Veltro Digital** — transformação digital para médicos, advogados e academias.
+Site institucional + **Analisador de Conformidade Digital** (Next.js).
 
-## Páginas
+## Stack
 
-| Rota | Arquivo |
-|------|---------|
-| `/` | `index.html` |
-| `/medicos` | `medicos.html` |
-| `/advogados` | `advogados.html` |
-| `/esporte` | `esporte.html` |
-| `/arquitetura` | `arquitetura.html` |
+- Páginas de marketing: HTML estático em `public/`
+- App Router: `/analisador` (cliente) e `/admin/reports` (interno)
+- API: `/api/analisar`, `/api/admin/*`
+- Banco: **Postgres Neon na Vercel Storage** (`db/schema.sql`)
+- IA: OpenAI (`gpt-4o`) ou Anthropic (Claude)
 
-## Desenvolvimento
+## Banco de dados (Vercel)
 
-Site estático (HTML, CSS e JavaScript). Contatos e links em `js/config.js`.
-
-```bash
-# Servir localmente (Python)
-python3 -m http.server 8080
-
-# Ou com npx
-npx serve .
-```
-
-## Publicar na Vercel
-
-1. Conecte o repositório GitHub no [dashboard da Vercel](https://vercel.com/new).
-2. Framework preset: **Other** (site estático).
-3. Deploy automático a cada push na branch `main`.
-
-Ou via CLI:
+1. No projeto Vercel → **Storage** → **Create Database** → **Neon**
+2. A variável `DATABASE_URL` (ou `POSTGRES_URL`) é injetada automaticamente
+3. Aplique o schema:
 
 ```bash
-npx vercel --prod
+# puxe as env do projeto
+vercel env pull .env.local --yes
+
+# rode o SQL no Neon Console (SQL Editor) colando db/schema.sql
+# ou via psql:
+psql "$DATABASE_URL" -f db/schema.sql
 ```
 
-## Domínio (www.veltrodigital.com.br)
+## Setup local
 
-O projeto está configurado na Vercel. No painel DNS do domínio (Registro.br ou provedor), adicione:
+```bash
+cp .env.example .env.local
+# preencha DATABASE_URL, OPENAI_API_KEY (ou ANTHROPIC) e ADMIN_PASSWORD
 
-| Tipo | Nome | Valor |
-|------|------|-------|
-| A | `@` | `76.76.21.21` |
-| A | `www` | `76.76.21.21` |
+npm install
+npm run dev
+```
 
-O endereço raiz (`veltrodigital.com.br`) redireciona automaticamente para `www.veltrodigital.com.br`.
+- Público: http://localhost:3000/analisador  
+- Admin: http://localhost:3000/admin/reports  
 
-Verifique o status em: [Vercel → veltrodigital → Domains](https://vercel.com/leandroeriksonoliveira1/veltrodigital/settings/domains)
+## Separação de relatórios
 
-## Contato
+| Relatório | Onde | Conteúdo |
+|-----------|------|----------|
+| **Client report** | Tela `/analisador` + tabela `client_reports` | Nota 0–100, selo, CTA genérico, **penalidades possíveis em valores** (sem detalhar o erro) |
+| **Internal report** | `/admin/reports` + tabela `internal_reports` | Red flags, normas, correções, pitch comercial — **nunca** retornado pela API pública |
 
-- WhatsApp: (11) 98644-6779
-- E-mail: contato@veltrodigital.com.br
-- Site: https://www.veltrodigital.com.br
+## Fluxo
+
+1. Usuário envia texto/bio, print (com transcrição), link de referência (sem scraping) ou URL de site.
+2. Sites: coleta HTML pública (`lib/conformidade/site-audit.ts`) alinhada à skill de conformidade.
+3. LLM gera JSON com os dois blocos.
+4. Backend salva lead + ambos os relatórios no Postgres Vercel; responde só `client_report`.
+5. Se selo ≠ Aprovado, dispara webhook comercial (`COMMERCIAL_NOTIFY_WEBHOOK`).
+
+## Deploy Vercel
+
+Framework: **Next.js**. Defina as variáveis de `.env.example` (exceto `DATABASE_URL`, que vem do Storage Neon).

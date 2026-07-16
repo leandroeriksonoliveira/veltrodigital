@@ -1,24 +1,13 @@
 {
   "version": 2,
-  "redirects": [
+  "rewrites": [
     {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "veltrodigital.com.br" }],
-      "destination": "https://www.veltrodigital.com.br/:path*",
-      "permanent": true
+      "source": "/contabilidade",
+      "destination": "https://veltro-contabilidade.vercel.app/contabilidade"
+    },
+    {
+      "source": "/contabilidade/:path*",
+      "destination": "https://veltro-contabilidade.vercel.app/contabilidade/:path*"
     }
-  ],
-  "routes": [
-    { "src": "/medicos",     "dest": "/medicos.html"     },
-    { "src": "/advogados",   "dest": "/advogados.html"   },
-    { "src": "/esporte",     "dest": "/esporte.html"     },
-    { "src": "/arquitetura", "dest": "/arquitetura.html" },
-    { "src": "/academias",   "dest": "/esporte.html"     },
-    { "src": "/politica-de-privacidade", "dest": "/politica-de-privacidade.html" },
-    { "src": "/termos-de-uso",           "dest": "/termos-de-uso.html"           },
-    { "src": "/lgpd",                    "dest": "/lgpd.html"                    },
-    { "src": "/contabilidade",     "dest": "https://veltro-contabilidade.vercel.app/contabilidade" },
-    { "src": "/contabilidade/(.*)", "dest": "https://veltro-contabilidade.vercel.app/contabilidade/$1" },
-    { "src": "/(.*)",        "dest": "/$1"               }
   ]
 }

@@ -135,8 +135,8 @@ export default function AnalisadorPage() {
           conformidade digital
         </h1>
         <p className="lead">
-          Cole o link da sua rede social e, se tiver, o do site. Você recebe o resumo numérico; o
-          relatório completo fica com a equipe Veltro Digital.
+          Cole o link da sua rede social e, se tiver, o do site. Você recebe o resumo numérico de
+          conformidade para iniciar o atendimento com a Veltro Digital.
         </p>
 
         {!report ? (
@@ -317,8 +317,8 @@ export default function AnalisadorPage() {
               </button>
             </div>
             <p className="disclaimer">
-              O relatório detalhado (checklist, evidências da rede social e do site, plano 7/15/30
-              dias) fica disponível apenas para a equipe Veltro Digital em /admin/reports.
+              Esta tela mostra apenas o resumo numérico. Fale com a Veltro Digital para o próximo
+              passo comercial e eventual auditoria completa offline.
             </p>
           </div>
         )}

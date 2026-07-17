@@ -161,22 +161,16 @@ export async function listLeadsWithReports(limit = 100) {
       l.created_at,
       c.score_geral,
       c.selo,
-      i.resumo_para_time_comercial
+      c.cta_generico,
+      c.penalidades_resumo
     FROM leads l
     LEFT JOIN LATERAL (
-      SELECT score_geral, selo, created_at
+      SELECT score_geral, selo, cta_generico, penalidades_resumo, created_at
       FROM client_reports
       WHERE lead_id = l.id
       ORDER BY created_at DESC
       LIMIT 1
     ) c ON true
-    LEFT JOIN LATERAL (
-      SELECT resumo_para_time_comercial, created_at
-      FROM internal_reports
-      WHERE lead_id = l.id
-      ORDER BY created_at DESC
-      LIMIT 1
-    ) i ON true
     ORDER BY l.created_at DESC
     LIMIT ${limit}
   `;
@@ -191,15 +185,8 @@ export async function getLeadBundle(leadId: string) {
     ORDER BY created_at DESC
     LIMIT 1
   `;
-  const internals = await sql`
-    SELECT * FROM internal_reports
-    WHERE lead_id = ${leadId}
-    ORDER BY created_at DESC
-    LIMIT 1
-  `;
   return {
     lead: (leads[0] as LeadRow) || null,
     client_report: (clients[0] as ClientReportRow) || null,
-    internal_report: (internals[0] as InternalReportRow) || null,
   };
 }

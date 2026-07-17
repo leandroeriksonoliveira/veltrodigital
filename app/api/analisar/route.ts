@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { isDbConfigured } from '@/lib/conformidade/db';
 import {
   insertClientReport,
-  insertInternalReport,
   insertLead,
 } from '@/lib/conformidade/repository';
 import { runComplianceAnalysis } from '@/lib/conformidade/llm';
@@ -162,21 +161,9 @@ export async function POST(req: NextRequest) {
     });
 
     const cr = analysis.client_report;
-    const clientReport = await insertClientReport({
+    await insertClientReport({
       lead_id: lead.id,
       report: cr,
-    });
-
-    const ir = analysis.internal_report;
-    await insertInternalReport({
-      lead_id: lead.id,
-      client_report_id: clientReport.id,
-      profession: body.profession,
-      report: ir,
-      raw_ai_response: {
-        ...analysis,
-        collected_urls: { social: socialUrl || null, site: siteUrl || null },
-      },
     });
 
     await notifyCommercial({
@@ -185,7 +172,7 @@ export async function POST(req: NextRequest) {
       profession: professionLabel,
       selo: cr.selo,
       score: cr.score_geral,
-      resumo: ir.resumo_para_time_comercial,
+      resumo: `${cr.veredito} · ${cr.cta_generico}`,
     });
 
     return NextResponse.json({

@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       created_at: row.created_at,
       score_geral: row.score_geral,
       selo: row.selo,
-      resumo_para_time_comercial: row.resumo_para_time_comercial,
+      cta_generico: row.cta_generico,
     }));
 
     return NextResponse.json({ reports });

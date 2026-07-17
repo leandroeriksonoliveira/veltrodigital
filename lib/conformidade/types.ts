@@ -113,7 +113,8 @@ export interface InternalReport {
 export interface AiAnalysisPayload {
   profession: string;
   client_report: ClientReport;
-  internal_report: InternalReport;
+  /** @deprecated Relatório detalhado não é mais gerado/salvo online */
+  internal_report?: InternalReport;
 }
 
 export const PROFESSION_LABELS: Record<Profession, string> = {

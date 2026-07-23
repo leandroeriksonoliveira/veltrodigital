@@ -75,5 +75,5 @@ EXCEL_PATH = _path("EXCEL_PATH", "data/leads_conformidade_brasil.xlsx")
 ROTATION_PATH = _path("ROTATION_PATH", "data/region_rotation.json")
 LOG_DIR = _path("LOG_DIR", "logs")
 
-DEFAULT_LIMIT = int(os.getenv("DEFAULT_LIMIT", "20"))
+DEFAULT_LIMIT = int(os.getenv("DEFAULT_LIMIT", "100"))
 REQUEST_TIMEOUT = int(os.getenv("REQUEST_TIMEOUT", "15"))

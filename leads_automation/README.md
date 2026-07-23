@@ -2,7 +2,7 @@
 
 ## O que faz
 
-1. Busca leads (clínicas, médicos, dentistas, psicólogos, terapeutas, advogados, academias, fisioterapeutas) por **região do Brasil** (rodízio diário).
+1. Busca até **100 leads/dia** por região (clínicas, médicos, dentistas, psicólogos, terapeutas, advogados, academias, fisioterapeutas) — rodízio diário entre regiões do Brasil.
 2. Analisa conformidade do site **em memória** (score 0–100 + risco).
 3. **Append** no Excel acumulativo `data/leads_conformidade_brasil.xlsx`.
 4. Envia e-mail com resumo + anexo para `EMAIL_TO`.
@@ -35,8 +35,11 @@ python main.py --regiao=Sudeste --limit=3 --dry-run
 # Grava Excel, não envia e-mail
 python main.py --regiao=Sudeste --limit=5 --skip-email
 
-# Produção (região do rodízio + e-mail)
+# Produção (região do rodízio, até 100 leads, + e-mail se SMTP configurado)
 python main.py
+
+# Produção sem e-mail (Cloud Agent / cron)
+python main.py --skip-email
 ```
 
 ## Rodízio de regiões

@@ -38,8 +38,11 @@ python main.py --regiao=Sudeste --limit=5 --skip-email
 # Produção (região do rodízio, até 100 leads, + e-mail se SMTP configurado)
 python main.py
 
-# Produção sem e-mail (Cloud Agent / cron)
+# Produção sem e-mail (Cloud Agent / cron) — até 100 leads (DEFAULT_LIMIT)
 python main.py --skip-email
+
+# Não use --limit=20 na automação Cursor; o padrão já é 100.
+# Prompt canônico: CURSOR_AUTOMATION.md
 ```
 
 ## Rodízio de regiões

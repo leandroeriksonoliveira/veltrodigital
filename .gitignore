@@ -13,3 +13,13 @@ Controle Financeiro Veltro/
 .env*
 !.env.example
 leads/
+
+# Automação de prospecção
+leads_automation/.env
+leads_automation/.venv/
+leads_automation/logs/*.log
+leads_automation/data/~$*
+!leads_automation/data/.gitkeep
+!leads_automation/logs/.gitkeep
+!leads_automation/.env.example
+# Excel acumulativo e rodízio DEVEM ser versionados (Automação Cursor grava no repo)

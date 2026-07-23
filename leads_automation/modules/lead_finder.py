@@ -1,4 +1,4 @@
-"""Busca de leads por região (Places API ou modo demo)."""
+"""Busca de leads por região (web gratuita, Places API ou modo demo)."""
 
 from __future__ import annotations
 
@@ -14,12 +14,16 @@ from config import (
     CATEGORIAS,
     ESTADOS_POR_REGIAO,
     GOOGLE_PLACES_API_KEY,
+    LEAD_SOURCE,
     REQUEST_TIMEOUT,
+    WEB_SEARCH_MAX_PER_QUERY,
+    WEB_SEARCH_PAUSE,
 )
+from modules.web_search import build_query, is_blocked_url, search_web
 
 log = logging.getLogger(__name__)
 
-# Cidades âncora por UF (para queries Places / demo)
+# Cidades âncora por UF (para queries Places / web / demo)
 CIDADES_ANCORA: dict[str, list[str]] = {
     "AC": ["Rio Branco"],
     "AP": ["Macapá"],
@@ -79,22 +83,15 @@ def _normalize_url(url: str) -> str:
     parsed = urlparse(url)
     if not parsed.netloc:
         return ""
-    # Domínio canônico sem path para dedupe futuro
     return f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
 
 
+def _domain(url: str) -> str:
+    return urlparse(url).netloc.lower().removeprefix("www.")
+
+
 def _is_marketplace(url: str) -> bool:
-    host = urlparse(url).netloc.lower()
-    blocked = (
-        "doctoralia.com.br",
-        "facebook.com",
-        "instagram.com",
-        "linkedin.com",
-        "google.com",
-        "guiafacil.com",
-        "telelistas.net",
-    )
-    return any(b in host for b in blocked)
+    return is_blocked_url(url)
 
 
 def _extract_wa_from_site(url: str) -> str:
@@ -192,8 +189,115 @@ def _search_places(query: str, cidade: str, estado: str) -> list[dict]:
     return results
 
 
+def _collect_places_leads(
+    regiao: str,
+    limit: int,
+    categorias: tuple[str, ...],
+    extract_whatsapp: bool,
+) -> list[Lead]:
+    ufs = ESTADOS_POR_REGIAO[regiao]
+    seen_domains: set[str] = set()
+    leads: list[Lead] = []
+
+    for uf in ufs:
+        if len(leads) >= limit:
+            break
+        cidades = CIDADES_ANCORA.get(uf, [uf])
+        for cidade in cidades:
+            if len(leads) >= limit:
+                break
+            for cat in categorias:
+                if len(leads) >= limit:
+                    break
+                raw = _search_places(cat, cidade, uf)
+                for item in raw:
+                    if len(leads) >= limit:
+                        break
+                    website = item["website"]
+                    domain = _domain(website)
+                    if domain in seen_domains:
+                        continue
+                    seen_domains.add(domain)
+
+                    wa = _extract_wa_from_site(website) if extract_whatsapp else ""
+                    leads.append(
+                        Lead(
+                            nome=item["nome"],
+                            categoria=cat,
+                            website=website,
+                            telefone=item.get("telefone", ""),
+                            whatsapp=wa,
+                            cidade=item.get("cidade", cidade),
+                            estado=uf,
+                            regiao=regiao,
+                            fonte="google_places",
+                        )
+                    )
+                    log.info("Lead [places]: %s | %s", item["nome"], website)
+
+    return leads
+
+
+def _collect_web_leads(
+    regiao: str,
+    limit: int,
+    categorias: tuple[str, ...],
+    extract_whatsapp: bool,
+) -> list[Lead]:
+    ufs = ESTADOS_POR_REGIAO[regiao]
+    seen_domains: set[str] = set()
+    leads: list[Lead] = []
+
+    log.info("Buscando leads na web (DuckDuckGo) — região=%s", regiao)
+
+    for uf in ufs:
+        if len(leads) >= limit:
+            break
+        cidades = CIDADES_ANCORA.get(uf, [uf])
+        for cidade in cidades:
+            if len(leads) >= limit:
+                break
+            for cat in categorias:
+                if len(leads) >= limit:
+                    break
+                query = build_query(cat, cidade, uf)
+                raw = search_web(
+                    query,
+                    max_results=WEB_SEARCH_MAX_PER_QUERY,
+                    pause_seconds=WEB_SEARCH_PAUSE,
+                )
+                for item in raw:
+                    if len(leads) >= limit:
+                        break
+                    website = _normalize_url(item["website"])
+                    if not website or _is_marketplace(website):
+                        continue
+                    domain = _domain(website)
+                    if domain in seen_domains:
+                        continue
+                    seen_domains.add(domain)
+
+                    wa = _extract_wa_from_site(website) if extract_whatsapp else ""
+                    leads.append(
+                        Lead(
+                            nome=item["nome"],
+                            categoria=cat,
+                            website=website,
+                            whatsapp=wa,
+                            cidade=cidade,
+                            estado=uf,
+                            regiao=regiao,
+                            fonte="duckduckgo_web",
+                            observacao=item.get("snippet", "")[:200],
+                        )
+                    )
+                    log.info("Lead [web]: %s | %s | %s", item["nome"], website, cat)
+
+    return leads
+
+
 def _demo_leads(regiao: str, limit: int) -> list[Lead]:
-    """Leads reais públicos para teste sem Places API (sites próprios)."""
+    """Leads reais públicos para teste sem busca externa (sites próprios)."""
     ufs = ESTADOS_POR_REGIAO.get(regiao, ["SP"])
     catalog = [
         ("Prime Care Medical Complex", "clínica médica", "https://www.primecare.med.br/", "São Paulo", "SP"),
@@ -214,7 +318,7 @@ def _demo_leads(regiao: str, limit: int) -> list[Lead]:
         if len(out) >= limit:
             break
         if uf not in ufs and regiao == "Sudeste":
-            pass  # SP/RJ/MG ok no Sudeste
+            pass
         elif uf not in ufs:
             uf = ufs[0]
             cidade = CIDADES_ANCORA.get(uf, [cidade])[0]
@@ -227,10 +331,19 @@ def _demo_leads(regiao: str, limit: int) -> list[Lead]:
                 estado=uf,
                 regiao=regiao,
                 fonte="demo_sites_reais",
-                observacao="Sem GOOGLE_PLACES_API_KEY — catálogo demo de sites públicos",
+                observacao="Fallback demo — busca web/places sem resultados",
             )
         )
     return out
+
+
+def _resolve_source() -> str:
+    if LEAD_SOURCE in ("places", "web", "demo"):
+        return LEAD_SOURCE
+    # auto: places se tiver chave, senão web
+    if GOOGLE_PLACES_API_KEY:
+        return "places"
+    return "web"
 
 
 def find_leads(
@@ -241,58 +354,27 @@ def find_leads(
 ) -> list[Lead]:
     """
     Busca leads com site próprio na região.
-    Sem GOOGLE_PLACES_API_KEY: retorna leads demo.
+    Fontes (LEAD_SOURCE=auto): Google Places → DuckDuckGo web → demo.
     """
     categorias = categorias or CATEGORIAS
     ufs = ESTADOS_POR_REGIAO.get(regiao)
     if not ufs:
         raise ValueError(f"Região inválida: {regiao}")
 
-    if not GOOGLE_PLACES_API_KEY:
-        log.warning("GOOGLE_PLACES_API_KEY ausente — usando leads demo")
-        return _demo_leads(regiao, limit)
+    source = _resolve_source()
+    log.info("Fonte de leads: %s", source)
 
-    seen_domains: set[str] = set()
     leads: list[Lead] = []
+    if source == "places":
+        leads = _collect_places_leads(regiao, limit, categorias, extract_whatsapp)
+    elif source == "web":
+        leads = _collect_web_leads(regiao, limit, categorias, extract_whatsapp)
+    elif source == "demo":
+        leads = _demo_leads(regiao, limit)
 
-    for uf in ufs:
-        if len(leads) >= limit:
-            break
-        cidades = CIDADES_ANCORA.get(uf, [uf])
-        for cidade in cidades:
-            if len(leads) >= limit:
-                break
-            for cat in categorias:
-                if len(leads) >= limit:
-                    break
-                raw = _search_places(cat, cidade, uf)
-                for item in raw:
-                    if len(leads) >= limit:
-                        break
-                    website = item["website"]
-                    domain = urlparse(website).netloc.lower()
-                    if domain in seen_domains:
-                        continue
-                    seen_domains.add(domain)
+    if not leads and source != "demo":
+        log.warning("Nenhum lead via %s — fallback demo", source)
+        leads = _demo_leads(regiao, limit)
 
-                    wa = ""
-                    if extract_whatsapp:
-                        wa = _extract_wa_from_site(website)
-
-                    leads.append(
-                        Lead(
-                            nome=item["nome"],
-                            categoria=cat,
-                            website=website,
-                            telefone=item.get("telefone", ""),
-                            whatsapp=wa,
-                            cidade=item.get("cidade", cidade),
-                            estado=uf,
-                            regiao=regiao,
-                            fonte="google_places",
-                        )
-                    )
-                    log.info("Lead: %s | %s", item["nome"], website)
-
-    log.info("Total leads encontrados: %s (região=%s)", len(leads), regiao)
+    log.info("Total leads encontrados: %s (região=%s, fonte=%s)", len(leads), regiao, source)
     return leads

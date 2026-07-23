@@ -19,11 +19,12 @@ cp .env.example .env
 ./scripts/setup_env.sh
 ```
 
-**Credenciais obrigatórias no `.env`:**
-1. `GOOGLE_PLACES_API_KEY` — [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (Places API)
-2. `SMTP_PASSWORD` — senha de app do Hotmail/Outlook (conta com MFA)
+**Credenciais opcionais no `.env`:**
+1. `GOOGLE_PLACES_API_KEY` — [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (Places API, opcional)
+2. `LEAD_SOURCE=auto|web|places|demo` — padrão `auto` (web gratuita sem chave)
+3. `SMTP_PASSWORD` — senha de app do Hotmail/Outlook (conta com MFA)
 
-Sem Places API, o sistema usa um **catálogo demo** de sites reais do Sudeste para testes.
+Sem Places API, o sistema usa **busca web gratuita** (DuckDuckGo) por região e categoria. Se a busca falhar, cai no catálogo demo.
 
 ## Teste manual
 
@@ -64,14 +65,15 @@ Logs do cron: `leads_automation/logs/cron.log`
 
 | Arquivo | Função |
 |---------|--------|
-| `modules/lead_finder.py` | Places API ou leads demo |
+| `modules/lead_finder.py` | Web (DuckDuckGo), Places API ou demo |
+| `modules/web_search.py` | Busca gratuita na internet |
 | `modules/compliance_analyzer.py` | Score em memória (stub evolutivo) |
 | `modules/excel_consolidator.py` | Append + dedupe por domínio |
 | `modules/email_sender.py` | SMTP + template |
 
 ## Próximos passos
 
-1. Preencher `GOOGLE_PLACES_API_KEY` no `.env` para busca real.
+1. Opcional: `GOOGLE_PLACES_API_KEY` no `.env` para Places em vez de busca web.
 2. Configurar SMTP Hotmail (senha de app se MFA estiver ativo).
 3. Endurecer `compliance_analyzer.py` com regras da skill `site-compliance-audit`.
 4. Ativar o cron após validar `--skip-email`.

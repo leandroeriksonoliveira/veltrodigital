@@ -59,6 +59,11 @@ def _path(env_key: str, default: str) -> Path:
 
 
 GOOGLE_PLACES_API_KEY = os.getenv("GOOGLE_PLACES_API_KEY", "").strip()
+
+# Fonte de leads: auto (places → web → demo), web, places, demo
+LEAD_SOURCE = os.getenv("LEAD_SOURCE", "auto").strip().lower()
+WEB_SEARCH_MAX_PER_QUERY = int(os.getenv("WEB_SEARCH_MAX_PER_QUERY", "8"))
+WEB_SEARCH_PAUSE = float(os.getenv("WEB_SEARCH_PAUSE", "0.8"))
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.office365.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")

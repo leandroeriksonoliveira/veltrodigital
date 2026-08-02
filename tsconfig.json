@@ -17,5 +17,13 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "Controle Financeiro Veltro", "leads"]
+  "exclude": [
+    "node_modules",
+    "Controle Financeiro Veltro",
+    "Controle Financeiro Veltro OLD",
+    "Contabilidade VeltroDigital",
+    "Certificado Digital",
+    "leads",
+    "leads_automation"
+  ]
 }

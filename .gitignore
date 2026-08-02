@@ -10,6 +10,9 @@ out/
 
 # App de contabilidade (projeto Vercel separado: veltro-contabilidade)
 Controle Financeiro Veltro/
+Controle Financeiro Veltro OLD/
+Contabilidade VeltroDigital/
+Certificado Digital/
 .env*
 !.env.example
 leads/

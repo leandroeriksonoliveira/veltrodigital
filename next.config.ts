@@ -3,6 +3,15 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
+      // App Contabilidade (projeto Vercel separado, serve na raiz)
+      {
+        source: '/contabilidade',
+        destination: 'https://veltro-contabilidade.vercel.app/',
+      },
+      {
+        source: '/contabilidade/:path*',
+        destination: 'https://veltro-contabilidade.vercel.app/:path*',
+      },
       { source: '/', destination: '/index.html' },
       { source: '/medicos', destination: '/medicos.html' },
       { source: '/advogados', destination: '/advogados.html' },

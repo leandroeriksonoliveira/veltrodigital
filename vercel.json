@@ -3,11 +3,15 @@
   "rewrites": [
     {
       "source": "/contabilidade",
-      "destination": "https://veltro-contabilidade.vercel.app/contabilidade"
+      "destination": "https://veltro-contabilidade.vercel.app/"
+    },
+    {
+      "source": "/contabilidade/",
+      "destination": "https://veltro-contabilidade.vercel.app/"
     },
     {
       "source": "/contabilidade/:path*",
-      "destination": "https://veltro-contabilidade.vercel.app/contabilidade/:path*"
+      "destination": "https://veltro-contabilidade.vercel.app/:path*"
     }
   ]
 }

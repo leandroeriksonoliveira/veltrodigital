@@ -47,11 +47,12 @@ npm run dev
 
 ## Fluxo
 
-1. Usuário envia texto/bio, print (com transcrição), link de referência (sem scraping) ou URL de site.
-2. Sites: coleta HTML pública (`lib/conformidade/site-audit.ts`) alinhada à skill de conformidade.
-3. LLM gera JSON com os dois blocos.
-4. Backend salva lead + ambos os relatórios no Postgres Vercel; responde só `client_report`.
-5. Se selo ≠ Aprovado, dispara webhook comercial (`COMMERCIAL_NOTIFY_WEBHOOK`).
+1. Usuário envia nome, profissão, link de rede e/ou site + contato.
+2. Coleta pública: site (`lib/conformidade/site-audit.ts`) e/ou rede (`social-audit.ts`).
+3. **Nota inicial local** (`lib/conformidade/local-score.ts`) — checklist + regras, **sem OpenAI** e **sem HTML/PDF**.
+4. Backend salva lead + `client_report` no Postgres; a API pública devolve só a nota.
+5. Relatórios HTML/PDF completos ficam no script local em `Conformidade Digital` (lote), não no `/analisador`.
+6. Notificação comercial via `COMMERCIAL_NOTIFY_WEBHOOK` quando configurado.
 
 ## Deploy Vercel
 

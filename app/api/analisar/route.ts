@@ -5,18 +5,19 @@ import {
   insertClientReport,
   insertLead,
 } from '@/lib/conformidade/repository';
-import { runComplianceAnalysis } from '@/lib/conformidade/llm';
-import { fetchSiteEvidence } from '@/lib/conformidade/site-audit';
+import { runLocalComplianceAnalysis } from '@/lib/conformidade/run-local-analysis';
+import { fetchSiteEvidence, type SiteEvidence } from '@/lib/conformidade/site-audit';
 import {
   fetchSocialProfileEvidence,
   isInstagramUrl,
   isSocialUrl,
+  type SocialEvidence,
 } from '@/lib/conformidade/social-audit';
 import { notifyCommercial } from '@/lib/conformidade/notify';
 import { PROFESSION_LABELS, type InputType, type Profession } from '@/lib/conformidade/types';
 
 export const runtime = 'nodejs';
-export const maxDuration = 90;
+export const maxDuration = 60;
 
 const BodySchema = z
   .object({
@@ -90,41 +91,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const contentParts: string[] = [];
-    const summaryParts: string[] = [];
-    let primaryUrl = socialUrl || siteUrl;
+    const [socialEvidence, siteEvidence] = await Promise.all([
+      socialUrl ? fetchSocialProfileEvidence(socialUrl) : Promise.resolve(null as SocialEvidence | null),
+      siteUrl && !isSocialUrl(siteUrl)
+        ? fetchSiteEvidence(siteUrl)
+        : Promise.resolve(null as SiteEvidence | null),
+    ]);
 
-    // Coleta rede + site em paralelo quando ambos existem
-    const tasks: Promise<void>[] = [];
+    const primaryUrl =
+      socialEvidence?.finalUrl || siteEvidence?.finalUrl || socialUrl || siteUrl;
 
-    if (socialUrl) {
-      tasks.push(
-        (async () => {
-          const evidence = await fetchSocialProfileEvidence(socialUrl);
-          primaryUrl = evidence.finalUrl;
-          summaryParts.push(`=== REDE SOCIAL ===\n${evidence.summary}`);
-          contentParts.push(`--- Conteúdo público da rede social ---\n${evidence.textSample}`);
-        })()
-      );
-    }
+    const hasContent =
+      Boolean(siteEvidence?.textSample && siteEvidence.textSample.length >= 20) ||
+      Boolean(socialEvidence?.textSample && socialEvidence.textSample.length >= 20) ||
+      Boolean(socialEvidence?.bio && socialEvidence.bio.length >= 8);
 
-    if (siteUrl && !isSocialUrl(siteUrl)) {
-      tasks.push(
-        (async () => {
-          const evidence = await fetchSiteEvidence(siteUrl);
-          if (!socialUrl) primaryUrl = evidence.finalUrl;
-          summaryParts.push(`=== SITE INSTITUCIONAL ===\n${evidence.summary}`);
-          contentParts.push(`--- Conteúdo extraído do site ---\n${evidence.textSample}`);
-        })()
-      );
-    }
-
-    await Promise.all(tasks);
-
-    const contentText = contentParts.join('\n\n').trim();
-    const siteSummary = summaryParts.join('\n\n');
-
-    if (!contentText || contentText.length < 20) {
+    if (!hasContent) {
       return NextResponse.json(
         {
           error:
@@ -140,14 +122,13 @@ export async function POST(req: NextRequest) {
     else inputType = 'site';
 
     const professionLabel = PROFESSION_LABELS[body.profession as Profession];
-    const analysis = await runComplianceAnalysis({
+
+    // Nota inicial local (checklist + regras) — sem OpenAI e sem HTML/PDF
+    const analysis = runLocalComplianceAnalysis({
       name: body.name,
       profession: body.profession,
-      professionLabel,
-      inputType,
-      profileUrl: [socialUrl, siteUrl].filter(Boolean).join(' | '),
-      contentText,
-      siteSummary,
+      site: siteEvidence,
+      social: socialEvidence,
     });
 
     const lead = await insertLead({
@@ -178,6 +159,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       ok: true,
       lead_id: lead.id,
+      engine: 'local_rules_v1',
       client_report: {
         score_geral: cr.score_geral,
         score_lgpd: cr.score_lgpd,
@@ -195,9 +177,6 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error(err);
     const message = err instanceof Error ? err.message : 'Erro interno';
-    if (message.includes('API_KEY')) {
-      return NextResponse.json({ error: 'IA não configurada no servidor.' }, { status: 503 });
-    }
     if (err instanceof z.ZodError) {
       const detail = err.issues[0]?.message;
       return NextResponse.json(

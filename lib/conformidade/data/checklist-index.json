@@ -1,0 +1,810 @@
+{
+  "medicos": [
+    {
+      "section": "identificacao",
+      "title": "Nome completo do profissional visível em todas as páginas",
+      "desc": "Nome sem abreviações, preferencialmente no cabeçalho ou rodapé. Obrigatório em todas as peças de publicidade.",
+      "laws": "Obrigatório; Todas as profissões; Obrigatório",
+      "prof": "medico",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CRM com UF e a palavra \"MÉDICO(A)\" exibidos",
+      "desc": "Ex: \"CRM/RJ 123456 – Médico\". O número do CRM com o estado de registro é obrigatório em qualquer publicidade. (Art. 4º, Res. 2.336/2023)",
+      "laws": "Obrigatório; CFM 2.336/2023; Obrigatório",
+      "prof": "psicologo",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CRP com regional exibido — formato: \"Psicólogo(a), Nome, CRP-XX/XXXXX\"",
+      "desc": "Conforme Art. 20 do CEPP e Nota Técnica CFP 1/2022. Nome completo obrigatório, sem abreviação.",
+      "laws": "Obrigatório; CFP / CEPP; Obrigatório",
+      "prof": "fisio",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CREFITO exibido com a palavra \"FISIOTERAPEUTA\"",
+      "desc": "Identificação obrigatória conforme Resoluções COFFITO. Exibir regional + número de registro.",
+      "laws": "Obrigatório; COFFITO; Obrigatório",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Especialidade(s) exibida(s) apenas com reconhecimento oficial (RQE/CFP/COFFITO)",
+      "desc": "Médicos: especialidade + RQE. Psicólogos: apenas 13 especialidades do CFP (Res. 23/2022). Fisioterapeutas: especialidades reconhecidas pelo COFFITO. Nunca divulgar especialidade sem registro.",
+      "laws": "Obrigatório; Todas as profissões; Obrigatório",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Títulos acadêmicos (Mestre, Doutor, Especialista) utilizados somente se comprovados",
+      "desc": "Induzir o usuário a erro quanto à capacitação é infração ética em todas as profissões regulamentadas.",
+      "laws": "Obrigatório; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de fotos/vídeos de \"antes e depois\" de procedimentos",
+      "desc": "Imagens comparativas de resultados clínicos ou estéticos são VEDADAS em qualquer contexto — mesmo com autorização do paciente. (Art. 10, Res. 2.336/2023)",
+      "laws": "Proibido; CFM 2.336/2023; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de depoimentos de pacientes (escritos, vídeos ou avaliações)",
+      "desc": "Depoimentos, avaliações com nome, estrelas ou vídeos de pacientes são proibidos mesmo com autorização expressa. (Art. 11, Res. 2.336/2023; Art. 18 CEPP)",
+      "laws": "Proibido; Todas as profissões; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de promessas de resultados, cura garantida ou frases sensacionalistas",
+      "desc": "Ex: \"Resultados comprovados\", \"Tratamento definitivo\", \"100% eficaz\", \"Elimine sua dor em X sessões\". São infrações éticas graves.",
+      "laws": "Proibido; Todas as profissões; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de divulgação de preços, tabelas ou condições comerciais",
+      "desc": "A divulgação pública de valores de consultas, procedimentos ou pacotes é vedada pela ética profissional para médicos, psicólogos e fisioterapeutas.",
+      "laws": "Proibido; Todas as profissões; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de contagem de pacientes atendidos ou procedimentos realizados como argumento comercial",
+      "desc": "Ex: \"Mais de 5.000 pacientes atendidos\", \"10.000 procedimentos realizados\". Uso de números como marketing é vedado.",
+      "laws": "Proibido; CFM 2.336/2023; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de linguagem que explore vulnerabilidade emocional ou psicológica do paciente",
+      "desc": "Ex: \"Cansado de sofrer?\", \"Sua última chance de se curar\". Exploração de sofrimento é infração ética em todas as profissões de saúde.",
+      "laws": "Proibido; Todas as profissões; Proibido",
+      "prof": "medico fisio",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de divulgação de tecnologias/equipamentos sem aprovação ANVISA/CFM/COFFITO",
+      "desc": "Dispositivos e equipamentos mencionados no site devem ter registro ANVISA e uso aprovado pelos conselhos reguladores.",
+      "laws": "Proibido; Proibido; CFP / CEPP",
+      "prof": "psicologo",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de divulgação de técnicas, instrumentos ou testes psicológicos privativos da categoria para leigos",
+      "desc": "Instrumentos e técnicas psicológicas não devem ser explicados de forma que facilitem o exercício ilegal da profissão. (Art. 18 CEPP)",
+      "laws": "Proibido; CFP / CEPP; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "🔴 AUSÊNCIA de uso indevido do título de \"especialista\" sem reconhecimento dos conselhos",
+      "desc": "Termos como \"referência em X\" ou \"especialista em Y\" sem registro oficial equivalem a propaganda enganosa.",
+      "laws": "Proibido; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "obrigatorios",
+      "title": "Aviso explícito de que o site NÃO substitui consulta/atendimento presencial",
+      "desc": "Disclaimer visível informando que o conteúdo é de natureza informativa/educativa e não substitui a avaliação profissional individualizada.",
+      "laws": "Obrigatório; Todas as profissões; Obrigatório",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "obrigatorios",
+      "title": "Política de Privacidade publicada e acessível (LGPD)",
+      "desc": "Sites que coletam dados (nome, e-mail, telefone, histórico de saúde) são obrigados a ter Política de Privacidade conforme a Lei 13.709/2018 (LGPD).",
+      "laws": "Obrigatório; LGPD; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "obrigatorios",
+      "title": "Consentimento explícito para coleta de dados em formulários de contato/agendamento",
+      "desc": "Formulários devem ter checkbox de aceite à Política de Privacidade antes do envio. (LGPD Art. 7º)",
+      "laws": "Obrigatório; LGPD; Recomendado",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "obrigatorios",
+      "title": "Informações de contato claras: endereço, telefone/WhatsApp, horários de atendimento",
+      "desc": "Dados básicos de localização e contato devem estar facilmente acessíveis para o paciente/usuário.",
+      "laws": "Recomendado; Todas as profissões; Recomendado",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "obrigatorios",
+      "title": "Formação acadêmica apresentada de forma objetiva e verificável",
+      "desc": "Graduação, residência, pós-graduação e demais cursos devem ser apresentados sem exagero. Não usar termos vagos como \"formado nas melhores instituições\".",
+      "laws": "Recomendado; Todas as profissões; Recomendado",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "obrigatorios",
+      "title": "Conteúdo educativo (blog, artigos, vídeos informativos) com linguagem técnica e neutra",
+      "desc": "Conteúdo educativo é permitido e incentivado — desde que não contenha promessas de resultados, sensacionalismo ou autopromoção excessiva.",
+      "laws": "Recomendado; Todas as profissões",
+      "prof": "medico",
+      "risk": null
+    },
+    {
+      "section": "estabelecimento",
+      "title": "Nome do estabelecimento com número de cadastro/registro no CRM visível",
+      "desc": "Clínicas e consultórios médicos devem exibir o número de cadastro no CRM. (Art. 5º, Res. 2.336/2023)",
+      "laws": "Obrigatório; CFM 2.336/2023; Obrigatório",
+      "prof": "medico",
+      "risk": null
+    },
+    {
+      "section": "estabelecimento",
+      "title": "Diretor Técnico Médico identificado com nome e CRM no site da clínica",
+      "desc": "O nome e CRM do diretor técnico-médico devem constar em local visível nas peças publicitárias do estabelecimento. (Art. 5º, Res. 2.336/2023)",
+      "laws": "Obrigatório; CFM 2.336/2023; Obrigatório",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "estabelecimento",
+      "title": "Todos os profissionais da equipe listados com seus respectivos registros (CRM/CRP/CREFITO)",
+      "desc": "Quando o site apresenta equipe multiprofissional, cada membro deve ter seu registro exibido corretamente.",
+      "laws": "Obrigatório; Todas as profissões; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "estabelecimento",
+      "title": "Não há referência a procedimentos ou técnicas exclusivas sem respaldo científico",
+      "desc": "Técnicas apresentadas como exclusivas, inovadoras ou \"revolucionárias\" sem publicação em literatura científica constituem propaganda enganosa.",
+      "laws": "Proibido; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "linguagem",
+      "title": "Textos revisados para ausência de termos curativos absolutos",
+      "desc": "Escanear todo o texto por: \"cura\", \"elimina definitivamente\", \"resolve\", \"garante\", \"resultado certo\", \"sem recidiva\", \"permanente\".",
+      "laws": "Proibido; Todas as profissões; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "linguagem",
+      "title": "Imagens de pacientes ou corpos não identificam indivíduos e não sugerem resultados",
+      "desc": "Fotos de pacientes (mesmo com rosto oculto) que induzam expectativa de resultado são equiparadas a \"antes e depois\" e são proibidas.",
+      "laws": "Proibido; Todas as profissões; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "linguagem",
+      "title": "Vídeos no site não contêm relatos de pacientes ou demonstração de resultados clínicos",
+      "desc": "Vídeos educativos são permitidos. Vídeos com pacientes demonstrando melhora, recuperação ou satisfação são proibidos.",
+      "laws": "Proibido; Todas as profissões; Verificar",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "linguagem",
+      "title": "Ícones de prêmios, rankings ou certificados de \"melhor médico/clínica\" verificados",
+      "desc": "Selos e premiações devem ser verídicos e rastreáveis. Selos falsos ou de entidades sem credibilidade são propaganda enganosa.",
+      "laws": "Verificar; Todas as profissões; Boa Prática",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "linguagem",
+      "title": "Linguagem acessível, sem uso de termos técnicos de forma a intimidar ou confundir o leigo",
+      "desc": "O conteúdo educativo deve ser claro e acessível, sem criar dependência, medo ou expectativas irreais no leitor.",
+      "laws": "Boa Prática; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "lgpd",
+      "title": "Site usa HTTPS (certificado SSL ativo)",
+      "desc": "Obrigatório para qualquer site que transmita dados pessoais. Sem HTTPS, dados de formulários de contato ficam expostos.",
+      "laws": "Obrigatório; LGPD; Obrigatório",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "lgpd",
+      "title": "Política de Privacidade detalha quais dados são coletados, como são usados e com quem são compartilhados",
+      "desc": "Deve ser clara, específica e acessível a partir de qualquer página do site (link no rodapé). (LGPD Art. 9º)",
+      "laws": "Obrigatório; LGPD; Proibido",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "lgpd",
+      "title": "Não há divulgação de casos clínicos identificáveis sem anonimização completa",
+      "desc": "Relatos de caso educativos devem ser totalmente anonimizados. A identificação de pacientes viola o sigilo profissional e a LGPD simultaneamente.",
+      "laws": "Proibido; LGPD; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "lgpd",
+      "title": "Banner de cookies presente com opção de aceitar/recusar cookies não essenciais",
+      "desc": "Sites com Google Analytics, pixels de rastreamento ou cookies de terceiros devem ter banner de consentimento. (LGPD + ePrivacy)",
+      "laws": "Obrigatório; LGPD; Obrigatório",
+      "prof": "psicologo",
+      "risk": null
+    },
+    {
+      "section": "lgpd",
+      "title": "Atendimento online descrito em conformidade com a Res. CFP 9/2024 (TDICs)",
+      "desc": "Se o site anuncia teleconsulta/telepsicologia, deve mencionar que o serviço segue as normas da Res. CFP 9/2024, com plataforma segura e registro no CFP.",
+      "laws": "Obrigatório; CFP Res. 9/2024",
+      "prof": "medico",
+      "risk": null
+    },
+    {
+      "section": "telemed",
+      "title": "Se oferece teleconsulta: menção de que segue a Res. CFM 2.314/2022",
+      "desc": "Sites que oferecem telemedicina devem deixar claro o enquadramento legal e que a consulta é realizada por médico devidamente registrado.",
+      "laws": "Obrigatório; CFM 2.314/2022; Obrigatório",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "telemed",
+      "title": "Plataforma de agendamento online não coleta dados de saúde sem consentimento explícito",
+      "desc": "Dados sensíveis de saúde têm proteção especial pela LGPD. Formulários de triagem ou pré-consulta online exigem consentimento inequívoco.",
+      "laws": "Obrigatório; LGPD; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "telemed",
+      "title": "Chatbots ou assistentes virtuais identificados claramente como automação (não como o profissional)",
+      "desc": "Um chatbot que responde no site não pode se passar pelo médico/psicólogo/fisioterapeuta. Deve ser identificado como assistente virtual.",
+      "laws": "Obrigatório; Todas as profissões",
+      "prof": "todos",
+      "risk": null
+    }
+  ],
+  "advocacia": [
+    {
+      "section": "Geral",
+      "title": "Nome completo do advogado(a) ou razão social do escritório visível no site",
+      "desc": "O nome profissional deve estar identificável em pelo menos uma seção principal. Escritórios devem exibir a razão social registrada na OAB.",
+      "laws": "Obrigatório; Art. 4º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "Número de inscrição na OAB (seccional) exibido",
+      "desc": "Ex: \"OAB/RJ 123.456\". O número de inscrição é obrigatório na identificação profissional. Escritórios: número de registro da sociedade de advogados.",
+      "laws": "Obrigatório; Art. 4º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "Áreas de atuação jurídica apresentadas sem afirmar \"especialidade\" não registrada na OAB",
+      "desc": "O título de \"especialista\" em direito exige aprovação pela OAB. O uso livre do termo \"especializado em X\" sem registro pode configurar infração. Preferir \"área de atuação\" ou \"foco em\".",
+      "laws": "Obrigatório; Art. 7º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "Sociedade de advogados: sócios listados com nome e número OAB de cada um",
+      "desc": "Escritórios que listam sócios devem incluir o número OAB de cada advogado. (Art. 5º Prov. 205/2021)",
+      "laws": "Obrigatório; Art. 5º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Títulos acadêmicos (Mestre, Doutor, LLM) mencionados são reais e verificáveis",
+      "desc": "Títulos de instituições estrangeiras ou não reconhecidas pelo MEC devem ser contextualizados. Usar títulos que não possui é infração disciplinar.",
+      "laws": "Verificar; Art. 34, XVI Estatuto OAB",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de captação ativa de clientela — CTAs mercantilistas proibidos",
+      "desc": "Proibido usar: \"Contrate agora\", \"Ligue já e resolva seu problema\", \"Clique e fale com um advogado agora\", \"Primeiro atendimento gratuito para te conquistar como cliente\". São formas de captação indevida.",
+      "laws": "Proibido; Art. 34, IV Estatuto OAB · Art. 8º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de promessas de resultado, vitórias garantidas ou êxito em casos",
+      "desc": "Proibido: \"Garantimos a aprovação do seu benefício\", \"Já ganhamos X processos\", \"Taxa de sucesso de 98%\". Resultados de casos não podem ser usados como marketing.",
+      "laws": "Proibido; Art. 9º Prov. 205/2021 · Art. 44 CED",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de menção a clientes atendidos, nomes de empresas ou casos com identificação",
+      "desc": "Proibido citar clientes (pessoas físicas ou jurídicas) sem autorização expressa. Mesmo com autorização, o sigilo profissional deve ser preservado.",
+      "laws": "Proibido; Art. 25 CED · Art. 7º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de depoimentos de clientes sobre resultados de casos",
+      "desc": "Depoimentos de clientes sobre casos resolvidos, processos ganhos ou satisfação com o desfecho jurídico são proibidos. Violam sigilo e configuram captação por resultado.",
+      "laws": "Proibido; Art. 25 CED · Art. 9º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de divulgação de tabelas de honorários ou preços de serviços",
+      "desc": "A publicação de tabelas de honorários, valores de consultas ou \"a partir de R$X\" é vedada pela ética da OAB. Honorários são negociados individualmente.",
+      "laws": "Proibido; Art. 10 Prov. 205/2021 · Art. 40 CED",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de ostentação de bens, luxo ou estilo de vida para atrair clientela",
+      "desc": "Fotos de carros de luxo, escritórios suntuosos exibidos como argumento de status, viagens ou lifestyle pessoal para passar imagem de \"sucesso\" são vedados.",
+      "laws": "Proibido; Art. 11 Prov. 205/2021 · Art. 43 CED",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de conteúdo que incite litigância ou criação artificial de demanda judicial",
+      "desc": "Proibido: \"Você provavelmente tem direito a X — consulte-nos\", \"Seu empregador pode estar te prejudicando\", \"Descubra se você foi lesado\". São formas de captação por criação de demanda.",
+      "laws": "Proibido; Art. 8º Prov. 205/2021 · Art. 34, IV Estatuto",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de oferta de consulta jurídica gratuita online como estratégia de captação",
+      "desc": "Formulários \"tire sua dúvida grátis\", chats ao vivo para triagem e consultas online gratuitas públicas são proibidos. Pro bono é permitido apenas para hipossuficientes. (Cartilha CFOAB Jul/2024)",
+      "laws": "Proibido; Art. 8º §3 Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de autopromoção excessiva com superlativos (\"o melhor advogado\", \"top 1%\", \"prêmio mais importante\")",
+      "desc": "Afirmações de superioridade sem comprovação objetiva e verificável violam o princípio da sobriedade. Rankings e prêmios devem ser reais, verificáveis e ter credibilidade.",
+      "laws": "Proibido; Art. 43 CED · Art. 11 Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "AUSÊNCIA de divulgação de contagem de clientes, processos ou \"casos de sucesso\" como argumento comercial",
+      "desc": "Ex: \"Mais de 2.000 clientes atendidos\", \"500 processos ganhos\". Uso de volume como prova de qualidade ou argumento de venda é vedado.",
+      "laws": "Proibido; Art. 44 CED",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "Geral",
+      "title": "Blog/artigos jurídicos: conteúdo informativo, sem resolver casos específicos ou oferecer consultoria",
+      "desc": "Artigos educativos são incentivados. Devem informar sobre o direito em geral, sem direcionamento para captação. Conteúdo deve ter caráter informativo, não de consultoria individualizada.",
+      "laws": "Permitido c/ restrição; Art. 3º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "baixo"
+    },
+    {
+      "section": "Geral",
+      "title": "Informações de contato (endereço, telefone, e-mail, WhatsApp) presentes e corretos",
+      "desc": "Dados de contato são permitidos e recomendados. WhatsApp e botões de contato são permitidos desde que não contenham chamadas de captação (\"me contrate\", \"fale com um especialista agora\").",
+      "laws": "Permitido; Cartilha CFOAB Jul/2024",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Botões de WhatsApp/contato sem texto de captação",
+      "desc": "Permitido: \"Entre em contato\", \"Fale conosco\", \"Envie uma mensagem\". Proibido: \"Contrate agora\", \"Resolva seu problema\", \"Consulta grátis\".",
+      "laws": "Permitido c/ restrição; Cartilha CFOAB Jul/2024",
+      "prof": "todos",
+      "risk": "baixo"
+    },
+    {
+      "section": "Geral",
+      "title": "Formação acadêmica e currículo profissional apresentados de forma objetiva",
+      "desc": "Graduação, pós-graduação, especializações, publicações e participação em bancas são permitidos como informação profissional. Devem ser verdadeiros e verificáveis.",
+      "laws": "Permitido; Art. 4º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Chatbot/assistente virtual: identificado claramente como automação, sem simular advogado ou oferecer consultoria",
+      "desc": "Se o site tem chatbot, ele deve se identificar como assistente automático. Proibido simular o advogado ou oferecer parecer/triagem jurídica gratuita para captação. (Cartilha CFOAB Jul/2024)",
+      "laws": "Permitido c/ restrição; Cartilha CFOAB Jul/2024",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "Geral",
+      "title": "Layout e comunicação visual sóbrios — sem apelos visuais mercantilistas ou sensacionalistas",
+      "desc": "Sites com contadores regressivos, pop-ups de \"oferta por tempo limitado\", badges de \"mais contratado\", layouts que imitam e-commerces são inadequados para a dignidade da advocacia.",
+      "laws": "Verificar; Art. 43 CED · Art. 11 Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Linguagem textual sóbria — sem apelo emocional, medo ou urgência artificialmente criada",
+      "desc": "Proibido: \"Não perca mais tempo, seu direito está sendo violado agora!\", \"Corra, o prazo está acabando!\". Linguagem deve ser profissional, objetiva e informativa.",
+      "laws": "Verificar; Art. 43 CED",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Meta titles e descrições (SEO) sem promessas, superlativos ou captação",
+      "desc": "Títulos como \"Melhor advogado trabalhista de SP\" ou \"Garanta seus direitos agora\" nas meta tags violam as mesmas regras do conteúdo principal.",
+      "laws": "Verificar; Art. 11 Prov. 205/2021",
+      "prof": "todos",
+      "risk": "baixo"
+    },
+    {
+      "section": "Geral",
+      "title": "Fotos profissionais do advogado(a) e/ou equipe — ambiente de trabalho sóbrio",
+      "desc": "Fotos profissionais são permitidas. Devem transmitir seriedade. Proibido exibir bens de luxo, viagens ou ambientes de ostentação.",
+      "laws": "Permitido c/ critério; Art. 11 Prov. 205/2021",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "Geral",
+      "title": "🔴 AUSÊNCIA de menção a processos, clientes, fatos ou dados que violem o sigilo profissional",
+      "desc": "Cases de sucesso, estudos de caso, relatos de processos com dados identificáveis de clientes são vedados mesmo que fictícios. O sigilo é dever absoluto do advogado.",
+      "laws": "Proibido; Art. 25 CED · Art. 7º §2 Estatuto OAB",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "Política de Privacidade publicada e acessível (LGPD obrigatória)",
+      "desc": "Escritórios que coletam dados via formulários de contato são obrigados a ter Política de Privacidade clara, com finalidade, base legal e prazo de retenção dos dados.",
+      "laws": "Obrigatório; LGPD Art. 9º",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "Formulários de contato com consentimento LGPD (opt-in) e link para Política de Privacidade",
+      "desc": "Todo formulário de captação de dados (contato, newsletter, agendamento) deve ter checkbox de aceite. (LGPD Art. 7º, I)",
+      "laws": "Obrigatório; LGPD Art. 7º",
+      "prof": "todos",
+      "risk": "alto"
+    },
+    {
+      "section": "Geral",
+      "title": "Site utiliza HTTPS (certificado SSL ativo) — obrigatório para coleta de dados",
+      "desc": "Sites jurídicos frequentemente recebem dados sensíveis (nome, CPF, situação jurídica). Sem HTTPS, esses dados trafegam sem criptografia — violação da LGPD e da ética profissional.",
+      "laws": "Obrigatório; LGPD + Segurança",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Banner de cookies presente com opção de aceitar/recusar rastreamento",
+      "desc": "Escritórios com Google Analytics, pixels de remarketing ou cookies de terceiros devem ter banner de consentimento de cookies conforme LGPD.",
+      "laws": "Obrigatório; LGPD",
+      "prof": "todos",
+      "risk": null
+    },
+    {
+      "section": "Geral",
+      "title": "Nome do escritório em conformidade com o registro na OAB — sem nomes fantasiosos que sugiram empresa não jurídica",
+      "desc": "O nome exibido deve corresponder à razão social registrada na OAB. Nomes como \"Soluções Jurídicas Ltda\" sem o nome de um sócio são vedados para sociedades de advogados.",
+      "laws": "Obrigatório; Art. 5º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Advogados associados listados com OAB — não confundir associados com sócios",
+      "desc": "A distinção entre sócios e associados deve ser clara para não induzir o cliente sobre a estrutura do escritório. Cada profissional deve ter seu número OAB visível.",
+      "laws": "Verificar; Art. 6º Prov. 205/2021",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Geral",
+      "title": "Escritório não anuncia parcerias com não advogados ou participação em plataformas de \"marketplace jurídico\" não autorizadas",
+      "desc": "Plataformas de captação e indicação de causas que funcionam como leilão de processos ou que cobram comissão do advogado violam o Estatuto da OAB.",
+      "laws": "Verificar; Art. 34, IV Estatuto OAB",
+      "prof": "todos",
+      "risk": null
+    }
+  ],
+  "advocacia_completo": [
+    {
+      "section": "Transparência Regulatória",
+      "title": "Exibição Clara do Nome e Número de Inscrição da OAB",
+      "desc": "O rodapé ou página institucional deve apresentar explicitamente o nome completo do advogado (ou a razão social da sociedade) seguido do respectivo número de inscrição e Seccional (ex: OAB/SP 000.000).",
+      "laws": "Bases: CED da OAB · Provimento 205/2021 (Art. 5º)",
+      "prof": "sociedade",
+      "risk": "critico"
+    },
+    {
+      "section": "Transparência Regulatória",
+      "title": "Número de Registro da Sociedade de Advogados",
+      "desc": "Em caso de firmas coletivas, o site deve obrigatoriamente exibir o número de registro da Sociedade de Advogados averbado perante o conselho seccional da OAB correspondente.",
+      "laws": "Bases: Estatuto da Advocacia (Lei 8.906/94)",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Transparência Regulatória",
+      "title": "Informação sobre Filiais ou Atuação Suplementar",
+      "desc": "Caso o site anuncie atuação física ou estrutura de atendimento fixo em outros estados, deve constar o número das inscrições suplementares cabíveis dos advogados responsáveis por aquela região.",
+      "laws": "Bases: Regulamento Geral da OAB",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Caráter Informativo e Proibições",
+      "title": "Caráter Puramente Informativo (Ausência de Teor Comercial)",
+      "desc": "O conteúdo do site deve se limitar a fins estritamente ilustrativos, educacionais e de orientação jurídica. É terminantemente proibido o uso de expressões de apelo mercantil (ex: \"Consulte-nos já\", \"Garantimos o melhor resultado\", \"Agende uma avaliação gratuita\").",
+      "laws": "Bases: CED da OAB (Art. 39) · Provimento 205/2021",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Caráter Informativo e Proibições",
+      "title": "Proibição Absoluta de Divulgação de Valores e Preços",
+      "desc": "É vedada qualquer menção a tabelas de honorários, gratuidade de serviços, facilidades de pagamento, descontos ou formas de parcelamento na interface pública do site.",
+      "laws": "Bases: CED da OAB (Art. 41)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Caráter Informativo e Proibições",
+      "title": "Ausência de Listas de Clientes ou Casos de Sucesso",
+      "desc": "Para preservar o sigilo profissional, o site não pode ostentar nomes de clientes atendidos, logotipos de empresas parceiras ou menções explícitas a êxitos em processos judiciais específicos (\"Ganhamos X milhões\", \"Caso Ganho\").",
+      "laws": "Bases: CED da OAB (Art. 42, VI)",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Caráter Informativo e Proibições",
+      "title": "Vedação do Uso de Cargo Público como Chamariz",
+      "desc": "Se algum sócio ou membro do escritório ocupa cargo público (ex: Ex-Juiz, Ex-Promotor, Professor de Universidade Pública), o site não pode utilizar essa condição passada ou presente para sugerir facilidades ou trânsito nos tribunais.",
+      "laws": "Bases: CED da OAB (Art. 40, IV)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Caráter Informativo e Proibições",
+      "title": "Proibição de Indução ao Litígio e Captação de Causas",
+      "desc": "Os artigos de blog e páginas de serviços devem abordar teses abstratas. O text não pode incentivar o usuário a processar uma empresa específica ou sugerir que o leitor possui um direito ganho diante de uma notícia de tribunal.",
+      "laws": "Bases: Estatuto da OAB (Art. 34, IV)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Segurança de Dados e LGPD nos Escritórios",
+      "title": "Tratamento de Dados Jurídicos e Segredo de Justiça",
+      "desc": "Formulários de contato (\"Fale Conosco\" / WhatsApp) não devem induzir o upload de peças processuais sem aviso de segurança prévio. O site precisa de consentimento claro e termo de confidencialidade digital antes do envio de fatos sob segredo de justiça.",
+      "laws": "Bases: LGPD · Estatuto da OAB (Art. 7º, XIX)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Segurança de Dados e LGPD nos Escritórios",
+      "title": "Banner de Cookies Ativo (Consentimento Opt-in)",
+      "desc": "O site deve obrigatoriamente bloquear pixels de conversão e rastreadores comportamentais (ex: Facebook Pixel utilizado para remarketing de anúncios) antes que o usuário dê o aceite livre no banner de cookies.",
+      "laws": "Bases: LGPD (Art. 7º, I) · Diretrizes Operacionais da ANPD",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Segurança de Dados e LGPD nos Escritórios",
+      "title": "Canal do Encarregado de Proteção de Dados (DPO)",
+      "desc": "Apresentação visível na Política de Privacidade do e-mail ou canal de atendimento do DPO (Encarregado), permitindo que potenciais clientes ou terceiros solicitem a exclusão imediata de dados cadastrais.",
+      "laws": "Bases: LGPD (Art. 41)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Segurança de Dados e LGPD nos Escritórios",
+      "title": "Certificado de Segurança HTTPS Nativo",
+      "desc": "Uso de criptografia de ponta a ponta ativa em todo o domínio por meio de certificado SSL/TLS válido, impedindo a interceptação de relatos e dados consultivos enviados por potenciais clientes.",
+      "laws": "Bases: Marco Civil da Internet (Art. 9º)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Funcionalidades e Ferramentas Tecnológicas",
+      "title": "Proibição de Chatbots com Consulta Automatizada de Casos Concretos",
+      "desc": "Se o site possuir um assistente virtual (IA ou fluxos pré-programados), ele pode apenas fazer triagem inicial, agendamento ou tirar dúvidas conceituais. É proibido que o robô emita pareceres, analise documentos automaticamente ou dê respostas jurídicas definitivas a casos reais.",
+      "laws": "Bases: Regulamentação de IA e Ética da OAB",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Funcionalidades e Ferramentas Tecnológicas",
+      "title": "Ausência de Ferramentas de Redirecionamento Enganosas (Clickbait)",
+      "desc": "O site não pode ocultar links ou utilizar técnicas de engenharia social que façam o usuário clicar em botões simulando serviços públicos (ex: \"Consulte seu FGTS aqui\") para redirecioná-lo a um formulário de contratação do escritório.",
+      "laws": "Bases: Marco Civil da Internet · Diretrizes Éticas OAB",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Inclusão",
+      "title": "Acessibilidade Ativa nas Páginas Institucionais",
+      "desc": "O portal do escritório deve prover recursos de acessibilidade digital (como suporte a leitores de tela, navegação por teclado, e ajustes de contraste/fonte) para garantir o direito de acesso à justiça a cidadãos com deficiência.",
+      "laws": "Bases: Lei Brasileira de Inclusão (Art. 63)",
+      "prof": "todos",
+      "risk": null
+    }
+  ],
+  "saude_completo": [
+    {
+      "section": "Identificação",
+      "title": "Exibição de Nome e Registro de Classe no Rodapé",
+      "desc": "Exibição clara e permanente do nome do profissional, palavra da profissão por extenso (ex: \"Fisioterapeuta\", \"Médico\") e número de inscrição seguido do conselho (ex: CREFITO-2, CRM-MG).",
+      "laws": "Bases: CFM 2.336/2023 · COFFITO · CFP",
+      "prof": "medico",
+      "risk": "critico"
+    },
+    {
+      "section": "Identificação",
+      "title": "RQE Obrigatório para Especialidades Médicas",
+      "desc": "Se houver anúncio de qualquer especialidade médica ou área de atuação, o número do RQE (Registro de Qualificação de Especialista) deve constar obrigatoriamente ao lado do CRM. Proibido usar termos genéricos como \"Especialista em...\" sem RQE homologado.",
+      "laws": "Bases: CFM 2.336/2023 (Art. 2º)",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Identificação",
+      "title": "Dados Estruturais da Empresa (CNPJ e Endereço)",
+      "desc": "Se o site realiza agendamentos ou ofertas, o rodapé deve expor o CNPJ da clínica (ou CPF do autônomo) e o endereço físico completo da prestação do serviço.",
+      "laws": "Bases: Decreto do E-commerce 7.962/2013 · CDC",
+      "prof": "psi",
+      "risk": "critico"
+    },
+    {
+      "section": "Identificação",
+      "title": "Link Direto para o Cadastro Ativo no Sistema E-Psi",
+      "desc": "O site de psicólogos que realizam atendimento síncrono ou assíncrono por meios digitais deve obrigatoriamente apresentar um link visível direcionando ao seu cadastro ativo no Sistema E-Psi.",
+      "laws": "Bases: Resolução CFP nº 9/2024",
+      "prof": "medico",
+      "risk": "medio"
+    },
+    {
+      "section": "Regras de Conteúdo e Imagem",
+      "title": "Uso Regulamentado do \"Antes e Depois\" Médico",
+      "desc": "A apresentação de fotos comparativas de tratamentos é permitida EXCLUSIVAMENTE pelo médico assistente responsável, de caráter puramente educativo, devendo conter texto explícito listando indicações, evoluções e possíveis complicações. Proibido em publicidade de terceiros.",
+      "laws": "Bases: CFM 2.336/2023 (Art. 10)",
+      "prof": "medico",
+      "risk": "critico"
+    },
+    {
+      "section": "Regras de Conteúdo e Imagem",
+      "title": "Vedação à Identificação e Anonimato do Paciente",
+      "desc": "Mesmo com autorização expressa do paciente, imagens de resultados não podem revelar traços de identificação civil do indivíduo, tatuagens ou marcas singulares. O post/página não pode ser anônimo; deve identificar o médico.",
+      "laws": "Bases: CFM 2.336/2023 · LGPD (Minimização de Dados)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Regras de Conteúdo e Imagem",
+      "title": "Proibição de Equipamentos como Diferencial Único de Garantia",
+      "desc": "O site pode listar as tecnologias e aparelhos homologados pela ANVISA disponíveis na clínica, mas é vedado associar o uso do aparelho a uma promessa infalível de resultado ou garantia de cura.",
+      "laws": "Bases: Resoluções de Classe · CDC (Publicidade Enganosa)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "LGPD e Marco Civil",
+      "title": "Tratamento de Dados Pessoais Sensíveis de Saúde (Art. 11)",
+      "desc": "Formulários de contato, triagem ou pré-agendamento que coletem anamnese simplificada, sintomas ou queixas tratam dados sensíveis de saúde. Exige-se uma cláusula de consentimento explícita com base em Tutela da Saúde ou Legítimo Interesse mitigado.",
+      "laws": "Bases: LGPD (Art. 5º, II e Art. 11)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "LGPD e Marco Civil",
+      "title": "Banner Ativo de Gestão de Cookies e Scripts",
+      "desc": "O site deve conter um aviso de cookies que bloqueie scripts de rastreamento de terceiros (como Meta Pixel e Google Analytics) ANTES do consentimento expresso do usuário. Placeholders informativos passivos não bastam.",
+      "laws": "Bases: LGPD · Diretrizes da ANPD",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "LGPD e Marco Civil",
+      "title": "Identificação Pública do Encarregado de Dados (DPO)",
+      "desc": "A Política de Privacidade deve conter explicitamente a identidade e o meio de contato eletrônico (e-mail) do Encarregado pelo Tratamento de Dados (DPO) para o exercício de direitos dos titulares.",
+      "laws": "Bases: LGPD (Art. 41)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "LGPD e Marco Civil",
+      "title": "Criptografia em Trânsito (Protocolo HTTPS/TLS)",
+      "desc": "Certificado SSL/TLS ativo em todas as rotas do site, garantindo o tráfego criptografado e seguro de dados sensíveis digitados pelo usuário em formulários.",
+      "laws": "Bases: Marco Civil da Internet (Art. 9º) · LGPD (Art. 46)",
+      "prof": "todos",
+      "risk": "baixo"
+    },
+    {
+      "section": "LGPD e Marco Civil",
+      "title": "Política de Retenção e Guarda de Logs de Acesso",
+      "desc": "Configuração do servidor web para a guarda inviolável dos registros (logs) de aplicação (data, hora e IP de acessos) pelo prazo mínimo regulatório de 6 meses em ambiente seguro.",
+      "laws": "Bases: Marco Civil da Internet (Art. 15)",
+      "prof": "todos",
+      "risk": "critico"
+    },
+    {
+      "section": "Práticas de Mercado e Abuso Comercial",
+      "title": "Ausência de Mecanismos de Varejo (Sorteios, Cupons e Consórcios)",
+      "desc": "Ausência total de ofertas casadas, cupons de desconto temporais, rodas de premiação, dinâmicas de indicação premiada ou sorteios virtuais de tratamentos e consultas.",
+      "laws": "Bases: CFM 2.336/2023 · COFFITO · CFP · CDC",
+      "prof": "medico",
+      "risk": "critico"
+    },
+    {
+      "section": "Práticas de Mercado e Abuso Comercial",
+      "title": "Vedação à Indicação de Marcas, Produtos ou Órteses",
+      "desc": "O site não pode expor marcas comerciais de fármacos, suplementos, próteses ou insumos de saúde vinculados a recomendações de compra direta de marcas parceiras comerciais do profissional.",
+      "laws": "Bases: Código de Ética Médica (CEM) · CFM 2.336/2023",
+      "prof": "todos",
+      "risk": "medio"
+    },
+    {
+      "section": "Acessibilidade Digital",
+      "title": "Recursos de Acessibilidade Web Ativos",
+      "desc": "Implementação de ferramentas para navegação inclusiva de PCDs, incluindo contraste dinâmico, redimensionamento de fontes, descrição textual de mídias (alt text) ou integração com tradutores automáticos de Libras.",
+      "laws": "Bases: Lei Brasileira de Inclusão (Art. 63)",
+      "prof": "todos",
+      "risk": null
+    }
+  ]
+}

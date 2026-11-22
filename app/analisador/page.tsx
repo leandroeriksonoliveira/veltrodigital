@@ -36,66 +36,69 @@ type ClientReport = {
   };
 };
 
-const PROFESSIONS = [
-  { value: 'medico', label: 'Médico(a)' },
-  { value: 'advogado', label: 'Advogado(a)' },
-  { value: 'fisioterapeuta', label: 'Fisioterapeuta' },
-  { value: 'psicologo', label: 'Psicólogo(a)' },
-  { value: 'dentista', label: 'Dentista' },
-  { value: 'veterinario', label: 'Veterinário(a)' },
-  { value: 'enfermeiro', label: 'Enfermeiro(a)' },
-  { value: 'nutricionista', label: 'Nutricionista' },
-  { value: 'arquiteto', label: 'Arquiteto(a) / Engenheiro(a)' },
-  { value: 'outro', label: 'Outro' },
-];
-
 function seloClass(selo: string) {
   if (selo === 'Aprovado') return 'ok';
   if (selo === 'Risco Moderado') return 'warn';
   return 'danger';
 }
 
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, '');
+}
+
 export default function AnalisadorPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [report, setReport] = useState<ClientReport | null>(null);
+  const [siteUrl, setSiteUrl] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
 
   const waLink = useMemo(() => {
     const msg =
-      'Olá! Fiz a análise de conformidade digital no site da Veltro e gostaria de falar com um especialista.';
+      'Olá! Vi minha nota de conformidade no analisador da Veltro e quero corrigir minha presença digital.';
     return `https://wa.me/5511986446779?text=${encodeURIComponent(msg)}`;
   }, []);
+
+  const mailLink = useMemo(() => {
+    const subject = encodeURIComponent('Quero corrigir minha presença digital');
+    const body = encodeURIComponent(
+      `Olá, Veltro Digital.\n\nGerei a nota de conformidade do meu site e quero falar sobre correção.\nSite: ${siteUrl || '—'}\nWhatsApp: ${phone || '—'}\nE-mail: ${email || '—'}\n`
+    );
+    return `mailto:contato@veltrodigital.com.br?subject=${subject}&body=${body}`;
+  }, [siteUrl, phone, email]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setReport(null);
+    setRequestSent(false);
     setLoading(true);
-    const fd = new FormData(e.currentTarget);
-    const profileUrl = String(fd.get('profile_url') || '').trim();
-    const siteUrl = String(fd.get('site_url') || '').trim();
-    const email = String(fd.get('email') || '').trim();
-    const phone = String(fd.get('phone') || '').trim();
 
-    if (!profileUrl && !siteUrl) {
-      setError('Informe ao menos o link da rede social ou do site.');
+    const site = siteUrl.trim();
+    const wa = phone.trim();
+    const mail = email.trim();
+
+    if (!site) {
+      setError('Informe o link do seu site.');
       setLoading(false);
       return;
     }
-    if (!email && !phone) {
-      setError('Informe ao menos um contato: WhatsApp ou e-mail.');
+    if (!wa && !mail) {
+      setError('Informe WhatsApp ou e-mail para receber o retorno.');
       setLoading(false);
       return;
     }
 
     const payload = {
-      name: String(fd.get('name') || ''),
-      email,
-      phone,
-      profession: String(fd.get('profession') || ''),
-      profile_url: profileUrl,
-      site_url: siteUrl,
-      consent: fd.get('consent') === 'on',
+      name: '',
+      email: mail,
+      phone: wa,
+      profession: 'outro',
+      profile_url: '',
+      site_url: site,
+      consent: true,
     };
 
     try {
@@ -114,7 +117,40 @@ export default function AnalisadorPage() {
     }
   }
 
+  function onRequestHelp(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const wa = phone.trim();
+    const mail = email.trim();
+    if (!wa && !mail) {
+      setError('Informe WhatsApp ou e-mail para solicitarmos o contato.');
+      return;
+    }
+    setError('');
+    setRequestSent(true);
+
+    const msg = [
+      'Olá! Solicitei agora a correção da minha presença digital.',
+      `Site: ${siteUrl || '—'}`,
+      `Nota: ${report?.score_geral ?? '—'} · ${report?.selo ?? ''}`,
+      wa ? `Meu WhatsApp: ${wa}` : '',
+      mail ? `Meu e-mail: ${mail}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    if (wa) {
+      window.open(`https://wa.me/5511986446779?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+    } else if (mail) {
+      window.location.href = `mailto:contato@veltrodigital.com.br?subject=${encodeURIComponent(
+        'Solicitar correção de presença digital'
+      )}&body=${encodeURIComponent(msg)}`;
+    }
+  }
+
   const sb = report?.scoreboard;
+  const sancoes =
+    report?.penalidades_resumo.sanções_eticas ||
+    (report?.penalidades_resumo as { sancoes_eticas?: string } | undefined)?.sancoes_eticas;
 
   return (
     <div className="shell">
@@ -130,126 +166,91 @@ export default function AnalisadorPage() {
 
         <span className="tag">Conformidade Digital</span>
         <h1>
-          Análise rápida de
+          Qual é a nota do
           <br />
-          conformidade digital
+          seu site?
         </h1>
         <p className="lead">
-          Cole o link da sua rede social e, se tiver, o do site. Você recebe o resumo numérico de
-          conformidade para iniciar o atendimento com a Veltro Digital.
+          Informe o site e um contato. Em segundos você recebe a nota inicial de conformidade e os
+          riscos de multa associados.
         </p>
 
         {!report ? (
           <form className="card" onSubmit={onSubmit}>
             {error && <div className="error">{error}</div>}
 
-            <div className="grid-2">
-              <div>
-                <label htmlFor="name">Seu nome</label>
-                <input id="name" name="name" required placeholder="Dr(a). Seu nome" />
-              </div>
-              <div>
-                <label htmlFor="profession">Profissão</label>
-                <select id="profession" name="profession" required defaultValue="">
-                  <option value="" disabled>
-                    Selecione
-                  </option>
-                  {PROFESSIONS.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <label htmlFor="profile_url">Link da rede social</label>
+            <label htmlFor="site_url">Site</label>
             <input
-              id="profile_url"
-              name="profile_url"
+              id="site_url"
+              name="site_url"
               type="url"
-              placeholder="https://www.instagram.com/seu.perfil/"
+              required
+              placeholder="https://seusite.com.br"
+              value={siteUrl}
+              onChange={(e) => setSiteUrl(e.target.value)}
             />
-            <p className="hint">Instagram, LinkedIn, Facebook ou similar.</p>
 
-            <label htmlFor="site_url">Link do site (se tiver)</label>
-            <input id="site_url" name="site_url" type="url" placeholder="https://seusite.com.br" />
-            <p className="hint">Opcional. Se preencher, analisamos rede + site juntos.</p>
-
-            <div className="grid-2">
+            <div className="grid-2" style={{ marginTop: 16 }}>
               <div>
                 <label htmlFor="phone">WhatsApp</label>
-                <input id="phone" name="phone" placeholder="(11) 98644-6779" />
+                <input
+                  id="phone"
+                  name="phone"
+                  placeholder="(11) 98644-6779"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
               <div>
                 <label htmlFor="email">E-mail</label>
-                <input id="email" name="email" type="email" placeholder="seu@email.com" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
             </div>
-            <p className="hint">Informe pelo menos um contato: WhatsApp ou e-mail.</p>
+            <p className="hint">Informe WhatsApp ou e-mail — usamos para devolver a nota e o próximo passo.</p>
 
             <label className="consent">
               <input type="checkbox" name="consent" required />
               <span>
-                Li e concordo com a{' '}
+                Concordo com a{' '}
                 <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer">
                   Política de Privacidade
-                </a>
-                . Autorizo o tratamento dos dados para análise de conformidade e contato comercial
-                (LGPD).
+                </a>{' '}
+                e autorizo o contato comercial sobre conformidade digital (LGPD).
               </span>
             </label>
 
             <button className="btn" type="submit" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Analisando seus links…' : 'Ver minha nota de conformidade →'}
+              {loading ? 'Gerando sua nota…' : 'Ver minha nota →'}
             </button>
             <p className="disclaimer">
-              Relatório orientativo. Não substitui parecer jurídico individualizado nem decisão de
-              conselho de classe ou ANPD.
+              Nota orientativa. Não substitui parecer jurídico, decisão de conselho de classe ou da
+              ANPD.
             </p>
           </form>
         ) : (
           <div className="card">
-            <span className="tag">Resumo numérico</span>
-            <h2>Resultado da conformidade</h2>
+            <span className="tag">Sua nota inicial</span>
+            <h2 style={{ marginTop: 8 }}>Resultado</h2>
             <div className={`selo ${seloClass(report.selo)}`}>{report.selo}</div>
-            {report.veredito && (
-              <p className="hint" style={{ marginTop: 8 }}>
-                Veredito: <strong>{report.veredito}</strong>
-                {sb ? ` · Índice ${sb.indice}%` : ''}
-              </p>
-            )}
+            <p className="hint" style={{ marginTop: 10 }}>
+              Nota <strong>{report.score_geral}</strong>
+              {report.veredito ? ` · ${report.veredito}` : ''}
+              {siteUrl ? (
+                <>
+                  <br />
+                  Site analisado: {siteUrl}
+                </>
+              ) : null}
+            </p>
 
-            {sb && (
-              <div className="scores" style={{ marginTop: 20 }}>
-                <div className="score-box">
-                  <div className="n">{sb.indice}</div>
-                  <div className="l">Índice %</div>
-                </div>
-                <div className="score-box">
-                  <div className="n">{sb.total_avaliados}</div>
-                  <div className="l">Itens avaliados</div>
-                </div>
-                <div className="score-box">
-                  <div className="n">{sb.conformes}</div>
-                  <div className="l">Conformes</div>
-                </div>
-                <div className="score-box">
-                  <div className="n">{sb.atencao}</div>
-                  <div className="l">Atenção</div>
-                </div>
-                <div className="score-box">
-                  <div className="n">{sb.nao_conformes}</div>
-                  <div className="l">Não conformes</div>
-                </div>
-                <div className="score-box">
-                  <div className="n">{sb.criticos}</div>
-                  <div className="l">Críticos</div>
-                </div>
-              </div>
-            )}
-
-            <div className="scores" style={{ marginTop: 12 }}>
+            <div className="scores" style={{ marginTop: 20 }}>
               <div className="score-box">
                 <div className="n">{report.score_geral}</div>
                 <div className="l">Geral</div>
@@ -266,59 +267,117 @@ export default function AnalisadorPage() {
                 <div className="n">{report.score_etica_profissional}</div>
                 <div className="l">Ética</div>
               </div>
-              {typeof report.score_rede_social === 'number' && (
-                <div className="score-box">
-                  <div className="n">{report.score_rede_social}</div>
-                  <div className="l">Rede social</div>
-                </div>
-              )}
-              {typeof report.score_site === 'number' && (
-                <div className="score-box">
-                  <div className="n">{report.score_site}</div>
-                  <div className="l">Site</div>
-                </div>
-              )}
             </div>
 
             {sb && (
-              <div className="penalties" style={{ marginTop: 16 }}>
-                <h2 style={{ fontSize: '1.1rem' }}>Riscos mapeados (números)</h2>
-                <ul>
-                  <li>Infrações mapeadas: {sb.infracoes_mapeadas}</li>
-                  <li>Riscos de gravidade alta: {sb.riscos_alta}</li>
-                  <li>Riscos de gravidade média: {sb.riscos_media}</li>
-                  <li>Riscos reputacionais: {sb.riscos_reputacionais}</li>
-                </ul>
-              </div>
+              <p className="hint" style={{ marginTop: 12 }}>
+                {sb.conformes} conformes · {sb.atencao} em atenção · {sb.nao_conformes} não
+                conformes · {sb.criticos} críticos
+              </p>
             )}
 
-            <p style={{ marginTop: 16 }}>{report.cta_generico}</p>
-
-            <div className="penalties">
-              <h2 style={{ fontSize: '1.2rem' }}>Penalidades possíveis (limites legais)</h2>
+            <div className="penalties" style={{ marginTop: 20 }}>
+              <h2 style={{ fontSize: '1.15rem' }}>Riscos de multa e penalidade</h2>
               <ul>
-                <li>{report.penalidades_resumo.multa_anpd_max}</li>
-                <li>{report.penalidades_resumo.multa_pf_referencia}</li>
-                <li>{report.penalidades_resumo.suspensao_conselho}</li>
                 <li>
-                  {report.penalidades_resumo.sanções_eticas ||
-                    (report.penalidades_resumo as { sancoes_eticas?: string }).sancoes_eticas}
+                  <strong>ANPD / LGPD:</strong> {report.penalidades_resumo.multa_anpd_max}
                 </li>
-                <li>{report.penalidades_resumo.riscos_imagem}</li>
+                <li>
+                  <strong>Referência PF:</strong> {report.penalidades_resumo.multa_pf_referencia}
+                </li>
+                <li>
+                  <strong>Conselho de classe:</strong> {report.penalidades_resumo.suspensao_conselho}
+                </li>
+                <li>
+                  <strong>Sanções éticas:</strong> {sancoes}
+                </li>
+                <li>
+                  <strong>Imagem:</strong> {report.penalidades_resumo.riscos_imagem}
+                </li>
               </ul>
             </div>
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 24 }}>
-              <a className="btn" href={waLink} target="_blank" rel="noopener noreferrer">
-                Falar com especialista →
-              </a>
-              <button className="btn btn-outline" type="button" onClick={() => setReport(null)}>
-                Nova análise
-              </button>
+            <div
+              style={{
+                marginTop: 24,
+                padding: '18px 18px 16px',
+                borderRadius: 14,
+                border: '1px solid rgba(248, 113, 113, 0.35)',
+                background: 'rgba(248, 113, 113, 0.08)',
+              }}
+            >
+              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>
+                Corrija já sua presença digital
+              </h2>
+              <p style={{ margin: '10px 0 0', color: 'var(--muted, #b8c0cc)', lineHeight: 1.55 }}>
+                Uma nota baixa aumenta a exposição a multas, sanções de conselho e dano
+                reputacional. Ajuste site e canais digitais agora — com prioridade clara — para
+                reduzir esse risco antes de uma fiscalização ou reclamação.
+              </p>
             </div>
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 20 }}>
+              <a className="btn" href={waLink} target="_blank" rel="noopener noreferrer">
+                WhatsApp · (11) 98644-6779
+              </a>
+              <a className="btn btn-outline" href={mailLink}>
+                E-mail · contato@veltrodigital.com.br
+              </a>
+            </div>
+
+            <form className="card" onSubmit={onRequestHelp} style={{ marginTop: 20, background: 'rgba(255,255,255,0.03)' }}>
+              <h2 style={{ fontSize: '1.1rem', marginTop: 0 }}>Solicitar agora</h2>
+              <p className="hint" style={{ marginTop: 0 }}>
+                Confirmamos seu contato e a equipe da Veltro retorna com o próximo passo.
+              </p>
+              {error && <div className="error">{error}</div>}
+              <div className="grid-2">
+                <div>
+                  <label htmlFor="req_phone">Seu WhatsApp</label>
+                  <input
+                    id="req_phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(11) 98644-6779"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="req_email">Seu e-mail</label>
+                  <input
+                    id="req_email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                  />
+                </div>
+              </div>
+              <button className="btn" type="submit" style={{ width: '100%', marginTop: 8 }}>
+                Solicitar correção agora →
+              </button>
+              {requestSent && (
+                <p className="hint" style={{ marginTop: 10, color: '#4ade80' }}>
+                  Solicitação aberta. Se o WhatsApp não abriu, use os botões acima ou ligue para
+                  (11) 98644-6779
+                  {digitsOnly(phone) ? ` · seu contato: ${phone}` : ''}.
+                </p>
+              )}
+            </form>
+
+            <button
+              className="btn btn-outline"
+              type="button"
+              style={{ marginTop: 16 }}
+              onClick={() => {
+                setReport(null);
+                setRequestSent(false);
+              }}
+            >
+              Nova análise
+            </button>
             <p className="disclaimer">
-              Esta tela mostra apenas o resumo numérico. Fale com a Veltro Digital para o próximo
-              passo comercial e eventual auditoria completa offline.
+              Esta tela mostra apenas a nota inicial e os limites legais de risco. O detalhamento
+              completo fica com a equipe Veltro Digital.
             </p>
           </div>
         )}

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Analisador de Conformidade Digital | Veltro Digital',
+  title: 'Nota de Conformidade Digital | Veltro Digital',
   description:
-    'Avalie bio, posts ou site institucional com base em LGPD, Marco Civil e normas do seu conselho de classe.',
-};
+    'Informe seu site e um contato. Receba a nota inicial de conformidade e os riscos de multa — LGPD, Marco Civil e conselhos.',
+}
 
 export default function AnalisadorLayout({ children }: { children: React.ReactNode }) {
   return children;

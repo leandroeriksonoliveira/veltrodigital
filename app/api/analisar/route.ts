@@ -21,23 +21,26 @@ export const maxDuration = 60;
 
 const BodySchema = z
   .object({
-    name: z.string().trim().min(2).max(120),
+    name: z.string().trim().max(120).optional().default(''),
     email: z.string().trim().email().optional().or(z.literal('')),
     phone: z.string().trim().max(40).optional().default(''),
-    profession: z.enum([
-      'medico',
-      'advogado',
-      'fisioterapeuta',
-      'psicologo',
-      'dentista',
-      'veterinario',
-      'enfermeiro',
-      'nutricionista',
-      'arquiteto',
-      'outro',
-    ]),
+    profession: z
+      .enum([
+        'medico',
+        'advogado',
+        'fisioterapeuta',
+        'psicologo',
+        'dentista',
+        'veterinario',
+        'enfermeiro',
+        'nutricionista',
+        'arquiteto',
+        'outro',
+      ])
+      .optional()
+      .default('outro'),
     profile_url: z.string().max(500).optional().default(''),
-    site_url: z.string().max(500).optional().default(''),
+    site_url: z.string().trim().min(3).max(500),
     consent: z.literal(true),
   })
   .refine((body) => Boolean(body.email || body.phone), {
@@ -49,6 +52,21 @@ function normalizeUrl(url: string): string {
   const t = url.trim();
   if (!t) return '';
   return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+
+function nameFromSite(url: string): string {
+  try {
+    const host = new URL(normalizeUrl(url)).hostname.replace(/^www\./i, '');
+    const label = host.split('.')[0] || host;
+    return label
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+      .slice(0, 80);
+  } catch {
+    return 'Lead site';
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -68,6 +86,7 @@ export async function POST(req: NextRequest) {
 
     let socialUrl = normalizeUrl(body.profile_url || '');
     let siteUrl = normalizeUrl(body.site_url || '');
+    const leadName = (body.name || '').trim() || nameFromSite(siteUrl || socialUrl);
 
     // Se o usuário colou o Instagram no campo do site (ou vice-versa), corrige
     if (!socialUrl && siteUrl && isSocialUrl(siteUrl)) {
@@ -84,9 +103,9 @@ export async function POST(req: NextRequest) {
       siteUrl = '';
     }
 
-    if (!socialUrl && !siteUrl) {
+    if (!siteUrl && !socialUrl) {
       return NextResponse.json(
-        { error: 'Informe o link da rede social e/ou do site.' },
+        { error: 'Informe o link do site para gerar a nota.' },
         { status: 400 }
       );
     }
@@ -125,18 +144,18 @@ export async function POST(req: NextRequest) {
 
     // Nota inicial local (checklist + regras) — sem OpenAI e sem HTML/PDF
     const analysis = runLocalComplianceAnalysis({
-      name: body.name,
+      name: leadName,
       profession: body.profession,
       site: siteEvidence,
       social: socialEvidence,
     });
 
     const lead = await insertLead({
-      name: body.name,
+      name: leadName,
       email: body.email || null,
       phone: body.phone || null,
       profession: body.profession,
-      profile_url: socialUrl || primaryUrl || null,
+      profile_url: socialUrl || null,
       site_url: siteUrl && !isSocialUrl(siteUrl) ? siteUrl : null,
       input_type: inputType,
     });
@@ -149,7 +168,7 @@ export async function POST(req: NextRequest) {
 
     await notifyCommercial({
       leadId: lead.id,
-      name: body.name,
+      name: leadName,
       profession: professionLabel,
       selo: cr.selo,
       score: cr.score_geral,

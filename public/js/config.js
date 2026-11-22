@@ -18,12 +18,34 @@ const SITE_CONFIG = {
     esporte: 'esporte@veltrodigital.com.br',
     arquitetura: 'arquitetura@veltrodigital.com.br',
   },
-  instagram: 'https://instagram.com/veltrodigital',
+  // Instagram omitido enquanto o perfil @veltrodigital não tiver conteúdo público
+  // (evita link para canal vazio). Reative quando houver posts.
+  // instagram: 'https://instagram.com/veltrodigital',
   linkedin: 'https://linkedin.com/company/veltrodigital',
   siteUrl: 'https://www.veltrodigital.com.br',
 };
 
 function getWhatsAppUrl(message) {
-  const text = message || 'Olá! Gostaria de solicitar uma consultoria gratuita com a Veltro Digital.';
+  const lang = document.documentElement.lang || 'pt-BR';
+  const defaultMsg = lang.startsWith('en')
+    ? 'Hello! I would like to request a free consultation with Veltro Digital.'
+    : 'Olá! Gostaria de solicitar uma consultoria gratuita com a Veltro Digital.';
+  const text = message || defaultMsg;
   return `https://wa.me/${SITE_CONFIG.whatsappPhone}?text=${encodeURIComponent(text)}`;
+}
+
+const SITE_I18N = {
+  'pt-BR': {
+    footerRights: 'Todos os direitos reservados.',
+    dpoLabel: 'Encarregado de dados (DPO):',
+  },
+  en: {
+    footerRights: 'All rights reserved.',
+    dpoLabel: 'Data Protection Officer (DPO):',
+  },
+};
+
+function getSiteLocale() {
+  const lang = (document.documentElement.lang || 'pt-BR').toLowerCase();
+  return lang.startsWith('en') ? 'en' : 'pt-BR';
 }

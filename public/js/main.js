@@ -1,4 +1,173 @@
 /* ============================================================
+   LEGAL / LOCALE HELPERS
+   ============================================================ */
+function resolvePublicPath(fileName) {
+  const path = window.location.pathname.replace(/\\/g, '/');
+  if (/\/en\/solutions\//.test(path)) return `../../${fileName}`;
+  if (/\/solucoes\//.test(path) || /\/en\//.test(path)) return `../${fileName}`;
+  return fileName;
+}
+
+/* ============================================================
+   SKIP LINK + ACCESSIBILITY TOOLBAR
+   ============================================================ */
+(function initAccessibility() {
+  const i18n = getSiteLocale() === 'en'
+    ? {
+        skip: 'Skip to main content',
+        panelLabel: 'Accessibility tools',
+        toggle: 'Accessibility',
+        fontUp: 'Larger text',
+        fontDown: 'Smaller text',
+        contrast: 'High contrast',
+        reset: 'Reset',
+      }
+    : {
+        skip: 'Ir para o conteúdo principal',
+        panelLabel: 'Recursos de acessibilidade',
+        toggle: 'Acessibilidade',
+        fontUp: 'Aumentar fonte',
+        fontDown: 'Diminuir fonte',
+        contrast: 'Alto contraste',
+        reset: 'Resetar',
+      };
+
+  if (!document.getElementById('main-content')) {
+    const mainCandidate =
+      document.querySelector('main') ||
+      document.querySelector('section.hero') ||
+      document.querySelector('section') ||
+      document.querySelector('.hero');
+    if (mainCandidate && !mainCandidate.id) mainCandidate.id = 'main-content';
+  }
+
+  if (!document.querySelector('.skip-link')) {
+    const skip = document.createElement('a');
+    skip.href = '#main-content';
+    skip.className = 'skip-link';
+    skip.textContent = i18n.skip;
+    document.body.prepend(skip);
+  }
+
+  const toolbar = document.createElement('div');
+  toolbar.className = 'a11y-toolbar';
+  toolbar.setAttribute('role', 'region');
+  toolbar.setAttribute('aria-label', i18n.panelLabel);
+  toolbar.innerHTML = `
+    <button type="button" class="a11y-toggle" aria-expanded="false" aria-controls="a11y-panel" title="${i18n.toggle}">
+      <span aria-hidden="true">♿</span><span class="a11y-toggle-label">${i18n.toggle}</span>
+    </button>
+    <div id="a11y-panel" class="a11y-panel" hidden>
+      <button type="button" data-a11y="font-up">${i18n.fontUp}</button>
+      <button type="button" data-a11y="font-down">${i18n.fontDown}</button>
+      <button type="button" data-a11y="contrast">${i18n.contrast}</button>
+      <button type="button" data-a11y="reset">${i18n.reset}</button>
+    </div>
+  `;
+  document.body.appendChild(toolbar);
+
+  const toggle = toolbar.querySelector('.a11y-toggle');
+  const panel = toolbar.querySelector('#a11y-panel');
+  toggle?.addEventListener('click', () => {
+    const open = panel.hasAttribute('hidden');
+    if (open) panel.removeAttribute('hidden');
+    else panel.setAttribute('hidden', '');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  const applyFont = (delta) => {
+    const root = document.documentElement;
+    const current = parseFloat(getComputedStyle(root).fontSize) || 16;
+    root.style.fontSize = `${Math.min(22, Math.max(14, current + delta))}px`;
+  };
+
+  toolbar.querySelectorAll('[data-a11y]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-a11y');
+      if (action === 'font-up') applyFont(1);
+      if (action === 'font-down') applyFont(-1);
+      if (action === 'contrast') document.body.classList.toggle('a11y-contrast');
+      if (action === 'reset') {
+        document.documentElement.style.fontSize = '';
+        document.body.classList.remove('a11y-contrast');
+      }
+    });
+  });
+})();
+
+/* ============================================================
+   COOKIE BANNER (accept / reject non-essential)
+   ============================================================ */
+(function initCookieBanner() {
+  const KEY = 'veltro_cookie_consent';
+  const i18n = getSiteLocale() === 'en'
+    ? {
+        title: 'Cookies and privacy',
+        text: 'We use essential cookies to run this site. Non-essential cookies (analytics or marketing) are only activated after your consent. You can accept or refuse non-essential cookies.',
+        accept: 'Accept',
+        reject: 'Refuse',
+        policy: 'Privacy Policy',
+        cookies: 'Cookie Policy',
+      }
+    : {
+        title: 'Cookies e privacidade',
+        text: 'Utilizamos cookies essenciais para o funcionamento do site. Cookies não essenciais (analytics ou marketing) só são ativados com o seu consentimento. Você pode aceitar ou recusar cookies não essenciais.',
+        accept: 'Aceitar',
+        reject: 'Recusar',
+        policy: 'Política de Privacidade',
+        cookies: 'Política de Cookies',
+      };
+
+  const privacyHref = resolvePublicPath('politica-de-privacidade.html');
+  const cookiesHref = resolvePublicPath('politica-de-cookies.html');
+
+  const banner = document.createElement('div');
+  banner.id = 'cookie-banner';
+  banner.className = 'cookie-banner';
+  banner.setAttribute('role', 'dialog');
+  banner.setAttribute('aria-live', 'polite');
+  banner.setAttribute('aria-label', i18n.title);
+  banner.innerHTML = `
+    <div class="cookie-banner-inner">
+      <div class="cookie-banner-copy">
+        <strong class="cookie-banner-title">${i18n.title}</strong>
+        <p class="cookie-banner-text">${i18n.text}
+          <a href="${privacyHref}">${i18n.policy}</a> ·
+          <a href="${cookiesHref}">${i18n.cookies}</a>
+        </p>
+      </div>
+      <div class="cookie-banner-actions">
+        <button type="button" class="btn btn-outline cookie-reject" data-cookie="reject">${i18n.reject}</button>
+        <button type="button" class="btn btn-primary cookie-accept" data-cookie="accept">${i18n.accept}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(banner);
+
+  const saved = localStorage.getItem(KEY);
+  if (saved === 'accepted' || saved === 'rejected') {
+    banner.hidden = true;
+    banner.setAttribute('data-consent', saved);
+  } else {
+    banner.hidden = false;
+    banner.setAttribute('data-consent', 'pending');
+  }
+
+  const setConsent = (value) => {
+    localStorage.setItem(KEY, value);
+    banner.setAttribute('data-consent', value);
+    banner.hidden = true;
+    window.dispatchEvent(new CustomEvent('veltro:cookie-consent', { detail: { value } }));
+  };
+
+  banner.querySelector('[data-cookie="accept"]')?.addEventListener('click', () => setConsent('accepted'));
+  banner.querySelector('[data-cookie="reject"]')?.addEventListener('click', () => setConsent('rejected'));
+
+  // Block non-essential third-party scripts until consent (opt-in)
+  window.veltroCanLoadNonEssential = () => localStorage.getItem(KEY) === 'accepted';
+})();
+
+/* ============================================================
    CONTACT INFO (from config.js)
    ============================================================ */
 document.querySelectorAll('[data-contact="whatsapp"]').forEach(el => {
@@ -30,7 +199,8 @@ document.querySelectorAll('.wa-social').forEach(el => {
 
 document.querySelectorAll('[data-footer-legal]').forEach(el => {
   const c = SITE_CONFIG;
-  let text = `© ${new Date().getFullYear()} ${c.legalName} · ${c.legalResponsible}. Todos os direitos reservados.`;
+  const i18n = SITE_I18N[getSiteLocale()];
+  let text = `© ${new Date().getFullYear()} ${c.legalName} · ${c.legalResponsible}. ${i18n.footerRights}`;
   if (c.cnpj) text += ` CNPJ: ${c.cnpj}.`;
   if (c.legalAddress) text += ` ${c.legalAddress}.`;
   el.textContent = text;
@@ -38,7 +208,8 @@ document.querySelectorAll('[data-footer-legal]').forEach(el => {
 
 document.querySelectorAll('[data-footer-dpo]').forEach(el => {
   if (!SITE_CONFIG.dpoEmail) return;
-  el.innerHTML = `Encarregado de dados (DPO): <a href="mailto:${SITE_CONFIG.dpoEmail}">${SITE_CONFIG.dpoEmail}</a>`;
+  const i18n = SITE_I18N[getSiteLocale()];
+  el.innerHTML = `${i18n.dpoLabel} <a href="mailto:${SITE_CONFIG.dpoEmail}">${SITE_CONFIG.dpoEmail}</a>`;
 });
 
 /* Floating WhatsApp button */

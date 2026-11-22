@@ -24,6 +24,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
 </head>
 <body>
+<a class="skip-link" href="#main-content">Ir para o conteúdo principal</a>
 <nav class="navbar">
   <div class="container nav-inner">
     <a href="index.html" class="logo"><span class="logo-dot"></span>Veltro<span>Digital</span></a>
@@ -68,7 +69,7 @@
     <div class="hamburger"><span></span><span></span><span></span></div>
   </div>
 </nav>
-<section class="hero hero-centered">
+<section id="main-content" class="hero hero-centered">
   <div class="hero-bg"></div>
   <div class="hero-orb orb1"></div>
   <div class="hero-orb orb2"></div>
@@ -296,27 +297,32 @@
     </div>
 
     <div id="servico-identidade" class="service-featured reveal" style="margin-bottom:36px;scroll-margin-top:100px;">
-      <div class="about-grid" style="gap:40px;align-items:center;">
-        <div>
+      <div class="identity-layout">
+        <div class="identity-head">
           <span class="section-tag">Serviço · Identidade Digital</span>
-          <h2 class="subsection-title" style="margin-top:12px;">Site moderno, limpo e já conforme</h2>
-          <p style="margin-bottom:14px;">A Veltro constrói sua Identidade Digital do zero: website moderno, fácil de navegar e visualmente limpo — com hospedagem em <strong style="color:var(--white);">padrão ouro</strong> e base preparada para <strong style="color:var(--white);">LGPD</strong>, Marco Civil e transparência com o visitante. Você entra no ar com presença profissional, experiência fluida no celular e no desktop, e menos risco de multa desde o primeiro dia.</p>
-          <ul class="about-features">
+          <h2 class="subsection-title">Site moderno, limpo e já conforme</h2>
+          <p>Website moderno e fácil de navegar, com hospedagem em <strong style="color:var(--white);">padrão ouro</strong> e base preparada para <strong style="color:var(--white);">LGPD</strong>, Marco Civil e transparência com o visitante — presença profissional no ar desde o primeiro dia, com menos risco de multa.</p>
+        </div>
+        <div class="identity-body">
+          <ul class="about-features about-features--split">
             <li>Design contemporâneo, layout limpo e navegação intuitiva</li>
-            <li>Site rápido, responsivo e pensado para conversão (contato, WhatsApp, agenda)</li>
-            <li>Desenvolvimento sob medida + hospedagem em padrão ouro (HTTPS e operação estável)</li>
-            <li>Base pronta para LGPD: política de privacidade, termos, consentimento e cookies</li>
-            <li>Alinhamento às regras do seu setor (conselhos e órgãos aplicáveis, quando couber)</li>
+            <li>Site rápido, responsivo e pensado para conversão</li>
+            <li>Desenvolvimento sob medida + hospedagem padrão ouro</li>
+            <li>Base LGPD: privacidade, termos, consentimento e cookies</li>
+            <li>Alinhamento às regras do seu setor, quando couber</li>
+            <li>Experiência fluida no celular e no desktop</li>
           </ul>
-          <p style="margin-top:16px;font-size:0.85rem;color:var(--text-muted);">Modernidade sem gambiarra. Conformidade sem improviso. A conformidade final também depende do conteúdo e da operação do cliente.</p>
-          <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <div class="identity-cards systems-showcase">
+            <div class="system-card"><h4>Website moderno</h4><p>Interface clara, hierarquia objetiva e jornada simples até o contato.</p></div>
+            <div class="system-card"><h4>Hospedagem padrão ouro + conformidade</h4><p>HTTPS, ambiente seguro e estrutura pronta para operar dentro das regras.</p></div>
+          </div>
+        </div>
+        <div class="identity-foot">
+          <p class="identity-note">Modernidade sem gambiarra. Conformidade sem improviso. A conformidade final também depende do conteúdo e da operação do cliente.</p>
+          <div class="identity-actions">
             <a href="#contato" class="btn btn-primary">Quero minha Identidade Digital →</a>
             <a href="/analisador" class="btn btn-outline">Ver minha nota atual →</a>
           </div>
-        </div>
-        <div class="systems-showcase">
-          <div class="system-card"><h4>Website moderno</h4><p>Interface clara, hierarquia visual objetiva e jornada simples do visitante ao contato.</p></div>
-          <div class="system-card"><h4>Hospedagem padrão ouro + conformidade</h4><p>Ambiente seguro, HTTPS e estrutura documental/técnica para operar dentro das regras.</p></div>
         </div>
       </div>
     </div>
@@ -468,7 +474,7 @@
             <div class="form-group"><label>Mensagem</label><textarea placeholder="Conte um pouco sobre seu projeto..."></textarea></div>
             <div class="form-group form-consent">
               <label class="form-consent-label">
-                <input type="checkbox" class="form-consent-check" required data-form-exclude />
+                <input type="checkbox" class="form-consent-check" name="lgpd_consent" id="lgpd-consent" value="1" required data-form-exclude aria-required="true" />
                 <span>Li e concordo com a <a href="politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Política de Privacidade</a>, autorizo o tratamento dos meus dados conforme a LGPD e o encaminhamento ao WhatsApp para atendimento.</span>
               </label>
             </div>
@@ -518,8 +524,10 @@
       </ul></div>
       <div class="footer-links"><h4>Legal</h4><ul>
         <li><a href="politica-de-privacidade.html">Política de Privacidade</a></li>
+        <li><a href="politica-de-cookies.html">Política de Cookies</a></li>
         <li><a href="termos-de-uso.html">Termos de Uso</a></li>
         <li><a href="lgpd.html">LGPD</a></li>
+        <li><a href="acessibilidade.html">Acessibilidade</a></li>
       </ul></div>
     </div>
     <div class="footer-bottom">

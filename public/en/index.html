@@ -24,6 +24,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <nav class="navbar">
   <div class="container nav-inner">
     <a href="index.html" class="logo"><span class="logo-dot"></span>Veltro<span>Digital</span></a>
@@ -68,7 +69,7 @@
     <div class="hamburger"><span></span><span></span><span></span></div>
   </div>
 </nav>
-<section class="hero hero-centered">
+<section id="main-content" class="hero hero-centered">
   <div class="hero-bg"></div>
   <div class="hero-orb orb1"></div>
   <div class="hero-orb orb2"></div>
@@ -296,27 +297,32 @@
     </div>
 
     <div id="service-identity" class="service-featured reveal" style="margin-bottom:36px;scroll-margin-top:100px;">
-      <div class="about-grid" style="gap:40px;align-items:center;">
-        <div>
+      <div class="identity-layout">
+        <div class="identity-head">
           <span class="section-tag">Service · Digital Identity</span>
-          <h2 class="subsection-title" style="margin-top:12px;">A modern, clean website — already compliance-ready</h2>
-          <p style="margin-bottom:14px;">Veltro builds your Digital Identity from scratch: a modern, easy-to-navigate, visually clean website — with <strong style="color:var(--white);">gold-standard hosting</strong> and a foundation prepared for <strong style="color:var(--white);">LGPD</strong>, Marco Civil and visitor transparency. You go live with a professional presence, a smooth experience on mobile and desktop, and lower fine risk from day one.</p>
-          <ul class="about-features">
+          <h2 class="subsection-title">A modern, clean website — already compliance-ready</h2>
+          <p>A modern, easy-to-navigate website with <strong style="color:var(--white);">gold-standard hosting</strong> and a foundation prepared for <strong style="color:var(--white);">LGPD</strong>, Marco Civil and visitor transparency — professional presence live from day one, with lower fine risk.</p>
+        </div>
+        <div class="identity-body">
+          <ul class="about-features about-features--split">
             <li>Contemporary design, clean layout and intuitive navigation</li>
-            <li>Fast, responsive site built for conversion (contact, WhatsApp, booking)</li>
-            <li>Custom development + gold-standard hosting (HTTPS and stable operations)</li>
-            <li>LGPD-ready base: privacy policy, terms, consent and cookies</li>
-            <li>Aligned with your sector rules (councils and regulators when applicable)</li>
+            <li>Fast, responsive site built for conversion</li>
+            <li>Custom development + gold-standard hosting</li>
+            <li>LGPD-ready base: privacy, terms, consent and cookies</li>
+            <li>Aligned with your sector rules when applicable</li>
+            <li>Smooth experience on mobile and desktop</li>
           </ul>
-          <p style="margin-top:16px;font-size:0.85rem;color:var(--text-muted);">Modern without shortcuts. Compliance without improvisation. Final compliance also depends on the client's content and operations.</p>
-          <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <div class="identity-cards systems-showcase">
+            <div class="system-card"><h4>Modern website</h4><p>Clear interface, objective hierarchy and a simple path to contact.</p></div>
+            <div class="system-card"><h4>Gold-standard hosting + compliance</h4><p>HTTPS, secure environment and structure ready to operate within the rules.</p></div>
+          </div>
+        </div>
+        <div class="identity-foot">
+          <p class="identity-note">Modern without shortcuts. Compliance without improvisation. Final compliance also depends on the client's content and operations.</p>
+          <div class="identity-actions">
             <a href="#contact" class="btn btn-primary">I want my Digital Identity →</a>
             <a href="/analisador" class="btn btn-outline">See my current score →</a>
           </div>
-        </div>
-        <div class="systems-showcase">
-          <div class="system-card"><h4>Modern website</h4><p>Clear interface, objective visual hierarchy and a simple path from visitor to contact.</p></div>
-          <div class="system-card"><h4>Gold-standard hosting + compliance</h4><p>Secure environment, HTTPS and documentary/technical structure to operate within the rules.</p></div>
         </div>
       </div>
     </div>
@@ -468,7 +474,7 @@
             <div class="form-group"><label>Message</label><textarea placeholder="Tell us about your project..."></textarea></div>
             <div class="form-group form-consent">
               <label class="form-consent-label">
-                <input type="checkbox" class="form-consent-check" required data-form-exclude />
+                <input type="checkbox" class="form-consent-check" name="lgpd_consent" id="lgpd-consent" value="1" required data-form-exclude aria-required="true" />
                 <span>I have read and agree to the <a href="../politica-de-privacidade.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, authorize the processing of my data in accordance with LGPD and forwarding to WhatsApp for support.</span>
               </label>
             </div>
@@ -517,6 +523,8 @@
       </ul></div>
       <div class="footer-links"><h4>Legal</h4><ul>
         <li><a href="../politica-de-privacidade.html">Privacy Policy</a></li>
+        <li><a href="../politica-de-cookies.html">Cookie Policy</a></li>
+        <li><a href="../acessibilidade.html">Accessibility</a></li>
         <li><a href="../termos-de-uso.html">Terms of Use</a></li>
         <li><a href="../lgpd.html">LGPD</a></li>
       </ul></div>

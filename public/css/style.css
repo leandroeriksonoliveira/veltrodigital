@@ -135,7 +135,9 @@ section.section-tight { padding:32px 0; }
 #servicos,
 .service-card[id],
 #servico-ia,
-#servico-dados { scroll-margin-top:100px; }
+#servico-dados,
+#servico-identidade,
+#service-identity { scroll-margin-top:100px; }
 @media (max-width:768px) {
   .service-featured { padding:24px 20px; }
 }

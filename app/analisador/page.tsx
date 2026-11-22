@@ -46,6 +46,13 @@ function digitsOnly(value: string) {
   return value.replace(/\D/g, '');
 }
 
+/** Aceita www.site.com.br sem https:// (o input type=url do browser rejeita). */
+function normalizeSiteUrl(raw: string) {
+  const t = raw.trim();
+  if (!t) return '';
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+
 export default function AnalisadorPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -76,7 +83,7 @@ export default function AnalisadorPage() {
     setRequestSent(false);
     setLoading(true);
 
-    const site = siteUrl.trim();
+    const site = normalizeSiteUrl(siteUrl);
     const wa = phone.trim();
     const mail = email.trim();
 
@@ -90,6 +97,8 @@ export default function AnalisadorPage() {
       setLoading(false);
       return;
     }
+
+    setSiteUrl(site);
 
     const payload = {
       name: '',
@@ -183,12 +192,16 @@ export default function AnalisadorPage() {
             <input
               id="site_url"
               name="site_url"
-              type="url"
+              type="text"
+              inputMode="url"
+              autoComplete="url"
               required
-              placeholder="https://seusite.com.br"
+              placeholder="www.seusite.com.br ou https://seusite.com.br"
               value={siteUrl}
               onChange={(e) => setSiteUrl(e.target.value)}
+              onBlur={() => setSiteUrl((v) => (v.trim() ? normalizeSiteUrl(v) : v))}
             />
+            <p className="hint">Pode colar com ou sem https:// — ex.: www.veltrodigital.com.br</p>
 
             <div className="grid-2" style={{ marginTop: 16 }}>
               <div>

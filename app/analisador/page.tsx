@@ -1,7 +1,18 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+
+/** Tempo mínimo de “Analisando” antes de revelar a nota (evita parecer aleatório). */
+const MIN_ANALYSIS_MS = 20_000;
+
+const ANALYSIS_STEPS = [
+  'Lendo o site e páginas legais…',
+  'Buscando Instagram e redes no HTML…',
+  'Aplicando checklist LGPD e Marco Civil…',
+  'Avaliando ética profissional e riscos…',
+  'Consolidando a nota de conformidade…',
+];
 
 type Scoreboard = {
   total_avaliados: number;
@@ -53,14 +64,33 @@ function normalizeSiteUrl(raw: string) {
   return /^https?:\/\//i.test(t) ? t : `https://${t}`;
 }
 
+function waitMs(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+/** Domínio curto para exibir no resultado. */
+function displayHost(raw: string) {
+  try {
+    const u = new URL(normalizeSiteUrl(raw));
+    return u.hostname.replace(/^www\./i, '');
+  } catch {
+    return raw.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0] || raw;
+  }
+}
+
 export default function AnalisadorPage() {
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
   const [error, setError] = useState('');
   const [report, setReport] = useState<ClientReport | null>(null);
   const [siteUrl, setSiteUrl] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [requestSent, setRequestSent] = useState(false);
+  const progressTimer = useRef<number | null>(null);
 
   const waLink = useMemo(() => {
     const msg =
@@ -76,12 +106,40 @@ export default function AnalisadorPage() {
     return `mailto:contato@veltrodigital.com.br?subject=${subject}&body=${body}`;
   }, [siteUrl, phone, email]);
 
+  useEffect(() => {
+    return () => {
+      if (progressTimer.current) window.clearInterval(progressTimer.current);
+    };
+  }, []);
+
+  function startProgressAnimation() {
+    setProgress(0);
+    setStepIndex(0);
+    if (progressTimer.current) window.clearInterval(progressTimer.current);
+    const started = Date.now();
+    progressTimer.current = window.setInterval(() => {
+      const elapsed = Date.now() - started;
+      // Sobe até ~92% no mínimo de 20s; o restante fecha ao revelar o resultado
+      const pct = Math.min(92, Math.round((elapsed / MIN_ANALYSIS_MS) * 92));
+      setProgress(pct);
+      setStepIndex(Math.min(ANALYSIS_STEPS.length - 1, Math.floor((elapsed / MIN_ANALYSIS_MS) * ANALYSIS_STEPS.length)));
+    }, 200);
+  }
+
+  function stopProgressAnimation(finalPct = 100) {
+    if (progressTimer.current) {
+      window.clearInterval(progressTimer.current);
+      progressTimer.current = null;
+    }
+    setProgress(finalPct);
+    setStepIndex(ANALYSIS_STEPS.length - 1);
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
     setReport(null);
     setRequestSent(false);
-    setLoading(true);
 
     const site = normalizeSiteUrl(siteUrl);
     const wa = phone.trim();
@@ -89,16 +147,16 @@ export default function AnalisadorPage() {
 
     if (!site) {
       setError('Informe o link do seu site.');
-      setLoading(false);
       return;
     }
     if (!wa && !mail) {
       setError('Informe WhatsApp ou e-mail para receber o retorno.');
-      setLoading(false);
       return;
     }
 
     setSiteUrl(site);
+    setLoading(true);
+    startProgressAnimation();
 
     const payload = {
       name: '',
@@ -110,16 +168,32 @@ export default function AnalisadorPage() {
       consent: true,
     };
 
+    const startedAt = Date.now();
+
     try {
-      const res = await fetch('/api/analisar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Falha na análise');
-      setReport(data.client_report);
+      const [apiResult] = await Promise.all([
+        (async () => {
+          const res = await fetch('/api/analisar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Falha na análise');
+          return data.client_report as ClientReport;
+        })(),
+        waitMs(MIN_ANALYSIS_MS),
+      ]);
+
+      // Garante pelo menos 20s mesmo se a API + waitMs correrem em paralelo com drift
+      const remaining = MIN_ANALYSIS_MS - (Date.now() - startedAt);
+      if (remaining > 0) await waitMs(remaining);
+
+      stopProgressAnimation(100);
+      await waitMs(280);
+      setReport(apiResult);
     } catch (err) {
+      stopProgressAnimation(0);
       setError(err instanceof Error ? err.message : 'Erro inesperado');
     } finally {
       setLoading(false);
@@ -173,18 +247,52 @@ export default function AnalisadorPage() {
           </Link>
         </nav>
 
-        <span className="tag">Conformidade Digital</span>
-        <h1>
-          Qual é a nota do
-          <br />
-          seu site?
-        </h1>
-        <p className="lead">
-          Informe o site e um contato. Em segundos você recebe a nota inicial de conformidade e os
-          riscos de multa associados.
-        </p>
+        <div className="score-head">
+          <div>
+            <span className="tag">Conformidade Digital</span>
+            <h1>
+              Qual é a nota do
+              <br />
+              seu site?
+            </h1>
+            <p className="lead law-hook">
+              <strong>Seu site pode ser multado.</strong> Essas normas já valem. Informe o endereço e veja a nota — e o risco — após a análise completa.
+            </p>
+          </div>
+          <div className="law-seals" aria-label="Normas que podem gerar penalidade">
+            <div className="law-seal lgpd"><span className="law-ico" aria-hidden="true">🛡️</span><strong>LGPD</strong><span>Dados</span></div>
+            <div className="law-seal anpd"><span className="law-ico" aria-hidden="true">⚠️</span><strong>ANPD</strong><span>Multa</span></div>
+            <div className="law-seal procon"><span className="law-ico" aria-hidden="true">🛒</span><strong>PROCON</strong><span>Consumidor</span></div>
+            <div className="law-seal civil"><span className="law-ico" aria-hidden="true">📜</span><strong>Marco</strong><span>Civil</span></div>
+            <div className="law-seal oab"><span className="law-ico" aria-hidden="true">⚖️</span><strong>OAB</strong><span>Advocacia</span></div>
+            <div className="law-seal cfm"><span className="law-ico" aria-hidden="true">🩺</span><strong>CFM</strong><span>Saúde</span></div>
+            <div className="law-seal crea"><span className="law-ico" aria-hidden="true">📐</span><strong>CREA</strong><span>Engenharia</span></div>
+            <div className="law-seal cau"><span className="law-ico" aria-hidden="true">🏛️</span><strong>CAU</strong><span>Arquitetura</span></div>
+          </div>
+        </div>
 
-        {!report ? (
+        {loading ? (
+          <div className="card analysis-loading" role="status" aria-live="polite" aria-busy="true">
+            <div className="analysis-lupa" aria-hidden="true">
+              <svg viewBox="0 0 64 64" width="72" height="72">
+                <circle className="lupa-ring" cx="28" cy="28" r="16" fill="none" strokeWidth="3.5" />
+                <line className="lupa-handle" x1="40" y1="40" x2="56" y2="56" strokeWidth="4" strokeLinecap="round" />
+                <circle className="lupa-pulse" cx="28" cy="28" r="8" />
+              </svg>
+            </div>
+            <h2 className="analysis-title">Analisando Conformidade</h2>
+            <p className="analysis-sub">
+              Estamos lendo o site, páginas legais e redes públicas — a nota só aparece após a
+              análise completa.
+            </p>
+            <div className="analysis-bar" aria-hidden="true">
+              <div className="analysis-bar-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <p className="analysis-pct">{progress}%</p>
+            <p className="analysis-step">{ANALYSIS_STEPS[stepIndex]}</p>
+            {siteUrl ? <p className="hint">Site: {siteUrl}</p> : null}
+          </div>
+        ) : !report ? (
           <form className="card" onSubmit={onSubmit}>
             {error && <div className="error">{error}</div>}
 
@@ -239,8 +347,8 @@ export default function AnalisadorPage() {
               </span>
             </label>
 
-            <button className="btn" type="submit" disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Gerando sua nota…' : 'Ver minha nota →'}
+            <button className="btn" type="submit" style={{ width: '100%' }}>
+              Ver minha nota →
             </button>
             <p className="disclaimer">
               Nota orientativa. Não substitui parecer jurídico, decisão de conselho de classe ou da
@@ -249,21 +357,29 @@ export default function AnalisadorPage() {
           </form>
         ) : (
           <div className="card">
-            <span className="tag">Sua nota inicial</span>
-            <h2 style={{ marginTop: 8 }}>Resultado</h2>
-            <div className={`selo ${seloClass(report.selo)}`}>{report.selo}</div>
-            <p className="hint" style={{ marginTop: 10 }}>
-              Nota <strong>{report.score_geral}</strong>
-              {report.veredito ? ` · ${report.veredito}` : ''}
-              {siteUrl ? (
-                <>
-                  <br />
-                  Site analisado: {siteUrl}
-                </>
-              ) : null}
-            </p>
+            <div className="result-head">
+              <div className="result-head-main">
+                <div className={`selo ${seloClass(report.selo)}`}>{report.selo}</div>
+                <div className="result-score-line">
+                  {report.score_geral}
+                  {report.veredito ? <span> · {report.veredito}</span> : null}
+                </div>
+                {siteUrl ? <p className="result-url">{displayHost(siteUrl)}</p> : null}
+              </div>
+              <button
+                className="btn btn-outline result-new"
+                type="button"
+                onClick={() => {
+                  setReport(null);
+                  setRequestSent(false);
+                  setError('');
+                }}
+              >
+                Nova consulta
+              </button>
+            </div>
 
-            <div className="scores" style={{ marginTop: 20 }}>
+            <div className="scores" style={{ marginTop: 0 }}>
               <div className="score-box">
                 <div className="n">{report.score_geral}</div>
                 <div className="l">Geral</div>
@@ -283,70 +399,64 @@ export default function AnalisadorPage() {
             </div>
 
             {sb && (
-              <p className="hint" style={{ marginTop: 12 }}>
-                {sb.conformes} conformes · {sb.atencao} em atenção · {sb.nao_conformes} não
-                conformes · {sb.criticos} críticos
+              <p className="result-counts">
+                {sb.conformes} ok · {sb.atencao} atenção · {sb.nao_conformes} fora · {sb.criticos}{' '}
+                críticos
               </p>
             )}
 
-            <div className="penalties" style={{ marginTop: 20 }}>
-              <h2 style={{ fontSize: '1.15rem' }}>Riscos de multa e penalidade</h2>
+            <div className="penalties">
+              <h2 style={{ fontSize: '1.05rem', margin: '0 0 10px' }}>Exposição possível</h2>
               <ul>
                 <li>
                   <strong>ANPD / LGPD:</strong> {report.penalidades_resumo.multa_anpd_max}
                 </li>
                 <li>
-                  <strong>Referência PF:</strong> {report.penalidades_resumo.multa_pf_referencia}
+                  <strong>Pessoa física:</strong> {report.penalidades_resumo.multa_pf_referencia}
                 </li>
                 <li>
-                  <strong>Conselho de classe:</strong> {report.penalidades_resumo.suspensao_conselho}
+                  <strong>Conselho:</strong> {report.penalidades_resumo.suspensao_conselho}
                 </li>
-                <li>
-                  <strong>Sanções éticas:</strong> {sancoes}
-                </li>
+                {sancoes ? (
+                  <li>
+                    <strong>Ética:</strong> {sancoes}
+                  </li>
+                ) : null}
                 <li>
                   <strong>Imagem:</strong> {report.penalidades_resumo.riscos_imagem}
                 </li>
               </ul>
             </div>
 
-            <div
-              style={{
-                marginTop: 24,
-                padding: '18px 18px 16px',
-                borderRadius: 14,
-                border: '1px solid rgba(248, 113, 113, 0.35)',
-                background: 'rgba(248, 113, 113, 0.08)',
-              }}
-            >
-              <h2 style={{ fontSize: '1.2rem', margin: 0 }}>
-                Corrija já sua presença digital
-              </h2>
-              <p style={{ margin: '10px 0 0', color: 'var(--muted, #b8c0cc)', lineHeight: 1.55 }}>
-                Uma nota baixa aumenta a exposição a multas, sanções de conselho e dano
-                reputacional. Ajuste site e canais digitais agora — com prioridade clara — para
-                reduzir esse risco antes de uma fiscalização ou reclamação.
+            <div className="result-cta">
+              <h2>Quer o relatório completo?</h2>
+              <p>
+                O detalhe do que ajustar fica no relatório. A Veltro também pode ajudar na correção.
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 20 }}>
+            <div className="result-actions">
               <a className="btn" href={waLink} target="_blank" rel="noopener noreferrer">
-                WhatsApp · (11) 98644-6779
+                WhatsApp
               </a>
               <a className="btn btn-outline" href={mailLink}>
-                E-mail · contato@veltrodigital.com.br
+                E-mail
               </a>
             </div>
 
-            <form className="card" onSubmit={onRequestHelp} style={{ marginTop: 20, background: 'rgba(255,255,255,0.03)' }}>
-              <h2 style={{ fontSize: '1.1rem', marginTop: 0 }}>Solicitar agora</h2>
+            <form
+              className="card"
+              onSubmit={onRequestHelp}
+              style={{ marginTop: 20, background: 'rgba(255,255,255,0.03)' }}
+            >
+              <h2 style={{ fontSize: '1.05rem', marginTop: 0 }}>Falar com a Veltro</h2>
               <p className="hint" style={{ marginTop: 0 }}>
-                Confirmamos seu contato e a equipe da Veltro retorna com o próximo passo.
+                Deixe seu contato. Retornamos com o próximo passo.
               </p>
               {error && <div className="error">{error}</div>}
               <div className="grid-2">
                 <div>
-                  <label htmlFor="req_phone">Seu WhatsApp</label>
+                  <label htmlFor="req_phone">WhatsApp</label>
                   <input
                     id="req_phone"
                     value={phone}
@@ -355,7 +465,7 @@ export default function AnalisadorPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="req_email">Seu e-mail</label>
+                  <label htmlFor="req_email">E-mail</label>
                   <input
                     id="req_email"
                     type="email"
@@ -366,31 +476,18 @@ export default function AnalisadorPage() {
                 </div>
               </div>
               <button className="btn" type="submit" style={{ width: '100%', marginTop: 8 }}>
-                Solicitar correção agora →
+                Solicitar agora →
               </button>
               {requestSent && (
                 <p className="hint" style={{ marginTop: 10, color: '#4ade80' }}>
-                  Solicitação aberta. Se o WhatsApp não abriu, use os botões acima ou ligue para
-                  (11) 98644-6779
-                  {digitsOnly(phone) ? ` · seu contato: ${phone}` : ''}.
+                  Solicitação enviada.
+                  {digitsOnly(phone) ? ` Contato: ${phone}.` : ''}
                 </p>
               )}
             </form>
 
-            <button
-              className="btn btn-outline"
-              type="button"
-              style={{ marginTop: 16 }}
-              onClick={() => {
-                setReport(null);
-                setRequestSent(false);
-              }}
-            >
-              Nova análise
-            </button>
             <p className="disclaimer">
-              Esta tela mostra apenas a nota inicial e os limites legais de risco. O detalhamento
-              completo fica com a equipe Veltro Digital.
+              Nota orientativa. O detalhamento completo fica com a equipe Veltro.
             </p>
           </div>
         )}

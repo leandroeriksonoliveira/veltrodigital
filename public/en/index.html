@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/style.css?v=20261122k" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
 </head>
 <body>
@@ -57,7 +57,7 @@
           <a href="#service-identity"><span class="icon">✨</span> Digital Identity</a>
           <a href="#service-presence"><span class="icon">🌐</span> Websites &amp; Digital Presence</a>
           <a href="#service-infrastructure"><span class="icon">⚙️</span> Digital Infrastructure &amp; Systems</a>
-          <a href="#compliance" class="dropdown-highlight"><span class="icon">🛡️</span> Digital Compliance</a>
+          <a href="#compliance"><span class="icon">🛡️</span> Digital Compliance</a>
           <a href="/analisador"><span class="icon">🔎</span> Online analyzer</a>
           <a href="#service-ai"><span class="icon">🤖</span> AI Consulting</a>
           <a href="#service-data"><span class="icon">📊</span> Data &amp; Analytics</a>
@@ -296,34 +296,35 @@
       </div>
     </div>
 
-    <div id="service-identity" class="service-featured reveal" style="margin-bottom:36px;scroll-margin-top:100px;">
-      <div class="identity-layout">
-        <div class="identity-head">
+    <div id="service-identity" class="service-featured reveal idig" style="margin-bottom:36px;scroll-margin-top:100px;">
+      <div class="idig-grid">
+        <div class="idig-copy">
           <span class="section-tag">Service · Digital Identity</span>
           <h2 class="subsection-title">Modern, clean, compliance-ready</h2>
-        </div>
-        <p class="identity-intro">A modern website with <strong style="color:var(--white);">gold-standard hosting</strong> and an <strong style="color:var(--white);">LGPD</strong>-ready base — live from day one.</p>
-        <div class="identity-body">
-          <ul class="about-features about-features--split">
-            <li>Contemporary design, clean layout and intuitive navigation</li>
-            <li>Fast, responsive site built for conversion</li>
-            <li>Custom development + gold-standard hosting</li>
-            <li>LGPD-ready base: privacy, terms, consent and cookies</li>
-            <li>Aligned with your sector rules when applicable</li>
-            <li>Smooth experience on mobile and desktop</li>
+          <p class="idig-lead">A professional presence from day one: an easy site, <strong>gold-standard hosting</strong> and an <strong>LGPD</strong>-ready base.</p>
+          <ul class="idig-points">
+            <li>Clean design, clear navigation</li>
+            <li>Fast and built for conversion</li>
+            <li>Custom build + gold hosting</li>
+            <li>Privacy, terms and cookies</li>
+            <li>Sector rules, when they apply</li>
+            <li>Smooth on mobile and desktop</li>
           </ul>
-          <div class="identity-cards systems-showcase">
-            <div class="system-card"><h4>Modern website</h4><p>Clear interface, objective hierarchy and a simple path to contact.</p></div>
-            <div class="system-card"><h4>Gold-standard hosting + compliance</h4><p>HTTPS, secure environment and structure ready to operate within the rules.</p></div>
-          </div>
         </div>
-        <div class="identity-foot">
-          <p class="identity-note">Modern without shortcuts. Compliance without improvisation. Final compliance also depends on the client's content and operations.</p>
-          <div class="identity-actions">
+        <aside class="idig-side">
+          <div class="idig-card">
+            <h3>Modern website</h3>
+            <p>Clear interface and a simple path to contact.</p>
+          </div>
+          <div class="idig-card">
+            <h3>Hosting + compliance</h3>
+            <p>HTTPS and a structure ready to operate within the rules.</p>
+          </div>
+          <div class="idig-actions">
             <a href="#contact" class="btn btn-primary">I want my Digital Identity →</a>
             <a href="/analisador" class="btn btn-outline">See my current score →</a>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
 
@@ -348,9 +349,8 @@
           <p>High-performance websites, on-page SEO and professional online identity so your company is found and conveys credibility on Google.</p>
         </div>
         <div class="service-card-visual">
-          <div class="service-examples service-examples--stack">
-            <img src="../images/examples/fisioperform.png" alt="Website example — FisioPerform" class="service-example-img" loading="lazy" />
-            <img src="../images/examples/dra-ingrid.png" alt="Website example — Dra. Ingrid Fornaciari" class="service-example-img" loading="lazy" />
+          <div class="service-examples service-examples--single">
+            <img src="../images/examples/bp-offshore.png" alt="Landing page example — BP Offshore" class="service-example-img" loading="lazy" />
           </div>
         </div>
       </div>
@@ -536,12 +536,12 @@
         <p class="footer-dpo" data-footer-dpo></p>
       </div>
       <div class="social-links">
-        <a href="https://linkedin.com/company/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">💼</a>
+        <a href="https://linkedin.com/company/veltrodigital" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg></a>
         <a href="#" class="social-link wa-social" aria-label="WhatsApp">💬</a>
       </div>
     </div>
   </div>
 </footer>
 <script src="../js/config.js"></script>
-<script src="../js/main.js"></script>
+<script src="../js/main.js?v=20261122k"></script>
 </body></html>

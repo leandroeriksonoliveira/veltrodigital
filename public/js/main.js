@@ -144,6 +144,14 @@ function resolvePublicPath(fileName) {
   `;
   document.body.appendChild(banner);
 
+  const syncCookieLayout = () => {
+    const pending = !banner.hidden;
+    document.body.classList.toggle('cookie-pending', pending);
+    if (pending) {
+      document.documentElement.style.setProperty('--cookie-h', `${banner.offsetHeight}px`);
+    }
+  };
+
   const saved = localStorage.getItem(KEY);
   if (saved === 'accepted' || saved === 'rejected') {
     banner.hidden = true;
@@ -152,11 +160,14 @@ function resolvePublicPath(fileName) {
     banner.hidden = false;
     banner.setAttribute('data-consent', 'pending');
   }
+  syncCookieLayout();
+  window.addEventListener('resize', syncCookieLayout);
 
   const setConsent = (value) => {
     localStorage.setItem(KEY, value);
     banner.setAttribute('data-consent', value);
     banner.hidden = true;
+    syncCookieLayout();
     window.dispatchEvent(new CustomEvent('veltro:cookie-consent', { detail: { value } }));
   };
 
@@ -212,7 +223,18 @@ document.querySelectorAll('[data-footer-dpo]').forEach(el => {
   el.innerHTML = `${i18n.dpoLabel} <a href="mailto:${SITE_CONFIG.dpoEmail}">${SITE_CONFIG.dpoEmail}</a>`;
 });
 
-/* Floating WhatsApp button */
+/* LinkedIn stays above the floating WhatsApp on every page */
+const floatStack = document.createElement('div');
+floatStack.className = 'float-stack';
+
+const liFloat = document.createElement('a');
+liFloat.href = SITE_CONFIG.linkedin;
+liFloat.target = '_blank';
+liFloat.rel = 'noopener noreferrer';
+liFloat.className = 'li-float';
+liFloat.setAttribute('aria-label', 'LinkedIn');
+liFloat.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.73V1.73C24 .77 23.21 0 22.23 0z"/></svg>';
+
 const waFloat = document.createElement('a');
 waFloat.href = getWhatsAppUrl();
 waFloat.target = '_blank';
@@ -220,7 +242,9 @@ waFloat.rel = 'noopener noreferrer';
 waFloat.className = 'wa-float';
 waFloat.setAttribute('aria-label', 'Falar no WhatsApp');
 waFloat.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.89-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
-document.body.appendChild(waFloat);
+
+floatStack.append(liFloat, waFloat);
+document.body.appendChild(floatStack);
 
 /* ============================================================
    NAVBAR SCROLL
@@ -237,20 +261,46 @@ const hamburger = document.querySelector('.hamburger');
 const navLinks  = document.querySelector('.nav-links');
 const navClose  = document.querySelector('.nav-close');
 
-hamburger?.addEventListener('click', () => {
-  navLinks?.classList.add('open');
-  document.body.style.overflow = 'hidden';
-});
+const menuOpenLabel = getSiteLocale() === 'en' ? 'Open menu' : 'Abrir menu';
+const menuCloseLabel = getSiteLocale() === 'en' ? 'Close menu' : 'Fechar menu';
 
-navClose?.addEventListener('click', closeMenu);
+hamburger?.setAttribute('role', 'button');
+hamburger?.setAttribute('tabindex', '0');
+hamburger?.setAttribute('aria-expanded', 'false');
+hamburger?.setAttribute('aria-label', menuOpenLabel);
+
+function setMenu(open) {
+  navLinks?.classList.toggle('open', open);
+  hamburger?.classList.toggle('is-open', open);
+  hamburger?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  hamburger?.setAttribute('aria-label', open ? menuCloseLabel : menuOpenLabel);
+  document.body.style.overflow = open ? 'hidden' : '';
+  if (!open) document.querySelectorAll('.dropdown').forEach((item) => item.classList.remove('open'));
+}
 
 function closeMenu() {
-  navLinks?.classList.remove('open');
-  document.body.style.overflow = '';
+  setMenu(false);
 }
+
+hamburger?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  setMenu(!navLinks?.classList.contains('open'));
+});
+hamburger?.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    hamburger.click();
+  }
+});
+
+navClose?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  closeMenu();
+});
 
 document.querySelectorAll('.nav-links a').forEach(link => {
   link.addEventListener('click', () => {
+    if (link.getAttribute('href') === '#') return;
     if (navLinks?.classList.contains('open')) closeMenu();
   });
 });

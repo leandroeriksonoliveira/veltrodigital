@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { AdminPageLayout } from './_components/AdminPageLayout';
+import { AdminLoginForm } from './_components/AdminLoginForm';
+import { AdminNav } from './_components/AdminNav';
+import { SECTION_META } from './_components/section-meta';
+import { useAdminSession } from './_components/useAdminSession';
 
 const OPTIONS = [
   {
@@ -21,18 +24,40 @@ const OPTIONS = [
 ] as const;
 
 export default function AdminHomePage() {
+  const session = useAdminSession();
+  const meta = SECTION_META.home;
+
   return (
-    <AdminPageLayout section="home">
-      <div className="admin-menu">
-        {OPTIONS.map((item) => (
-          <Link key={item.href} href={item.href} className="admin-menu-card">
-            <span className="admin-menu-tag">{item.tag}</span>
-            <h2>{item.title}</h2>
-            <p>{item.description}</p>
-            <span className="admin-menu-cta">Abrir →</span>
-          </Link>
-        ))}
+    <div className="shell">
+      <div className="container">
+        <AdminNav active="home" authed={session.authed} onLogout={session.logout} />
+
+        <span className="tag">{meta.tag}</span>
+        <h1>{meta.title}</h1>
+        <p className="lead">{meta.lead}</p>
+
+        {!session.authed && (
+          <AdminLoginForm
+            password={session.password}
+            onPasswordChange={session.setPassword}
+            onSubmit={session.login}
+            error={session.error}
+          />
+        )}
+
+        <div className="admin-menu">
+          {OPTIONS.map((item) => (
+            <Link key={item.href} href={item.href} className="admin-menu-card">
+              <span className="admin-menu-tag">{item.tag}</span>
+              <h2>{item.title}</h2>
+              <p>{item.description}</p>
+              <span className="admin-menu-cta">
+                {session.authed ? 'Abrir →' : 'Entrar para abrir →'}
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
-    </AdminPageLayout>
+    </div>
   );
 }

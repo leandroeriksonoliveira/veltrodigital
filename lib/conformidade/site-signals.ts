@@ -31,6 +31,16 @@ export interface SiteSignals {
   has_privacy_link: boolean;
   has_terms_link: boolean;
   has_cookie_hint: boolean;
+  has_cookie_banner: boolean;
+  /** Analytics, pixels e similares — só estes justificam exigir banner */
+  uses_tracking_cookies: boolean;
+  tracking_hits: string[];
+  /** Páginas legais lidas (privacidade/termos) — DPO costuma estar aqui */
+  legal_pages_fetched?: { href: string; ok: boolean; text_len: number }[];
+  /** mailto/tel/wa.me, placeholders e data-* de contato */
+  contact_hints?: string[];
+  has_form_consent: boolean;
+  has_accessibility: boolean;
   sensitive_form_suspected: boolean;
   text_length: number;
   visible_text: string;
@@ -66,7 +76,86 @@ function uniqueMatches(text: string, re: RegExp): string[] {
   return [...out];
 }
 
-export function extractSiteSignals(html: string, baseUrl: string): SiteSignals {
+function contactHintsFromSource(source: string): string {
+  if (!source) return '';
+  const emails = source.match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi) || [];
+  const phones = source.match(/\(?\d{2}\)?\s*\d{4,5}-?\d{4}/g) || [];
+  const bits = [...new Set([...emails, ...phones])];
+  if (/encarregado|\bdpo\b/i.test(source)) bits.push('Encarregado de dados (DPO)');
+  const cnpj = source.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+  if (cnpj) bits.push(cnpj[0]);
+  return bits.join(' ');
+}
+
+function detectCookieBanner(html: string, textL: string, extraSource: string): boolean {
+  const blob = `${html}\n${extraSource}`.toLowerCase();
+  const hasBanner =
+    blob.includes('cookie-banner') ||
+    blob.includes('banner de cookies') ||
+    blob.includes('cookies e privacidade');
+  const hasAccept = /\b(aceitar|accept|permitir|allow)\b/.test(blob);
+  const hasReject = /\b(recusar|reject|refuse|rejeitar|decline)\b/.test(blob);
+  return Boolean(
+    hasBanner &&
+      hasAccept &&
+      hasReject &&
+      (blob.includes('cookie') || textL.includes('cookie'))
+  );
+}
+
+const TRACKER_PATTERNS: { id: string; re: RegExp }[] = [
+  { id: 'googletagmanager', re: /googletagmanager\.com/i },
+  { id: 'google-analytics', re: /google-analytics\.com|analytics\.js|gtag\s*\(/i },
+  { id: 'gtm', re: /gtm\.js/i },
+  { id: 'meta-pixel', re: /connect\.facebook\.net|fbevents\.js|\bfbq\s*\(/i },
+  { id: 'hotjar', re: /hotjar\.com|static\.hotjar/i },
+  { id: 'clarity', re: /clarity\.ms/i },
+  { id: 'linkedin-insight', re: /linkedin\.com\/px|snap\.licdn\.com/i },
+  { id: 'tiktok-pixel', re: /analytics\.tiktok|tiktok\.com\/i18n\/pixel/i },
+  { id: 'segment', re: /cdn\.segment\.|segment\.(com|io)/i },
+  { id: 'mixpanel', re: /mixpanel\.com/i },
+  { id: 'doubleclick', re: /doubleclick\.net/i },
+];
+
+function detectTrackingCookies(html: string, extraSource: string): { uses: boolean; hits: string[] } {
+  const blob = `${html}\n${extraSource}`;
+  const hits: string[] = [];
+  for (const { id, re } of TRACKER_PATTERNS) {
+    if (re.test(blob)) hits.push(id);
+  }
+  return { uses: hits.length > 0, hits };
+}
+
+function detectFormConsent(html: string): boolean {
+  const formRe = /<form\b[^>]*>[\s\S]*?<\/form>/gi;
+  let fm: RegExpExecArray | null;
+  while ((fm = formRe.exec(html))) {
+    const formHtml = fm[0].toLowerCase();
+    const hasCheckbox = /<input\b[^>]*type=["']checkbox["']/i.test(fm[0]);
+    const privacyRef =
+      formHtml.includes('privacidade') ||
+      formHtml.includes('privacy') ||
+      formHtml.includes('lgpd') ||
+      formHtml.includes('consent') ||
+      formHtml.includes('concordo');
+    if (hasCheckbox && privacyRef) return true;
+  }
+  return false;
+}
+
+function detectAccessibility(html: string, textL: string, extraSource: string, legalLinks: { text: string; href: string }[]): boolean {
+  const blob = `${html}\n${extraSource}`.toLowerCase();
+  const hasSkip = /skip-link|href=["']#main-content["']/i.test(html);
+  const hasUi =
+    blob.includes('a11y-toolbar') ||
+    blob.includes('a11y-panel') ||
+    textL.includes('acessibilidade') ||
+    textL.includes('accessibility');
+  const hasPage = legalLinks.some((x) => /acessib|accessib/.test(`${x.text} ${x.href}`.toLowerCase()));
+  return hasSkip || hasUi || hasPage;
+}
+
+export function extractSiteSignals(html: string, baseUrl: string, extraSource = ''): SiteSignals {
   const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   const title = titleMatch ? stripTags(titleMatch[1]).slice(0, 200) : '';
 
@@ -119,7 +208,7 @@ export function extractSiteSignals(html: string, baseUrl: string): SiteSignals {
     if (forms.length >= 10) break;
   }
 
-  const text = stripTags(html).slice(0, 20000);
+  const text = `${stripTags(html)} ${contactHintsFromSource(extraSource)}`.replace(/\s+/g, ' ').trim().slice(0, 20000);
   const text_l = text.toLowerCase();
 
   const forbidden_hits: string[] = [];
@@ -151,6 +240,27 @@ export function extractSiteSignals(html: string, baseUrl: string): SiteSignals {
     https = baseUrl.startsWith('https://');
   }
 
+  const tracking = detectTrackingCookies(html, extraSource);
+
+  const contact_hints: string[] = [];
+  const hrefContactRe = /href=["']((?:mailto:|tel:)[^"']+|[^"']*(?:wa\.me\/|whatsapp)[^"']*)["']/gi;
+  let hm: RegExpExecArray | null;
+  while ((hm = hrefContactRe.exec(html))) {
+    contact_hints.push(hm[1]);
+  }
+  const dataContactRe = /data-(?:email|phone|whatsapp)=["']([^"']+)["']/gi;
+  while ((hm = dataContactRe.exec(html))) {
+    contact_hints.push(hm[1]);
+  }
+  for (const form of forms) {
+    for (const field of form.fields || []) {
+      for (const val of [field.placeholder, field.name, field.id]) {
+        if (val) contact_hints.push(val);
+      }
+    }
+  }
+  const uniqueHints = [...new Set(contact_hints.map((h) => h.trim()).filter(Boolean))].slice(0, 40);
+
   return {
     title,
     metas,
@@ -166,6 +276,12 @@ export function extractSiteSignals(html: string, baseUrl: string): SiteSignals {
     has_privacy_link: legal_links.some((x) => `${x.text} ${x.href}`.toLowerCase().includes('privacidade')),
     has_terms_link: legal_links.some((x) => `${x.text} ${x.href}`.toLowerCase().includes('termo')),
     has_cookie_hint: text_l.includes('cookie'),
+    has_cookie_banner: detectCookieBanner(html, text_l, extraSource),
+    uses_tracking_cookies: tracking.uses,
+    tracking_hits: tracking.hits,
+    contact_hints: uniqueHints,
+    has_form_consent: detectFormConsent(html),
+    has_accessibility: detectAccessibility(html, text_l, extraSource, legal_links),
     sensitive_form_suspected,
     text_length: text.length,
     visible_text: text,

@@ -168,12 +168,18 @@ function detectArea(conselho: string, siteText: string): string {
   for (const key of ['medico', 'psicologo', 'fisio', 'dentista', 'advogado'] as const) {
     if (c && (aliases(key).has(c) || c === key)) return key;
   }
+  // Lead explícito de empresa/SaaS: nunca virar "médico" só porque a home cita o segmento.
+  if (['empresa', 'outro', 'saas', 'commerce', 'ecommerce', 'agencia', 'agência'].includes(c)) {
+    return 'empresa';
+  }
   const t = siteText.toLowerCase();
-  if (/\bcrm\s*\/?\s*[a-z]{2}\b|\bm[eé]dic[oa]\b/.test(t)) return 'medico';
-  if (/\bcrp[-\s]?\d|\bpsic[oó]log/.test(t)) return 'psicologo';
-  if (/crefito|fisioterapeut/.test(t)) return 'fisio';
-  if (/\bcro\s*\/?\s*[a-z]{2}\b|odontolog|\bdentista\b/.test(t)) return 'dentista';
-  if (/\boab\s*\/?\s*[a-z]{2}\b|\badvogad/.test(t)) return 'advogado';
+  // Exige registro do conselho. Só a palavra da profissão (ex.: "médicos")
+  // em site B2B não muda a área — senão o checklist de clínica/OAB derruba a nota.
+  if (/\bcrm\s*\/?\s*[a-z]{2}\b|\bcrm\s*\d{4,}/.test(t)) return 'medico';
+  if (/\bcrp[-\s]?\d{3,}|\bcrp\s*\/?\s*[a-z]{2}\b/.test(t)) return 'psicologo';
+  if (/\bcrefito\s*[-\s]?\d|\bcrefito\s*\/?\s*[a-z]{2}\b/.test(t)) return 'fisio';
+  if (/\bcro\s*\/?\s*[a-z]{2}\b|\bcro\s*\d{3,}/.test(t)) return 'dentista';
+  if (/\boab\s*\/\s*[a-z]{2}\b|\boab\s+[a-z]{2}\s*\d/.test(t)) return 'advogado';
   return 'empresa';
 }
 
@@ -228,7 +234,7 @@ function instagramItems(evidence: LocalEvidence, domain: string): ScoredItem[] {
   const socials = evidence.socials || {};
   const igSocial = (socials.instagram || {}) as Record<string, unknown>;
   const url = String(ig.url || igSocial.url || '');
-  if (!url && !Object.keys(ig).length) return [];
+  if (!url || ig.skipped) return [];
   const handle = url.replace(/\/$/, '').split('/').pop() || 'instagram';
   const where = `No Instagram @${handle}`;
   const bio = String(ig.bio || '').replace(/\?\?/g, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '');
@@ -356,6 +362,12 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
     has_privacy_link: false,
     has_terms_link: false,
     has_cookie_hint: false,
+    has_cookie_banner: false,
+    uses_tracking_cookies: false,
+    tracking_hits: [],
+    contact_hints: [],
+    has_form_consent: false,
+    has_accessibility: false,
     sensitive_form_suspected: false,
     text_length: 0,
     visible_text: '',
@@ -521,16 +533,24 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
         evidenceNote = `O site ${domain} não mostra termos de uso.`;
       }
     } else if (titleL.includes('cookie')) {
-      if (signals.has_cookie_hint) {
-        status = 'atencao';
-        evidenceNote = `O site ${domain} menciona cookies.`;
-      } else {
+      const usesTrackers = Boolean(signals.uses_tracking_cookies);
+      const hits = signals.tracking_hits || [];
+      const hitNote = hits.length ? ` Indícios: ${hits.slice(0, 4).join(', ')}.` : '';
+      if (signals.has_cookie_banner) {
+        status = 'conforme';
+        evidenceNote = `Banner de cookies com aceitar/recusar detectado em ${domain}.`;
+      } else if (usesTrackers) {
         status = 'nao_conforme';
-        evidenceNote = `Não há banner de cookies em ${domain}.`;
+        evidenceNote = `Há rastreador/cookie não essencial em ${domain}, sem banner com aceitar/recusar.${hitNote}`;
+      } else {
+        status = 'conforme';
+        evidenceNote = `Sem indício de cookies não essenciais em ${domain}; banner não exigido nesta coleta.`;
       }
     } else if (titleL.includes('https') || titleL.includes('ssl') || titleL.includes('conexão segura') || titleL.includes('conexao segura')) {
-      status = signals.https ? 'conforme' : 'critico';
-      evidenceNote = signals.https ? 'HTTPS ativo.' : 'Sem HTTPS.';
+      const finalUrl = evidence.site?.final_url || lead.site || '';
+      const httpsOk = Boolean(signals.https) || String(finalUrl).toLowerCase().startsWith('https://');
+      status = httpsOk ? 'conforme' : 'critico';
+      evidenceNote = httpsOk ? 'HTTPS ativo.' : 'Sem HTTPS.';
     } else if (
       titleL.includes('dado') &&
       (titleL.includes('saúde') || titleL.includes('saude') || titleL.includes('sensív') || titleL.includes('sensiv'))
@@ -554,11 +574,19 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
       !titleL.includes('consent') &&
       !titleL.includes('cnpj')
     ) {
-      const phone = siteText.match(/\(?\d{2}\)?\s*\d{4,5}-?\d{4}/);
-      const email = siteText.match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i);
+      const formBits = (signals.forms || [])
+        .flatMap((form) => form.fields || [])
+        .flatMap((f) => [f.placeholder || '', f.name || '', f.id || ''])
+        .join(' ');
+      const contactBlob = `${siteText} ${formBits} ${(signals.contact_hints || []).join(' ')}`;
+      const phone = contactBlob.match(/\(?\d{2}\)?\s*\d{4,5}-?\d{4}/) || contactBlob.match(/wa\.me\/55(\d{10,13})/i);
+      const email = contactBlob.match(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/i);
       if (phone && email) {
         status = 'conforme';
         evidenceNote = `Contato em ${domain}: ${phone[0]} e ${email[0]}.`;
+      } else if (phone || email) {
+        status = 'atencao';
+        evidenceNote = `Contato parcial em ${domain}: falta ${phone ? 'e-mail' : 'telefone'} visível.`;
       } else {
         status = 'nao_conforme';
         evidenceNote = `O site ${domain} não reúne telefone e e-mail visíveis.`;
@@ -568,9 +596,15 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
       if (!dataForms.length) {
         status = 'conforme';
         evidenceNote = `A home de ${domain} não tem formulário de coleta de dados.`;
+      } else if (signals.has_form_consent) {
+        status = 'conforme';
+        evidenceNote = `O formulário de ${domain} tem checkbox de consentimento e referência à política/LGPD.`;
+      } else if (signals.sensitive_form_suspected) {
+        status = 'nao_conforme';
+        evidenceNote = `O formulário de ${domain} pede ${dataForms[0]} e trata dado sensível sem aceite visível.`;
       } else {
         status = 'nao_conforme';
-        evidenceNote = `O formulário de ${domain} pede ${dataForms[0]}, sem aceite/política visível.`;
+        evidenceNote = `O formulário de ${domain} pede ${dataForms[0]}, sem aceite nem link da política.`;
       }
     } else if (titleL.includes('instagram') || titleL.includes('rede social') || ['redes', 'instagram'].includes(section)) {
       const socials = evidence.socials || {};
@@ -598,24 +632,56 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
         status = 'na';
         evidenceNote = 'Sem indício de teleatendimento.';
       }
-    } else if (titleL.includes('encarregado') || titleL.includes('(dpo)') || titleL.endsWith('dpo')) {
-      const siteL = siteText.toLowerCase();
-      if (siteL.includes('encarregado') || /\bdpo\b/.test(siteL)) {
+    } else if (titleL.includes('acessib') || titleL.includes('accessib')) {
+      if (signals.has_accessibility) {
         status = 'conforme';
-        evidenceNote = `O site ${domain} identifica canal do encarregado.`;
+        evidenceNote = `Recursos de acessibilidade detectados em ${domain}.`;
+      } else {
+        status = 'atencao';
+        evidenceNote = 'Sem skip-link, ferramenta ou página de acessibilidade.';
+      }
+    } else if (titleL.includes('encarregado') || titleL.includes('(dpo)') || titleL.endsWith('dpo')) {
+      // Local usual = política de privacidade (home é diferencial, não exigência).
+      const siteL = siteText.toLowerCase();
+      const dpoNamed =
+        siteL.includes('encarregado') ||
+        /\bdpo\b/.test(siteL) ||
+        siteL.includes('responsável pela proteção de dados') ||
+        siteL.includes('responsavel pela protecao de dados') ||
+        siteL.includes('responsável pelo tratamento de dados') ||
+        siteL.includes('responsavel pelo tratamento de dados') ||
+        /(?:privacidade|lgpd|encarregado|dpo|dados)@[a-z0-9._%+-]+\.[a-z]{2,}/i.test(siteL);
+      const privacyContext =
+        Boolean(signals.has_privacy_link) ||
+        siteL.includes('política de privacidade') ||
+        siteL.includes('politica de privacidade') ||
+        Boolean(signals.legal_pages_fetched?.length);
+      if (dpoNamed) {
+        status = 'conforme';
+        evidenceNote = `Canal do encarregado/DPO identificado no material de ${domain} (política de privacidade e/ou páginas legais — local usual).`;
+      } else if (
+        privacyContext &&
+        (siteL.includes('dados pessoais') || siteL.includes('titular')) &&
+        (siteL.includes('@') || siteL.includes('e-mail') || siteL.includes('email'))
+      ) {
+        status = 'atencao';
+        evidenceNote = `Há política/contato em ${domain}, mas o encarregado (DPO) não está nomeado de forma explícita. O canal costuma ficar na política — completar com identificação e e-mail (Art. 41).`;
       } else {
         status = 'nao_conforme';
-        evidenceNote = `O site ${domain} não publica o encarregado de dados.`;
+        evidenceNote = `Encarregado (DPO) não identificado na política de privacidade nem nas páginas legais de ${domain}.`;
       }
     } else if (critical) {
       status = 'conforme';
       evidenceNote = 'Sem indício textual da conduta proibida.';
     } else {
-      status = 'atencao';
-      evidenceNote = 'Item genérico — revisado por heurística.';
+      // Sem regra automática: não derruba a nota
+      status = 'na';
+      evidenceNote = 'Sem regra automática neste pré-score; revisar no relatório detalhado se aplicável.';
     }
 
-    counts[status] += 1;
+    if (status !== 'na') counts[status] += 1;
+    else counts.na += 1;
+
     itemsOut.push({
       id: `${section}-${idx}`,
       section,

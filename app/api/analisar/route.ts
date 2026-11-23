@@ -6,6 +6,7 @@ import {
   insertLead,
 } from '@/lib/conformidade/repository';
 import { runLocalComplianceAnalysis } from '@/lib/conformidade/run-local-analysis';
+import { extractInstagramFromHtml } from '@/lib/conformidade/discover-socials';
 import { fetchSiteEvidence, type SiteEvidence } from '@/lib/conformidade/site-audit';
 import {
   fetchSocialProfileEvidence,
@@ -17,7 +18,7 @@ import { notifyCommercial } from '@/lib/conformidade/notify';
 import { PROFESSION_LABELS, type InputType, type Profession } from '@/lib/conformidade/types';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 const BodySchema = z
   .object({
@@ -110,15 +111,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [socialEvidence, siteEvidence] = await Promise.all([
-      socialUrl ? fetchSocialProfileEvidence(socialUrl) : Promise.resolve(null as SocialEvidence | null),
-      siteUrl && !isSocialUrl(siteUrl)
-        ? fetchSiteEvidence(siteUrl)
-        : Promise.resolve(null as SiteEvidence | null),
-    ]);
+    // 1) Site primeiro (páginas legais + HTML para descobrir Instagram)
+    let siteEvidence: SiteEvidence | null = null;
+    if (siteUrl && !isSocialUrl(siteUrl)) {
+      siteEvidence = await fetchSiteEvidence(siteUrl);
+    }
 
-    const primaryUrl =
-      socialEvidence?.finalUrl || siteEvidence?.finalUrl || socialUrl || siteUrl;
+    // 2) Instagram: campo do formulário OU link encontrado no HTML do site (paridade com o lote)
+    if (!socialUrl && siteEvidence?.html) {
+      const discovered = extractInstagramFromHtml(
+        siteEvidence.html,
+        siteEvidence.finalUrl || siteUrl
+      );
+      if (discovered) socialUrl = discovered;
+    }
+
+    let socialEvidence: SocialEvidence | null = null;
+    if (socialUrl) {
+      socialEvidence = await fetchSocialProfileEvidence(socialUrl);
+    }
 
     const hasContent =
       Boolean(siteEvidence?.textSample && siteEvidence.textSample.length >= 20) ||
@@ -142,7 +153,7 @@ export async function POST(req: NextRequest) {
 
     const professionLabel = PROFESSION_LABELS[body.profession as Profession];
 
-    // Nota inicial local (checklist + regras) — sem OpenAI e sem HTML/PDF
+    // Nota inicial local (checklist + regras) — mesma lógica do lote Conformidade Digital
     const analysis = runLocalComplianceAnalysis({
       name: leadName,
       profession: body.profession,

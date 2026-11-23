@@ -5,7 +5,7 @@ Site institucional + **Analisador de Conformidade Digital** (Next.js).
 ## Stack
 
 - Páginas de marketing: HTML estático em `public/`
-- App Router: `/analisador` (cliente) e `/admin/reports` (interno)
+- App Router: `/analisador` (cliente), `/admin` (hub), `/admin/reports` e `/admin/consultations` (interno)
 - API: `/api/analisar`, `/api/admin/*`
 - Banco: **Postgres Neon na Vercel Storage** (`db/schema.sql`)
 - IA: OpenAI (`gpt-4o`) ou Anthropic (Claude)
@@ -36,7 +36,7 @@ npm run dev
 ```
 
 - Público: http://localhost:3000/analisador  
-- Admin: http://localhost:3000/admin/reports  
+- Admin: http://localhost:3000/admin (menu) · `/admin/reports` · `/admin/consultations` (export Excel/CSV)  
 
 ## Separação de relatórios
 

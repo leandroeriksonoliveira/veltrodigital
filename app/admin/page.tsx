@@ -23,10 +23,6 @@ const OPTIONS = [
 export default function AdminHomePage() {
   return (
     <AdminPageLayout section="home">
-      <span className="tag">Uso interno</span>
-      <h1>Painel administrativo</h1>
-      <p className="lead">Escolha um relatório abaixo ou use o menu no topo.</p>
-
       <div className="admin-menu">
         {OPTIONS.map((item) => (
           <Link key={item.href} href={item.href} className="admin-menu-card">

@@ -61,13 +61,22 @@ function AdminReportsContent() {
   }, []);
 
   async function openDetail(id: string) {
-    const res = await fetch(`/api/admin/reports?id=${id}`);
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || 'Erro ao carregar');
-      return;
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/reports?id=${id}`);
+      if (res.status === 401) {
+        await refreshSession();
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Erro ao carregar');
+        return;
+      }
+      setDetail(data);
+    } catch {
+      setError('Não foi possível carregar o detalhe.');
     }
-    setDetail(data);
   }
 
   const pr = (detail?.client_report?.penalidades_resumo || {}) as Record<string, unknown>;
@@ -84,12 +93,6 @@ function AdminReportsContent() {
 
   return (
     <>
-      <span className="tag">Uso interno · leads</span>
-      <h1>Leads e notas de conformidade</h1>
-      <p className="lead">
-        Contato do lead + resumo numérico. Relatório detalhado não é gerado nem salvo online.
-      </p>
-
       {detail ? (
         <div className="card">
           <button type="button" className="btn btn-outline" onClick={() => setDetail(null)}>

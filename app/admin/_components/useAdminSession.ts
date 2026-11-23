@@ -4,20 +4,18 @@ import { FormEvent, useCallback, useEffect, useState } from 'react';
 
 export function useAdminSession() {
   const [authed, setAuthed] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const refreshSession = useCallback(async () => {
-    setChecking(true);
     try {
-      const res = await fetch('/api/admin/session');
+      const res = await fetch('/api/admin/session', {
+        signal: AbortSignal.timeout(10000),
+      });
       const data = await res.json();
       setAuthed(Boolean(data.authenticated));
     } catch {
       setAuthed(false);
-    } finally {
-      setChecking(false);
     }
   }, []);
 
@@ -28,28 +26,36 @@ export function useAdminSession() {
   async function login(e: FormEvent) {
     e.preventDefault();
     setError('');
-    const res = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error || 'Falha no login');
-      return;
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError((data as { error?: string }).error || 'Falha no login');
+        return;
+      }
+      setAuthed(true);
+      setPassword('');
+      await refreshSession();
+    } catch {
+      setError('Não foi possível conectar. Tente novamente.');
     }
-    setAuthed(true);
-    setPassword('');
   }
 
   async function logout() {
-    await fetch('/api/admin/login', { method: 'DELETE' });
-    setAuthed(false);
+    try {
+      await fetch('/api/admin/login', { method: 'DELETE' });
+    } finally {
+      setAuthed(false);
+    }
   }
 
   return {
     authed,
-    checking,
+    checking: false,
     password,
     setPassword,
     error,

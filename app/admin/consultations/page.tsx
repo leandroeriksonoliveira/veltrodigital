@@ -81,13 +81,6 @@ function AdminConsultationsContent() {
 
   return (
     <>
-      <span className="tag">Uso interno · analisador</span>
-      <h1>Últimos sites consultados</h1>
-      <p className="lead">
-        URLs analisadas pelos clientes no formulário público. Exportação Excel com colunas: slug,
-        nome, site, instagram, conselho, observacao, prioridade.
-      </p>
-
       <div className="card">
         <div className="toolbar">
           <p className="hint" style={{ margin: 0 }}>

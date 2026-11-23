@@ -17,6 +17,6 @@ export const SECTION_META: Record<
   consultations: {
     tag: 'Uso interno · analisador',
     title: 'Últimos sites consultados',
-    lead: 'URLs analisadas no formulário público. Exportação Excel: slug, nome, site, instagram, conselho, observacao, prioridade.',
+    lead: 'URLs analisadas no formulário público. Selecione registros para exportar (Excel) ou excluir da base.',
   },
 };

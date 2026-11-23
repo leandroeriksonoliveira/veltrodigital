@@ -216,27 +216,100 @@ export async function listRecentConsultations(limit = 200): Promise<Consultation
     LIMIT ${limit}
   `;
 
-  return (rows as Array<Record<string, unknown>>).map((row) => {
-    const pack = row.penalidades_resumo as { veredito?: string } | null;
-    return {
-      id: String(row.id),
-      created_at: String(row.created_at),
-      site_url: (row.site_url as string | null) ?? null,
-      profile_url: (row.profile_url as string | null) ?? null,
-      name: String(row.name),
-      email: (row.email as string | null) ?? null,
-      phone: (row.phone as string | null) ?? null,
-      profession: String(row.profession),
-      input_type: String(row.input_type),
-      score_geral: row.score_geral != null ? Number(row.score_geral) : null,
-      score_lgpd: row.score_lgpd != null ? Number(row.score_lgpd) : null,
-      score_marco_civil: row.score_marco_civil != null ? Number(row.score_marco_civil) : null,
-      score_etica_profissional:
-        row.score_etica_profissional != null ? Number(row.score_etica_profissional) : null,
-      selo: (row.selo as string | null) ?? null,
-      veredito: pack?.veredito ?? null,
-    };
-  });
+  return (rows as Array<Record<string, unknown>>).map(mapConsultationRow);
+}
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function sanitizeLeadIds(ids: unknown): string[] {
+  if (!Array.isArray(ids)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of ids) {
+    const id = String(raw || '').trim();
+    if (!UUID_RE.test(id) || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out.slice(0, 500);
+}
+
+function mapConsultationRow(row: Record<string, unknown>): ConsultationExportRow {
+  const pack = row.penalidades_resumo as { veredito?: string } | null;
+  return {
+    id: String(row.id),
+    created_at: String(row.created_at),
+    site_url: (row.site_url as string | null) ?? null,
+    profile_url: (row.profile_url as string | null) ?? null,
+    name: String(row.name),
+    email: (row.email as string | null) ?? null,
+    phone: (row.phone as string | null) ?? null,
+    profession: String(row.profession),
+    input_type: String(row.input_type),
+    score_geral: row.score_geral != null ? Number(row.score_geral) : null,
+    score_lgpd: row.score_lgpd != null ? Number(row.score_lgpd) : null,
+    score_marco_civil: row.score_marco_civil != null ? Number(row.score_marco_civil) : null,
+    score_etica_profissional:
+      row.score_etica_profissional != null ? Number(row.score_etica_profissional) : null,
+    selo: (row.selo as string | null) ?? null,
+    veredito: pack?.veredito ?? null,
+  };
+}
+
+export async function listConsultationsByIds(ids: string[]): Promise<ConsultationExportRow[]> {
+  const clean = sanitizeLeadIds(ids);
+  if (!clean.length) return [];
+  const sql = getSql();
+  const rows = await sql`
+    SELECT
+      l.id,
+      l.name,
+      l.email,
+      l.phone,
+      l.profession,
+      l.profile_url,
+      l.site_url,
+      l.input_type,
+      l.created_at,
+      c.score_geral,
+      c.score_lgpd,
+      c.score_marco_civil,
+      c.score_etica_profissional,
+      c.selo,
+      c.penalidades_resumo
+    FROM leads l
+    INNER JOIN LATERAL (
+      SELECT
+        score_geral,
+        score_lgpd,
+        score_marco_civil,
+        score_etica_profissional,
+        selo,
+        penalidades_resumo,
+        created_at
+      FROM client_reports
+      WHERE lead_id = l.id
+      ORDER BY created_at DESC
+      LIMIT 1
+    ) c ON true
+    WHERE l.id = ANY(${clean})
+    ORDER BY l.created_at DESC
+  `;
+  return (rows as Array<Record<string, unknown>>).map(mapConsultationRow);
+}
+
+/** Remove leads (e relatórios relacionados via ON DELETE CASCADE). */
+export async function deleteLeadsByIds(ids: string[]): Promise<number> {
+  const clean = sanitizeLeadIds(ids);
+  if (!clean.length) return 0;
+  const sql = getSql();
+  const deleted = await sql`
+    DELETE FROM leads
+    WHERE id = ANY(${clean})
+    RETURNING id
+  `;
+  return deleted.length;
 }
 
 export async function getLeadBundle(leadId: string) {

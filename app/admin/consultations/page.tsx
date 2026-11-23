@@ -129,8 +129,8 @@ export default function AdminConsultationsPage() {
         <span className="tag">Uso interno · analisador</span>
         <h1>Últimos sites consultados</h1>
         <p className="lead">
-          URLs analisadas pelos clientes no formulário público, com nota e selo. Exportação compatível
-          com Excel (CSV UTF-8, separador ;).
+          URLs analisadas pelos clientes no formulário público. Exportação Excel com colunas: slug,
+          nome, site, instagram, conselho, observacao, prioridade.
         </p>
 
         {!authed ? (

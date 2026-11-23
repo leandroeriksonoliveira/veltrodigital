@@ -115,11 +115,19 @@ export default function AdminReportsPage() {
           <Link href="/" className="logo">
             Veltro<span>Digital</span> · Admin
           </Link>
-          {authed && (
-            <button type="button" className="btn btn-outline" onClick={logout}>
-              Sair
-            </button>
-          )}
+          <div className="nav-actions">
+            <Link href="/admin/reports" className="nav-link is-active">
+              Leads
+            </Link>
+            <Link href="/admin/consultations" className="nav-link">
+              Consultas
+            </Link>
+            {authed && (
+              <button type="button" className="btn btn-outline" onClick={logout}>
+                Sair
+              </button>
+            )}
+          </div>
         </nav>
 
         <span className="tag">Uso interno · leads</span>

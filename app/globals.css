@@ -306,3 +306,53 @@ textarea {
   color: var(--muted);
   margin-top: 24px;
 }
+
+.container-wide {
+  width: min(1200px, calc(100% - 32px));
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.nav-link:hover {
+  color: var(--text);
+}
+
+.nav-link.is-active {
+  color: #fff;
+  background: rgba(0, 198, 255, 0.12);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.cell-url a {
+  word-break: break-all;
+}
+
+.hint.tiny {
+  font-size: 0.78rem;
+  margin-top: 2px;
+}

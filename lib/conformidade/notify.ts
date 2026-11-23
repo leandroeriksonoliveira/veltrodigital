@@ -16,7 +16,7 @@ export async function notifyCommercial(payload: {
       `Nome: ${payload.name}\n` +
       `Profissão: ${payload.profession}\n` +
       `Resumo: ${payload.resumo}\n` +
-      `Admin: https://www.veltrodigital.com.br/admin/reports`,
+      `Admin: https://www.veltrodigital.com.br/admin`,
   };
 
   try {

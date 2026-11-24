@@ -251,12 +251,12 @@ export default function AnalisadorPage() {
           <div>
             <span className="tag">Conformidade Digital</span>
             <h1>
-              Qual é a nota do
+              Seu site está em conformidade?
               <br />
-              seu site?
+              Descubra grátis em poucos minutos.
             </h1>
             <p className="lead law-hook">
-              <strong>Seu site pode ser multado.</strong> Essas normas já valem. Informe o endereço e veja a nota — e o risco — após a análise completa.
+              Faça uma análise inicial da sua presença digital, no site e nas redes, e veja sua nota, os principais pontos de atenção, o que pode precisar de ajuste e como evitar penalidades.
             </p>
           </div>
           <div className="law-seals" aria-label="Normas que podem gerar penalidade">
@@ -348,8 +348,9 @@ export default function AnalisadorPage() {
             </label>
 
             <button className="btn" type="submit" style={{ width: '100%' }}>
-              Ver minha nota →
+              Analisar meu site grátis
             </button>
+            <p className="offer-note">A primeira análise é gratuita.</p>
             <p className="disclaimer">
               Nota orientativa. Não substitui parecer jurídico, decisão de conselho de classe ou da
               ANPD.

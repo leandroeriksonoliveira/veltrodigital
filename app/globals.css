@@ -112,15 +112,15 @@ h2 {
 .law-seals {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 12px;
+  gap: 6px;
   width: 100%;
   margin: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 560px) {
   .law-seals {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
+    gap: 6px;
   }
 }
 
@@ -130,31 +130,32 @@ h2 {
   align-items: center;
   justify-content: center;
   width: auto;
-  min-height: 92px;
-  padding: 12px 6px;
-  border-radius: 16px;
+  min-height: 0;
+  padding: 6px 2px 5px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.03);
   text-align: center;
 }
 
 .law-ico {
-  font-size: 1.35rem;
+  font-size: 0.95rem;
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 3px;
 }
 
 .law-seal strong {
   font-family: var(--display);
-  font-size: 0.84rem;
-  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
   line-height: 1.1;
 }
 
 .law-seal span:not(.law-ico) {
-  margin-top: 3px;
-  font-size: 0.62rem;
-  letter-spacing: 0.02em;
+  margin-top: 1px;
+  font-size: 0.52rem;
+  letter-spacing: 0;
+  line-height: 1.15;
   color: var(--muted);
 }
 
@@ -191,11 +192,16 @@ h2 {
 
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
 }
 
-@media (max-width: 720px) {
+.grid-2 input {
+  padding: 11px 8px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 380px) {
   .grid-2 {
     grid-template-columns: 1fr;
   }
@@ -482,6 +488,13 @@ textarea {
   color: var(--muted);
   font-size: 0.75rem;
   text-transform: uppercase;
+}
+
+.offer-note {
+  font-size: 0.92rem;
+  color: var(--text);
+  text-align: center;
+  margin: 14px 0 0;
 }
 
 .disclaimer {

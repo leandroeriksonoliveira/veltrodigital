@@ -232,6 +232,49 @@ function corpus(evidence: LocalEvidence): string {
     .toLowerCase();
 }
 
+const IG_LINK_HINT =
+  /https?:\/\/|spotify|linktr\.ee|biolink|beacons|\b[\w.-]+\.(?:com\.br|com|net|org|app|io|agr\.br|br)\b|\be mais\s+\d+\b/i;
+const IG_PRIVACY_HINT = /privacidade|pol[ií]tica/i;
+const IG_MULTI_LINK = /\be mais\s+\d+\b/i;
+
+function igDomainBare(domain: string): string {
+  return (domain || '').replace(/^www\./, '').trim().toLowerCase();
+}
+
+function igBioLinkBlobs(ig: Record<string, unknown>): string[] {
+  const blobs: string[] = [];
+  const external = String(ig.external_url || '').trim();
+  if (external) blobs.push(external);
+  for (const bl of (ig.bio_links as unknown[]) || []) {
+    if (bl && typeof bl === 'object') {
+      const o = bl as Record<string, unknown>;
+      const title = String(o.title || o.link_title || '').trim();
+      const href = String(o.url || o.lynx_url || o.link_url || '').trim();
+      const joined = `${title} ${href}`.trim();
+      if (joined) blobs.push(joined);
+    } else if (bl) {
+      blobs.push(String(bl).trim());
+    }
+  }
+  return blobs;
+}
+
+function igPickLinkLine(lines: string[], domain: string, ig: Record<string, unknown>): string {
+  const bare = igDomainBare(domain);
+  const candidates: string[] = [...igBioLinkBlobs(ig)];
+  for (const ln of lines) {
+    if (IG_LINK_HINT.test(ln) || (bare && ln.toLowerCase().includes(bare))) {
+      candidates.push(ln);
+    }
+  }
+  if (!candidates.length) return '';
+  if (bare) {
+    const hit = candidates.find((c) => c.toLowerCase().includes(bare));
+    if (hit) return hit;
+  }
+  return candidates[0];
+}
+
 function instagramItems(evidence: LocalEvidence, domain: string): ScoredItem[] {
   const ig = evidence.instagram || {};
   const socials = evidence.socials || {};
@@ -239,7 +282,6 @@ function instagramItems(evidence: LocalEvidence, domain: string): ScoredItem[] {
   const url = String(ig.url || igSocial.url || '');
   if (!url || ig.skipped) return [];
   const handle = url.replace(/\/$/, '').split('/').pop() || 'instagram';
-  const where = `No Instagram @${handle}`;
   const bio = String(ig.bio || '').replace(/\?\?/g, '').replace(/^\s*\|\s*|\s*\|\s*$/g, '');
   const name = String(ig.full_name || '').trim();
   const lines: string[] = [];
@@ -249,10 +291,13 @@ function instagramItems(evidence: LocalEvidence, domain: string): ScoredItem[] {
     if (low.includes('seguidor') || low === 'cadastre-se' || low === handle.toLowerCase()) continue;
     lines.push(line.trim());
   }
-  const linkLine = lines.find((ln) => ln.includes('http') || ln.includes('.com') || ln.toLowerCase().includes('spotify')) || '';
+  const linkLine = igPickLinkLine(lines, domain, ig);
+  const linkBlobs = [...igBioLinkBlobs(ig), ...(linkLine ? [linkLine] : [])];
+  const linkBlob = linkBlobs.join(' ');
   const highlights = lines.filter((ln) => ln.startsWith('//') || ln.startsWith('#'));
   const bioLines = lines.filter((ln) => ln.includes('|'));
   const bioQuote = bioLines.slice(0, 3).join(' · ') || bio || 'bio não lida';
+  const bare = igDomainBare(domain);
 
   const row = (
     title: string,
@@ -286,8 +331,8 @@ function instagramItems(evidence: LocalEvidence, domain: string): ScoredItem[] {
   ];
 
   if (linkLine) {
-    const pointsSite = domain && domain.replace(/^www\./, '') && linkLine.toLowerCase().includes(domain.replace(/^www\./, ''));
-    const pointsPolicy = /privacidade|politica|política/.test(linkLine.toLowerCase());
+    const pointsSite = Boolean(bare && linkBlob.toLowerCase().includes(bare));
+    const pointsPolicy = IG_PRIVACY_HINT.test(linkBlob);
     items.push(
       row(
         'Link na bio',
@@ -318,14 +363,24 @@ function instagramItems(evidence: LocalEvidence, domain: string): ScoredItem[] {
     )
   );
 
-  const privacyInBio = /privacidade|política|politica/.test(bio.toLowerCase());
+  const privacyInBio = IG_PRIVACY_HINT.test(bio);
+  const privacyInLinks = IG_PRIVACY_HINT.test(linkBlob);
+  const multiLink = IG_MULTI_LINK.test(linkBlob);
+  const pointsSite = Boolean(bare && linkBlob.toLowerCase().includes(bare));
+  const privacyOk = privacyInBio || privacyInLinks || (pointsSite && multiLink);
+  let privacyNote: string;
+  if (privacyInBio || privacyInLinks) {
+    privacyNote = `A bio/links de @${handle} apontam a política.`;
+  } else if (pointsSite && multiLink) {
+    privacyNote = `@${handle} mostra o site e links adicionais na bio (${linkLine.slice(0, 120)}) — padrão usado para incluir a política de privacidade.`;
+  } else {
+    privacyNote = `A bio de @${handle} (${bioQuote.slice(0, 140)}) não leva a uma política de privacidade.`;
+  }
   items.push(
     row(
       'Transparência de dados no Instagram',
-      privacyInBio ? 'conforme' : 'nao_conforme',
-      privacyInBio
-        ? `A bio de @${handle} aponta a política.`
-        : `A bio de @${handle} (${bioQuote.slice(0, 140)}) não leva a uma política de privacidade.`,
+      privacyOk ? 'conforme' : 'nao_conforme',
+      privacyNote,
       'LGPD Art. 9º · ANPD'
     )
   );
@@ -858,6 +913,8 @@ export function buildEvidenceFromAudits(input: {
       visible_text: social.textSample,
       visible_lines_sample: social.textSample.split(/\s{2,}|\n/).map((s) => s.trim()).filter(Boolean).slice(0, 30),
       posts_sample: [] as string[],
+      external_url: social.externalUrl || '',
+      bio_links: social.bioLinks || [],
       og: {
         'og:title': social.title,
         'og:description': social.description || social.bio,

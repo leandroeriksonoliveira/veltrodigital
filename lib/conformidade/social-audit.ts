@@ -16,6 +16,10 @@ export interface SocialEvidence {
   summary: string;
   collectionNotes: string[];
   collectionQuality: 'full' | 'partial' | 'minimal';
+  /** Link único da bio, quando a API do Instagram devolve. */
+  externalUrl?: string;
+  /** Links nomeados da bio (site, política, Linktree). */
+  bioLinks?: Array<{ title?: string; url?: string; lynx_url?: string; link_url?: string }>;
 }
 
 function stripHtml(html: string): string {
@@ -133,6 +137,7 @@ type IgUser = {
   is_private?: boolean;
   is_verified?: boolean;
   external_url?: string | null;
+  bio_links?: Array<{ title?: string; url?: string; lynx_url?: string; link_url?: string }>;
   category_name?: string | null;
   business_category_name?: string | null;
   edge_followed_by?: { count?: number };
@@ -316,6 +321,8 @@ function buildEvidence(params: {
   textSample: string;
   notes: string[];
   collectionQuality: 'full' | 'partial' | 'minimal';
+  externalUrl?: string;
+  bioLinks?: SocialEvidence['bioLinks'];
 }): SocialEvidence {
   const evidence: SocialEvidence = {
     url: params.normalized,
@@ -330,6 +337,8 @@ function buildEvidence(params: {
     summary: '',
     collectionNotes: params.notes,
     collectionQuality: params.collectionQuality,
+    externalUrl: params.externalUrl || '',
+    bioLinks: params.bioLinks || [],
   };
 
   evidence.summary = [
@@ -402,6 +411,8 @@ export async function fetchSocialProfileEvidence(url: string): Promise<SocialEvi
           textSample: textParts.join('\n\n'),
           notes: ['Coleta completa via web_profile_info.', ...notes],
           collectionQuality: captions.length || bio ? 'full' : 'partial',
+          externalUrl: (user.external_url || '').trim(),
+          bioLinks: user.bio_links || [],
         });
       }
     } catch (err) {

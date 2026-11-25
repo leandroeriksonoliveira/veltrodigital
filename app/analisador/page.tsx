@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { pickPublicCase } from '@/lib/conformidade/public-cases';
 
 /** Tempo mínimo de “Analisando” antes de revelar a nota (evita parecer aleatório). */
 const MIN_ANALYSIS_MS = 20_000;
@@ -46,6 +47,26 @@ type ClientReport = {
     sanções_eticas: string;
   };
 };
+
+function PublicCaseCard({ report }: { report: ClientReport }) {
+  const item = pickPublicCase(report);
+  return (
+    <section className="exposure-panel exposure-case" aria-label="Caso público semelhante">
+      <h2>Caso público</h2>
+      <p className="case-kicker">
+        {item.organ} · {item.year} · {item.who}
+      </p>
+      <p className={item.amount ? 'case-amount' : 'case-status'}>
+        {item.amount ?? 'Processo aberto'}
+      </p>
+      <p className="case-fact">{item.fact}</p>
+      <a className="case-source" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">
+        {item.sourceLabel}
+      </a>
+      <p className="case-note">Caso real e público. Não é o valor da sua nota.</p>
+    </section>
+  );
+}
 
 function seloClass(selo: string) {
   if (selo === 'Aprovado') return 'ok';
@@ -406,27 +427,30 @@ export default function AnalisadorPage() {
               </p>
             )}
 
-            <div className="penalties">
-              <h2 style={{ fontSize: '1.05rem', margin: '0 0 10px' }}>Exposição possível</h2>
-              <ul>
-                <li>
-                  <strong>ANPD / LGPD:</strong> {report.penalidades_resumo.multa_anpd_max}
-                </li>
-                <li>
-                  <strong>Pessoa física:</strong> {report.penalidades_resumo.multa_pf_referencia}
-                </li>
-                <li>
-                  <strong>Conselho:</strong> {report.penalidades_resumo.suspensao_conselho}
-                </li>
-                {sancoes ? (
+            <div className="exposure-grid">
+              <section className="exposure-panel">
+                <h2>Exposição possível</h2>
+                <ul>
                   <li>
-                    <strong>Ética:</strong> {sancoes}
+                    <strong>ANPD / LGPD:</strong> {report.penalidades_resumo.multa_anpd_max}
                   </li>
-                ) : null}
-                <li>
-                  <strong>Imagem:</strong> {report.penalidades_resumo.riscos_imagem}
-                </li>
-              </ul>
+                  <li>
+                    <strong>Pessoa física:</strong> {report.penalidades_resumo.multa_pf_referencia}
+                  </li>
+                  <li>
+                    <strong>Conselho:</strong> {report.penalidades_resumo.suspensao_conselho}
+                  </li>
+                  {sancoes ? (
+                    <li>
+                      <strong>Ética:</strong> {sancoes}
+                    </li>
+                  ) : null}
+                  <li>
+                    <strong>Imagem:</strong> {report.penalidades_resumo.riscos_imagem}
+                  </li>
+                </ul>
+              </section>
+              <PublicCaseCard report={report} />
             </div>
 
             <div className="result-cta">

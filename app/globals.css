@@ -342,13 +342,83 @@ textarea {
   color: var(--danger);
 }
 
-.penalties {
+.exposure-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 12px;
   margin-top: 20px;
 }
 
-.penalties li {
+@media (max-width: 720px) {
+  .exposure-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.exposure-panel {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px 16px 14px;
+}
+
+.exposure-panel h2 {
+  font-size: 1.05rem;
+  margin: 0 0 10px;
+}
+
+.exposure-panel ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.exposure-panel li {
   color: var(--muted);
   margin-bottom: 8px;
+}
+
+.exposure-panel li strong {
+  color: var(--text);
+}
+
+.case-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.case-amount,
+.case-status {
+  font-family: var(--display);
+  line-height: 1.1;
+  margin: 8px 0 8px;
+}
+
+.case-amount {
+  font-size: 1.7rem;
+  color: #ff5b5b;
+}
+
+.case-status {
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.case-fact {
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.case-source {
+  font-size: 0.88rem;
+}
+
+.case-note {
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 
 /* Resultado do analisador — cabeçalho compacto */

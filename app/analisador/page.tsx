@@ -49,7 +49,9 @@ type ClientReport = {
 };
 
 function PublicCaseCard({ report }: { report: ClientReport }) {
-  const item = pickPublicCase(report);
+  const item = pickPublicCase(report, {
+    council: Boolean(report.penalidades_resumo.suspensao_conselho),
+  });
   return (
     <section className="exposure-panel exposure-case" aria-label="Caso público semelhante">
       <h2>Caso público</h2>
@@ -414,10 +416,12 @@ export default function AnalisadorPage() {
                 <div className="n">{report.score_marco_civil}</div>
                 <div className="l">Marco Civil</div>
               </div>
-              <div className="score-box">
-                <div className="n">{report.score_etica_profissional}</div>
-                <div className="l">Ética</div>
-              </div>
+              {report.penalidades_resumo.suspensao_conselho ? (
+                <div className="score-box">
+                  <div className="n">{report.score_etica_profissional}</div>
+                  <div className="l">Ética</div>
+                </div>
+              ) : null}
             </div>
 
             {sb && (
@@ -437,9 +441,11 @@ export default function AnalisadorPage() {
                   <li>
                     <strong>Pessoa física:</strong> {report.penalidades_resumo.multa_pf_referencia}
                   </li>
-                  <li>
-                    <strong>Conselho:</strong> {report.penalidades_resumo.suspensao_conselho}
-                  </li>
+                  {report.penalidades_resumo.suspensao_conselho ? (
+                    <li>
+                      <strong>Conselho:</strong> {report.penalidades_resumo.suspensao_conselho}
+                    </li>
+                  ) : null}
                   {sancoes ? (
                     <li>
                       <strong>Ética:</strong> {sancoes}

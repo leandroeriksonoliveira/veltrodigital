@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PROFESSION_LABELS, type Profession } from '@/lib/conformidade/types';
 import { AdminPageLayout, useAdminSessionContext } from '../_components/AdminPageLayout';
+
+function professionLabel(code: string): string {
+  return PROFESSION_LABELS[code as Profession] || code || '—';
+}
 
 type ListItem = {
   id: string;
@@ -100,7 +105,7 @@ function AdminReportsContent() {
           </button>
           <h2 style={{ marginTop: 20 }}>{String(detail.lead?.name || '')}</h2>
           <p className="hint">
-            {String(detail.lead?.profession || '')}
+            {professionLabel(String(detail.lead?.profession || ''))}
             <br />
             E-mail: {String(detail.lead?.email || '—')}
             <br />
@@ -150,10 +155,12 @@ function AdminReportsContent() {
                   <div className="n">{detail.client_report.score_marco_civil ?? '—'}</div>
                   <div className="l">Marco Civil</div>
                 </div>
-                <div className="score-box">
-                  <div className="n">{detail.client_report.score_etica_profissional ?? '—'}</div>
-                  <div className="l">Ética</div>
-                </div>
+                {pr.suspensao_conselho ? (
+                  <div className="score-box">
+                    <div className="n">{detail.client_report.score_etica_profissional ?? '—'}</div>
+                    <div className="l">Ética</div>
+                  </div>
+                ) : null}
               </div>
               <p style={{ marginTop: 16 }}>{String(detail.client_report.cta_generico || '')}</p>
               {pr.veredito ? <p className="hint">Veredito: {String(pr.veredito)}</p> : null}
@@ -186,7 +193,7 @@ function AdminReportsContent() {
                     <td>{new Date(row.created_at).toLocaleString('pt-BR')}</td>
                     <td>{row.name}</td>
                     <td>{row.phone || row.email || '—'}</td>
-                    <td>{row.profession}</td>
+                    <td>{professionLabel(row.profession)}</td>
                     <td>{row.selo || '—'}</td>
                     <td>{row.score_geral ?? '—'}</td>
                     <td>

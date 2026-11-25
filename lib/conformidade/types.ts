@@ -8,6 +8,7 @@ export type Profession =
   | 'enfermeiro'
   | 'nutricionista'
   | 'arquiteto'
+  | 'empresa'
   | 'outro';
 
 export type InputType = 'texto' | 'imagem' | 'site' | 'link_referencia' | 'misto';
@@ -127,6 +128,7 @@ export const PROFESSION_LABELS: Record<Profession, string> = {
   enfermeiro: 'Enfermeiro(a)',
   nutricionista: 'Nutricionista',
   arquiteto: 'Arquiteto(a) / Engenheiro(a)',
+  empresa: 'Empresa',
   outro: 'Outro profissional liberal',
 };
 

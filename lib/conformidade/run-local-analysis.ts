@@ -4,6 +4,7 @@
 
 import type { AiAnalysisPayload, Profession } from './types';
 import {
+  areaToProfession,
   buildEvidenceFromAudits,
   scoreFromEvidence,
   toClientReport,
@@ -72,8 +73,11 @@ export function runLocalComplianceAnalysis(input: {
     hasSite: Boolean(input.site),
   });
 
+  const requested = String(input.profession || '').trim();
+  const profession = !requested || requested === 'outro' ? areaToProfession(scored.area) : requested;
+
   return {
-    profession: String(input.profession),
+    profession,
     client_report,
   };
 }

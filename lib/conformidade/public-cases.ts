@@ -47,15 +47,20 @@ const CASO_DENTISTA: PublicCase = {
     'https://www.procon.sc.gov.br/procon-sc-investiga-dentista-que-vende-procedimento-estetico-sem-qualificacao/',
 };
 
-export function pickPublicCase(scores: {
-  score_lgpd: number;
-  score_marco_civil: number;
-  score_etica_profissional: number;
-}): PublicCase {
+export function pickPublicCase(
+  scores: {
+    score_lgpd: number;
+    score_marco_civil: number;
+    score_etica_profissional: number;
+  },
+  opts?: { council?: boolean }
+): PublicCase {
   const areas = [
     { id: 'lgpd' as const, score: scores.score_lgpd },
     { id: 'oferta' as const, score: scores.score_marco_civil },
-    { id: 'etica' as const, score: scores.score_etica_profissional },
+    ...(opts?.council === false
+      ? []
+      : [{ id: 'etica' as const, score: scores.score_etica_profissional }]),
   ];
   const rank = { lgpd: 0, oferta: 1, etica: 2 };
   areas.sort((a, b) => a.score - b.score || rank[a.id] - rank[b.id]);

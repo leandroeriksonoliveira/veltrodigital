@@ -151,21 +151,22 @@ export async function POST(req: NextRequest) {
     else if (socialUrl) inputType = 'link_referencia';
     else inputType = 'site';
 
-    const professionLabel = PROFESSION_LABELS[body.profession as Profession];
-
-    // Nota inicial local (checklist + regras) — mesma lógica do lote Conformidade Digital
+    // Nota inicial local (checklist + regras) — mesma lógica do lote Conformidade Digital.
+    // Com profissão vazia ou "outro", a área sai do registro encontrado no site.
     const analysis = runLocalComplianceAnalysis({
       name: leadName,
       profession: body.profession,
       site: siteEvidence,
       social: socialEvidence,
     });
+    const profession = analysis.profession;
+    const professionLabel = PROFESSION_LABELS[profession as Profession] || profession;
 
     const lead = await insertLead({
       name: leadName,
       email: body.email || null,
       phone: body.phone || null,
-      profession: body.profession,
+      profession,
       profile_url: socialUrl || null,
       site_url: siteUrl && !isSocialUrl(siteUrl) ? siteUrl : null,
       input_type: inputType,

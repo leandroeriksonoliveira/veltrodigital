@@ -168,15 +168,18 @@ function detectArea(conselho: string, siteText: string): string {
   for (const key of ['medico', 'psicologo', 'fisio', 'dentista', 'advogado'] as const) {
     if (c && (aliases(key).has(c) || c === key)) return key;
   }
-  // Lead explícito de empresa/SaaS: nunca virar "médico" só porque a home cita o segmento.
-  if (['empresa', 'outro', 'saas', 'commerce', 'ecommerce', 'agencia', 'agência'].includes(c)) {
+  // Empresa explícita na planilha/API. "outro" e vazio não entram aqui:
+  // no analisador público significam "área desconhecida" e caem na leitura do site.
+  if (['empresa', 'saas', 'commerce', 'ecommerce', 'agencia', 'agência'].includes(c)) {
     return 'empresa';
   }
   const t = siteText.toLowerCase();
-  // Exige registro do conselho. Só a palavra da profissão (ex.: "médicos")
-  // em site B2B não muda a área — senão o checklist de clínica/OAB derruba a nota.
+  // Mesma regra do script do Mac: exige registro do conselho no texto.
+  // Só a palavra da profissão (ex.: "médicos" num site B2B) não muda a área.
+  // "OAB 205" é o Provimento, comum em site institucional, e não conta como inscrição.
   if (/\bcrm\s*\/?\s*[a-z]{2}\b|\bcrm\s*\d{4,}/.test(t)) return 'medico';
-  if (/\bcrp[-\s]?\d{3,}|\bcrp\s*\/?\s*[a-z]{2}\b/.test(t)) return 'psicologo';
+  // O script do Mac pega CRP 123456 e CRP/SP. O coletor do site também acha CRP 06/123456.
+  if (/\bcrp[-\s]?\d{3,}|\bcrp\s*\/?\s*[a-z]{2}\b|\bcrp[-\s]?\d{1,2}\s*\/\s*\d{2,7}/.test(t)) return 'psicologo';
   if (/\bcrefito\s*[-\s]?\d|\bcrefito\s*\/?\s*[a-z]{2}\b/.test(t)) return 'fisio';
   if (/\bcro\s*\/?\s*[a-z]{2}\b|\bcro\s*\d{3,}/.test(t)) return 'dentista';
   if (/\boab\s*\/\s*[a-z]{2}\b|\boab\s+[a-z]{2}\s*\d/.test(t)) return 'advogado';
@@ -373,9 +376,17 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
     visible_text: '',
   };
   const signals = site || emptySignals;
-  const siteText = `${signals.visible_text || ''}\n${signals.title || ''}`;
+  const siteText = [
+    signals.visible_text || '',
+    signals.title || '',
+    ...(signals.crm_matches || []),
+    ...(signals.crp_matches || []),
+    ...(signals.cro_matches || []),
+  ].join('\n');
   const domain = domainOf(lead.site || evidence.site?.final_url || '');
   const area = detectArea(conselho, siteText);
+  // Sem conselho informado, as regras de "não aplicável" usam a área lida no site.
+  const ruleConselho = conselho || (area === 'empresa' ? '' : area);
   const text = corpus(evidence);
   const hits = new Set(signals.forbidden_hits || []);
 
@@ -422,7 +433,7 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
         evidenceNote = 'CRM/UF não encontrado no site/bio coletados.';
       }
     } else if (titleL.includes('crp')) {
-      if (conselho && !aliases('psicologo').has(conselho)) status = 'na';
+      if (ruleConselho && !aliases('psicologo').has(ruleConselho)) status = 'na';
       else if (signals.crp_matches.length || /crp[-\s]?\d+/.test(text)) {
         status = 'conforme';
         evidenceNote = 'CRP detectado.';
@@ -431,7 +442,7 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
         evidenceNote = 'CRP não encontrado no material coletado.';
       }
     } else if (titleL.includes('crefito')) {
-      if (conselho && !aliases('fisio').has(conselho)) status = 'na';
+      if (ruleConselho && !aliases('fisio').has(ruleConselho)) status = 'na';
       else if (text.includes('crefito')) {
         status = 'conforme';
         evidenceNote = 'CREFITO mencionado.';
@@ -440,7 +451,7 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
         evidenceNote = 'CREFITO não encontrado.';
       }
     } else if (titleL.includes('cro') && !titleL.includes('crm')) {
-      if (conselho && !aliases('dentista').has(conselho)) status = 'na';
+      if (ruleConselho && !aliases('dentista').has(ruleConselho)) status = 'na';
       else if (signals.cro_matches.length || /\bcro\s*\/?\s*[a-z]{2}/.test(text)) {
         status = 'conforme';
         evidenceNote = 'CRO detectado.';
@@ -729,6 +740,10 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
 }
 
 export function professionToConselho(profession: Profession | string): string {
+  const key = (profession || '').toLowerCase().trim();
+  // Vazio e "outro" = área ainda não conhecida. O score lê o site.
+  // No script do Mac, a coluna vazia faz o mesmo; "outro" lá é override explícito.
+  if (!key || key === 'outro') return '';
   const map: Record<string, string> = {
     medico: 'medico',
     fisioterapeuta: 'fisio',
@@ -739,16 +754,39 @@ export function professionToConselho(profession: Profession | string): string {
     advogado: 'advogado',
     veterinario: 'empresa',
     arquiteto: 'empresa',
-    outro: 'empresa',
+    empresa: 'empresa',
+    saas: 'empresa',
   };
-  return map[profession] || 'empresa';
+  return key in map ? map[key] : '';
+}
+
+export function areaToProfession(area: string): Profession {
+  switch (area) {
+    case 'medico':
+      return 'medico';
+    case 'psicologo':
+      return 'psicologo';
+    case 'fisio':
+      return 'fisioterapeuta';
+    case 'dentista':
+      return 'dentista';
+    case 'advogado':
+      return 'advogado';
+    case 'enfermeiro':
+      return 'enfermeiro';
+    case 'nutricionista':
+      return 'nutricionista';
+    default:
+      return 'empresa';
+  }
 }
 
 export function toClientReport(
   scored: ReturnType<typeof scoreFromEvidence>,
   opts: { hasSocial: boolean; hasSite: boolean }
 ): ClientReport {
-  const { counts: sb, items, index_pct } = scored;
+  const { counts: sb, items, index_pct, area } = scored;
+  const councilArea = area !== 'empresa';
   let selo = seloFromScore(index_pct);
   if (sb.criticos >= 1 || index_pct < 60) selo = 'Risco Crítico';
   else if (index_pct >= 85) selo = 'Aprovado';
@@ -785,9 +823,13 @@ export function toClientReport(
     penalidades_resumo: {
       multa_anpd_max: 'Até 2% do faturamento, teto R$ 50.000.000 por infração (LGPD Art. 52)',
       multa_pf_referencia: 'Referência PF grave: até ~R$ 12.000 (dosimetria ANPD)',
-      suspensao_conselho: 'Suspensão ética/disciplinar conforme conselho de classe',
+      suspensao_conselho: councilArea
+        ? 'Suspensão ética/disciplinar conforme conselho de classe'
+        : '',
       riscos_imagem: 'Publicização da infração e dano reputacional',
-      sanções_eticas: 'Advertência, censura, suspensão ou cassação/exclusão',
+      sanções_eticas: councilArea
+        ? 'Advertência, censura, suspensão ou cassação/exclusão'
+        : '',
     },
   };
 }

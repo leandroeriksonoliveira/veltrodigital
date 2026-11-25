@@ -806,5 +806,79 @@
       "prof": "todos",
       "risk": null
     }
+  ],
+  "reguladas": [
+    {
+      "section": "identificacao",
+      "title": "Número do CRN com a regional exibido",
+      "desc": "Identificação do nutricionista com CRN e regional. Ex.: CRN-3 12345.",
+      "laws": "Obrigatório; CFN; identificação do CRN",
+      "prof": "nutricionista",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CREA com UF exibido",
+      "desc": "Identificação do engenheiro com CREA e UF. Ex.: CREA/SP 123456.",
+      "laws": "Obrigatório; CONFEA/CREA; identificação do CREA",
+      "prof": "engenheiro",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CAU exibido",
+      "desc": "Identificação do arquiteto com CAU. Ex.: CAU/BR A123456 ou CAU A123456.",
+      "laws": "Obrigatório; CAU Res. 75/2014",
+      "prof": "arquiteto",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CRECI com UF exibido",
+      "desc": "Identificação do corretor com CRECI e UF. Ex.: CRECI/SP 12345.",
+      "laws": "Obrigatório; COFECI; identificação do CRECI",
+      "prof": "corretor",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CRC com UF exibido",
+      "desc": "Identificação do contador com CRC e UF. Ex.: CRC/SP 123456.",
+      "laws": "Obrigatório; CFC; NBC PG 100",
+      "prof": "contador",
+      "risk": null
+    },
+    {
+      "section": "proibidos",
+      "title": "Anúncio de economia fiscal",
+      "desc": "O material não promete economia de imposto, restituição certa ou resultado fiscal.",
+      "laws": "CFC; NBC PG 100",
+      "prof": "contador",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CRMV com UF exibido",
+      "desc": "Identificação do veterinário com CRMV e UF. Ex.: CRMV/SP 12345.",
+      "laws": "Obrigatório; CFMV; identificação do CRMV",
+      "prof": "veterinario",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CREF com UF exibido",
+      "desc": "Identificação do profissional de educação física com CREF e UF. Ex.: CREF 012345-G/SP. Não confundir com CREFITO.",
+      "laws": "Obrigatório; CONFEF; identificação do CREF",
+      "prof": "educacao_fisica",
+      "risk": null
+    },
+    {
+      "section": "identificacao",
+      "title": "Número do CRBM exibido",
+      "desc": "Identificação do biomédico em página de estética com CRBM. Ex.: CRBM-1 12345.",
+      "laws": "Obrigatório; CFBM; identificação do CRBM",
+      "prof": "estetica",
+      "risk": null
+    }
   ]
 }

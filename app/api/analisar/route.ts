@@ -36,6 +36,11 @@ const BodySchema = z
         'enfermeiro',
         'nutricionista',
         'arquiteto',
+        'engenheiro',
+        'corretor',
+        'contador',
+        'educacao_fisica',
+        'estetica',
         'outro',
       ])
       .optional()

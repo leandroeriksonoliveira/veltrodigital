@@ -70,6 +70,21 @@ const HEALTH_MARKERS = [
   'e-psi',
 ];
 
+const HEALTH_EXTRA = new Set(['nutricionista', 'veterinario', 'estetica']);
+const NON_HEALTH = new Set(['engenheiro', 'arquiteto', 'corretor', 'contador', 'educacao_fisica']);
+const PATIENT_AD = ['antes', 'depoimento', 'paciente', 'preço', 'preco', 'especialidade', 'rqe', 'telemed', 'e-psi'];
+
+const RE_CRMV = /\bcrmv\s*[-/]?\s*[a-z]{2}\b|\bcrmv\s*[-/]?\s*\d{3,}/i;
+const RE_CRN = /\bcrn\s*[-/]?\s*\d{1,2}(?:\s*[-/]?\s*\d{3,})?|\bcrn\s*\/\s*[a-z]{2}\b/i;
+const RE_CREA = /\bcrea\s*[-/]?\s*[a-z]{2}\b|\bcrea\s*[-/]?\s*\d{3,}/i;
+const RE_CAU = /\bcau\s*\/\s*[a-z]{2}\b|\bcau\s*[-/]?\s*a\s*\d{4,}|\bcau\s+a\d{4,}/i;
+const RE_CRECI = /\bcreci\s*[-/]?\s*[a-z]{2}\b|\bcreci\s*[-/]?\s*\d{3,}/i;
+const RE_CRC = /\bcrc\s*[-/]\s*[a-z]{2}\b|\bcrc\s+[a-z]{2}\b/i;
+const RE_CREF = /\bcref(?!ito)\s*[-/]?\s*[a-z]{2}\b|\bcref(?!ito)\s*[-/]?\s*\d{3,}/i;
+const RE_CRBM = /\bcrbm\s*[-/]?\s*(?:[a-z]{2}|\d{1,2})(?:\s*[-/]?\s*\d{3,})?|\bcrbm\s*[-/]?\s*\d{3,}/i;
+const RE_ESTETICA = /est[eé]tic|harmoniza|\bbotox\b|preenchimento|bioplastia/i;
+const RE_FISCAL = /economia\s+garantida|resultado\s+fiscal\s+garantido|imposto\s+zero|restitui[cç][aã]o\s+garantida/i;
+
 const EMPRESA_KEEP = [
   'privacidade',
   'cookie',
@@ -129,7 +144,21 @@ function aliases(conselho: string): Set<string> {
     fisio: ['fisio', 'fisioterapeuta', 'crefito'],
     dentista: ['dentista', 'cro'],
     enfermeiro: ['enfermeiro', 'coren'],
-    nutricionista: ['nutricionista', 'crn'],
+    nutricionista: ['nutricionista', 'crn', 'nutricao', 'nutrição'],
+    veterinario: ['veterinario', 'veterinaria', 'veterinária', 'crmv'],
+    estetica: ['estetica', 'estética', 'crbm', 'biomedico', 'biomédico'],
+    engenheiro: ['engenheiro', 'engenheira', 'engenharia', 'crea'],
+    arquiteto: ['arquiteto', 'arquiteta', 'arquitetura', 'cau'],
+    corretor: ['corretor', 'corretora', 'creci', 'imobiliaria', 'imobiliária'],
+    contador: ['contador', 'contadora', 'crc', 'contabilidade'],
+    educacao_fisica: [
+      'educacao_fisica',
+      'educação_física',
+      'educacao fisica',
+      'educação física',
+      'cref',
+      'confef',
+    ],
     advogado: ['advogado', 'oab'],
     empresa: ['empresa', 'saas', 'outro'],
   };
@@ -150,12 +179,37 @@ function profMatch(item: ChecklistRaw, conselho: string): boolean {
 function councilOnlyLaw(raw: ChecklistRaw): boolean {
   const laws = (raw.laws || '').toLowerCase();
   if (/lgpd|cdc|marco civil|anpd|procon/.test(laws)) return false;
-  return /\boab\b|cfoab|\bcfm\b|\bcfp\b|cepp|coffito|crefito|\bcro\b|\bcfo\b|\bced\b|prov\.?\s*205|\bcem\b/.test(
+  return /\boab\b|cfoab|\bcfm\b|\bcfp\b|cepp|coffito|crefito|\bcro\b|\bcfo\b|\bced\b|prov\.?\s*205|\bcem\b|\bcrn\b|\bcfn\b|\bcrea\b|\bconfea\b|\bcau\b|\bcreci\b|\bcofeci\b|\bcrc\b|\bcfc\b|\bcrmv\b|\bcfmv\b|\bconfef\b|\bcref\b|\bcrbm\b|\bcfbm\b/.test(
     laws
   );
 }
 
+function ownProf(raw: ChecklistRaw, area: string): boolean {
+  const prof = (raw.prof || 'todos').toLowerCase().trim();
+  if (['todos', 'all', ''].includes(prof)) return false;
+  const allowed = aliases(area);
+  allowed.delete('todos');
+  const parts = prof.split(/[\s,;/]+/);
+  return allowed.has(prof) || parts.some((part) => allowed.has(part));
+}
+
+function transversal(raw: ChecklistRaw): boolean {
+  if (councilOnlyLaw(raw)) return false;
+  const blob = `${raw.title || ''} ${raw.section || ''}`.toLowerCase();
+  if (HEALTH_MARKERS.some((k) => blob.includes(k))) return false;
+  if (PATIENT_AD.some((k) => blob.includes(k))) return false;
+  return EMPRESA_KEEP.some((k) => blob.includes(k));
+}
+
 function itemApplies(raw: ChecklistRaw, area: string): boolean {
+  if (NON_HEALTH.has(area)) {
+    if (ownProf(raw, area)) return true;
+    return transversal(raw);
+  }
+  if (HEALTH_EXTRA.has(area)) {
+    if ((raw._source_key || '') === 'advocacia') return false;
+    return profMatch(raw, area);
+  }
   if (area !== 'empresa') return profMatch(raw, area);
   if (councilOnlyLaw(raw)) return false;
   const blob = `${raw.title || ''} ${raw.section || ''}`.toLowerCase();
@@ -165,7 +219,21 @@ function itemApplies(raw: ChecklistRaw, area: string): boolean {
 
 function detectArea(conselho: string, siteText: string): string {
   const c = (conselho || '').toLowerCase().trim();
-  for (const key of ['medico', 'psicologo', 'fisio', 'dentista', 'advogado'] as const) {
+  for (const key of [
+    'medico',
+    'psicologo',
+    'fisio',
+    'dentista',
+    'advogado',
+    'nutricionista',
+    'veterinario',
+    'estetica',
+    'engenheiro',
+    'arquiteto',
+    'corretor',
+    'contador',
+    'educacao_fisica',
+  ] as const) {
     if (c && (aliases(key).has(c) || c === key)) return key;
   }
   // Empresa explícita na planilha/API. "outro" e vazio não entram aqui:
@@ -177,13 +245,66 @@ function detectArea(conselho: string, siteText: string): string {
   // Mesma regra do script do Mac: exige registro do conselho no texto.
   // Só a palavra da profissão (ex.: "médicos" num site B2B) não muda a área.
   // "OAB 205" é o Provimento, comum em site institucional, e não conta como inscrição.
+  // CRMV antes de CRM. CREFITO antes de CREF.
+  if (RE_CRMV.test(t)) return 'veterinario';
   if (/\bcrm\s*\/?\s*[a-z]{2}\b|\bcrm\s*\d{4,}/.test(t)) return 'medico';
   // O script do Mac pega CRP 123456 e CRP/SP. O coletor do site também acha CRP 06/123456.
   if (/\bcrp[-\s]?\d{3,}|\bcrp\s*\/?\s*[a-z]{2}\b|\bcrp[-\s]?\d{1,2}\s*\/\s*\d{2,7}/.test(t)) return 'psicologo';
   if (/\bcrefito\s*[-\s]?\d|\bcrefito\s*\/?\s*[a-z]{2}\b/.test(t)) return 'fisio';
   if (/\bcro\s*\/?\s*[a-z]{2}\b|\bcro\s*\d{3,}/.test(t)) return 'dentista';
+  if (RE_CRN.test(t)) return 'nutricionista';
+  // Estética não tem conselho único. CRBM sozinho (laboratório) permanece empresa.
+  if (RE_CRBM.test(t) && RE_ESTETICA.test(t)) return 'estetica';
+  if (RE_CREA.test(t)) return 'engenheiro';
+  if (RE_CAU.test(t)) return 'arquiteto';
+  if (RE_CRECI.test(t)) return 'corretor';
+  if (RE_CRC.test(t)) return 'contador';
+  if (RE_CREF.test(t)) return 'educacao_fisica';
   if (/\boab\s*\/\s*[a-z]{2}\b|\boab\s+[a-z]{2}\s*\d/.test(t)) return 'advogado';
   return 'empresa';
+}
+
+function regHit(titleL: string, token: string): boolean {
+  if (token === 'cau') return /\bcau\b/.test(titleL);
+  if (token === 'cref') return /\bcref\b/.test(titleL) && !titleL.includes('crefito');
+  if (token === 'crc') return /\bcrc\b/.test(titleL);
+  return titleL.includes(token);
+}
+
+function scoreRegistration(
+  titleL: string,
+  text: string,
+  rule: string
+): { status: ScoredItem['status']; evidenceNote: string } | null {
+  const rules: Array<[string, string, RegExp, string]> = [
+    ['crn', 'nutricionista', RE_CRN, 'CRN'],
+    ['crea', 'engenheiro', RE_CREA, 'CREA'],
+    ['cau', 'arquiteto', RE_CAU, 'CAU'],
+    ['creci', 'corretor', RE_CRECI, 'CRECI'],
+    ['crmv', 'veterinario', RE_CRMV, 'CRMV'],
+    ['crbm', 'estetica', RE_CRBM, 'CRBM'],
+    ['cref', 'educacao_fisica', RE_CREF, 'CREF'],
+    ['crc', 'contador', RE_CRC, 'CRC'],
+  ];
+  for (const [token, expected, pattern, label] of rules) {
+    if (!regHit(titleL, token)) continue;
+    if (rule && !aliases(expected).has(rule)) {
+      return { status: 'na', evidenceNote: 'Não aplicável ao conselho informado.' };
+    }
+    const found = text.match(pattern);
+    if (found) return { status: 'conforme', evidenceNote: `${label} detectado: ${found[0]}.` };
+    return { status: 'nao_conforme', evidenceNote: `${label} não encontrado no material coletado.` };
+  }
+  if (titleL.includes('economia fiscal')) {
+    if (rule && !aliases('contador').has(rule)) {
+      return { status: 'na', evidenceNote: 'Não aplicável ao conselho informado.' };
+    }
+    if (RE_FISCAL.test(text)) {
+      return { status: 'nao_conforme', evidenceNote: 'Promessa de resultado fiscal no material.' };
+    }
+    return { status: 'conforme', evidenceNote: 'Sem promessa de economia fiscal garantida.' };
+  }
+  return null;
 }
 
 function domainOf(url: string): string {
@@ -220,6 +341,15 @@ function corpus(evidence: LocalEvidence): string {
     ...(site?.crm_matches || []),
     ...(site?.crp_matches || []),
     ...(site?.rqe_matches || []),
+    ...(site?.cro_matches || []),
+    ...(site?.crn_matches || []),
+    ...(site?.crea_matches || []),
+    ...(site?.cau_matches || []),
+    ...(site?.creci_matches || []),
+    ...(site?.crc_matches || []),
+    ...(site?.crmv_matches || []),
+    ...(site?.cref_matches || []),
+    ...(site?.crbm_matches || []),
     String(ig.bio || ''),
     String(ig.full_name || ''),
     ...((ig.posts_sample as string[]) || []),
@@ -437,6 +567,14 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
     ...(signals.crm_matches || []),
     ...(signals.crp_matches || []),
     ...(signals.cro_matches || []),
+    ...(signals.crn_matches || []),
+    ...(signals.crea_matches || []),
+    ...(signals.cau_matches || []),
+    ...(signals.creci_matches || []),
+    ...(signals.crc_matches || []),
+    ...(signals.crmv_matches || []),
+    ...(signals.cref_matches || []),
+    ...(signals.crbm_matches || []),
   ].join('\n');
   const domain = domainOf(lead.site || evidence.site?.final_url || '');
   const area = detectArea(conselho, siteText);
@@ -479,7 +617,11 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
     let status: ScoredItem['status'] = 'conforme';
     let evidenceNote = 'Sem indício contrário no material coletado.';
 
-    if (titleL.includes('crm') && (titleL.includes('médico') || titleL.includes('medico') || titleL.includes('uf'))) {
+    const reg = scoreRegistration(titleL, text, ruleConselho);
+    if (reg) {
+      status = reg.status;
+      evidenceNote = reg.evidenceNote;
+    } else if (titleL.includes('crm') && (titleL.includes('médico') || titleL.includes('medico') || titleL.includes('uf'))) {
       if (signals.crm_matches.length || /crm\s*\/?\s*[a-z]{2}\s*\d+/.test(text)) {
         status = 'conforme';
         evidenceNote = `CRM detectado: ${(signals.crm_matches.slice(0, 3).join(', ') || 'no texto')}`;
@@ -515,7 +657,10 @@ export function scoreFromEvidence(evidence: LocalEvidence): {
         evidenceNote = 'CRO não encontrado.';
       }
     } else if (titleL.includes('rqe') || (titleL.includes('especialidade') && titleL.includes('reconhec'))) {
-      if (signals.rqe_matches.length || text.includes('rqe')) {
+      if (HEALTH_EXTRA.has(area)) {
+        status = 'na';
+        evidenceNote = 'Especialidade deste conselho não usa RQE.';
+      } else if (signals.rqe_matches.length || text.includes('rqe')) {
         status = 'conforme';
         evidenceNote = 'RQE/especialidade mencionado.';
       } else {
@@ -807,8 +952,14 @@ export function professionToConselho(profession: Profession | string): string {
     enfermeiro: 'enfermeiro',
     nutricionista: 'nutricionista',
     advogado: 'advogado',
-    veterinario: 'empresa',
-    arquiteto: 'empresa',
+    veterinario: 'veterinario',
+    arquiteto: 'arquiteto',
+    engenheiro: 'engenheiro',
+    corretor: 'corretor',
+    imobiliaria: 'corretor',
+    contador: 'contador',
+    educacao_fisica: 'educacao_fisica',
+    estetica: 'estetica',
     empresa: 'empresa',
     saas: 'empresa',
   };
@@ -831,6 +982,20 @@ export function areaToProfession(area: string): Profession {
       return 'enfermeiro';
     case 'nutricionista':
       return 'nutricionista';
+    case 'veterinario':
+      return 'veterinario';
+    case 'estetica':
+      return 'estetica';
+    case 'engenheiro':
+      return 'engenheiro';
+    case 'arquiteto':
+      return 'arquiteto';
+    case 'corretor':
+      return 'corretor';
+    case 'contador':
+      return 'contador';
+    case 'educacao_fisica':
+      return 'educacao_fisica';
     default:
       return 'empresa';
   }
@@ -853,7 +1018,7 @@ export function toClientReport(
   const score_marco_civil =
     scoreSubset(items, (i) => /marco civil|cdc|procon|consumidor/.test(`${i.laws} ${i.title}`.toLowerCase())) || index_pct;
   const score_etica =
-    scoreSubset(items, (i) => /cfm|oab|cfp|cro|crefito|coffito|ético|etica|crm|crp/.test(`${i.laws} ${i.title}`.toLowerCase())) ||
+    scoreSubset(items, (i) => /cfm|oab|cfp|cro|crefito|coffito|ético|etica|crm|crp|\bcrn\b|\bcfn\b|\bcrea\b|\bconfea\b|\bcau\b|\bcreci\b|\bcofeci\b|\bcrc\b|\bcfc\b|\bcrmv\b|\bcfmv\b|\bconfef\b|\bcref\b|\bcrbm\b|\bcfbm\b/.test(`${i.laws} ${i.title}`.toLowerCase())) ||
     index_pct;
 
   const score_rede = opts.hasSocial ? scoreSubset(items, (i) => i.channel === 'instagram' || i.section === 'instagram') || null : null;

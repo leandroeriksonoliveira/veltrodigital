@@ -8,6 +8,11 @@ export type Profession =
   | 'enfermeiro'
   | 'nutricionista'
   | 'arquiteto'
+  | 'engenheiro'
+  | 'corretor'
+  | 'contador'
+  | 'educacao_fisica'
+  | 'estetica'
   | 'empresa'
   | 'outro';
 
@@ -127,7 +132,12 @@ export const PROFESSION_LABELS: Record<Profession, string> = {
   veterinario: 'Veterinário(a)',
   enfermeiro: 'Enfermeiro(a)',
   nutricionista: 'Nutricionista',
-  arquiteto: 'Arquiteto(a) / Engenheiro(a)',
+  arquiteto: 'Arquiteto(a)',
+  engenheiro: 'Engenheiro(a)',
+  corretor: 'Corretor(a) de imóveis',
+  contador: 'Contador(a)',
+  educacao_fisica: 'Profissional de educação física',
+  estetica: 'Biomédico(a) / estética',
   empresa: 'Empresa',
   outro: 'Outro profissional liberal',
 };

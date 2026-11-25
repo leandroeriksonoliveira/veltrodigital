@@ -127,7 +127,7 @@ export async function fetchSiteEvidence(url: string): Promise<SiteEvidence> {
     signals.crm_matches.length > 0 ||
     signals.crp_matches.length > 0 ||
     signals.cro_matches.length > 0 ||
-    /\bcrm[\s/-]*\d|\boab[\s/-]*\d|\bcrp[\s/-]*\d|\bcrefito|\bcro[\s/-]*\d|\bcrv|\bcoren|\bcrn|\bcau[\s/-]*\d/i.test(
+    /\bcrm[\s/-]*\d|\boab[\s/-]*\d|\bcrp[\s/-]*\d|\bcrefito|\bcro[\s/-]*\d|\bcrv|\bcoren|\bcrn|\bcau[\s/-]*\d|\bcrea[\s/-]*[a-z0-9]|\bcreci|\bcrmv|\bcrbm|\bcref(?!ito)[\s/-]*\d|\bcrc\s*[-/]\s*[a-z]{2}/i.test(
       text
     );
 

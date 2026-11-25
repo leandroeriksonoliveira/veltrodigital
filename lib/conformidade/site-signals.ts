@@ -26,6 +26,14 @@ export interface SiteSignals {
   crp_matches: string[];
   rqe_matches: string[];
   cro_matches: string[];
+  crn_matches?: string[];
+  crea_matches?: string[];
+  cau_matches?: string[];
+  creci_matches?: string[];
+  crc_matches?: string[];
+  crmv_matches?: string[];
+  cref_matches?: string[];
+  crbm_matches?: string[];
   forbidden_hits: string[];
   https: boolean;
   has_privacy_link: boolean;
@@ -271,6 +279,14 @@ export function extractSiteSignals(html: string, baseUrl: string, extraSource = 
     crp_matches: uniqueMatches(text, /\bCRP[-\s]?\d{1,2}\s*\/\s*\d{2,7}(?:-\d)?\b/i).slice(0, 10),
     rqe_matches: uniqueMatches(text, /\bRQE\s*[:\-]?\s*\d{2,7}\b/i).slice(0, 10),
     cro_matches: uniqueMatches(text, /\bCRO\s*\/?\s*[A-Z]{2}\s*\d{2,7}\b/i).slice(0, 10),
+    crn_matches: uniqueMatches(text, /\bCRN\s*[-/]?\s*\d{1,2}(?:\s*[-/]?\s*\d{3,})?\b|\bCRN\s*\/\s*[A-Z]{2}\b/i).slice(0, 10),
+    crea_matches: uniqueMatches(text, /\bCREA\s*[-/]?\s*[A-Z]{2}\b|\bCREA\s*[-/]?\s*\d{3,}\b/i).slice(0, 10),
+    cau_matches: uniqueMatches(text, /\bCAU\s*\/\s*[A-Z]{2}\b|\bCAU\s*[-/]?\s*A\s*\d{4,}\b|\bCAU\s+A\d{4,}\b/i).slice(0, 10),
+    creci_matches: uniqueMatches(text, /\bCRECI\s*[-/]?\s*[A-Z]{2}\b|\bCRECI\s*[-/]?\s*\d{3,}\b/i).slice(0, 10),
+    crc_matches: uniqueMatches(text, /\bCRC\s*[-/]\s*[A-Z]{2}\b|\bCRC\s+[A-Z]{2}\b/i).slice(0, 10),
+    crmv_matches: uniqueMatches(text, /\bCRMV\s*[-/]?\s*[A-Z]{2}\b|\bCRMV\s*[-/]?\s*\d{3,}\b/i).slice(0, 10),
+    cref_matches: uniqueMatches(text, /\bCREF(?!ITO)\s*[-/]?\s*[A-Z]{2}\b|\bCREF(?!ITO)\s*[-/]?\s*\d{3,}\b/i).slice(0, 10),
+    crbm_matches: uniqueMatches(text, /\bCRBM\s*[-/]?\s*(?:[A-Z]{2}|\d{1,2})(?:\s*[-/]?\s*\d{3,})?\b|\bCRBM\s*[-/]?\s*\d{3,}\b/i).slice(0, 10),
     forbidden_hits,
     https,
     has_privacy_link: legal_links.some((x) => `${x.text} ${x.href}`.toLowerCase().includes('privacidade')),

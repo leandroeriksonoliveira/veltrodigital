@@ -180,7 +180,8 @@ function AdminReportsContent() {
                 <tr>
                   <th>Data</th>
                   <th>Nome</th>
-                  <th>Contato</th>
+                  <th>E-mail</th>
+                  <th>WhatsApp</th>
                   <th>Profissão</th>
                   <th>Selo</th>
                   <th>Nota</th>
@@ -192,7 +193,8 @@ function AdminReportsContent() {
                   <tr key={row.id}>
                     <td>{new Date(row.created_at).toLocaleString('pt-BR')}</td>
                     <td>{row.name}</td>
-                    <td>{row.phone || row.email || '—'}</td>
+                    <td>{row.email || '—'}</td>
+                    <td>{row.phone || '—'}</td>
                     <td>{professionLabel(row.profession)}</td>
                     <td>{row.selo || '—'}</td>
                     <td>{row.score_geral ?? '—'}</td>

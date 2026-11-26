@@ -215,6 +215,8 @@ function AdminConsultationsContent() {
                   <th>Data</th>
                   <th>Site / URL</th>
                   <th>Cliente</th>
+                  <th>E-mail</th>
+                  <th>WhatsApp</th>
                   <th>Profissão</th>
                   <th>Tipo</th>
                   <th>Selo</th>
@@ -246,10 +248,9 @@ function AdminConsultationsContent() {
                           '—'
                         )}
                       </td>
-                      <td>
-                        <div>{row.name}</div>
-                        <div className="hint tiny">{row.phone || row.email || '—'}</div>
-                      </td>
+                      <td>{row.name}</td>
+                      <td>{row.email || '—'}</td>
+                      <td>{row.phone || '—'}</td>
                       <td>{row.profession_label}</td>
                       <td>{row.input_type_label}</td>
                       <td>{row.selo || '—'}</td>

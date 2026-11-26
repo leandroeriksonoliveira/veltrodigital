@@ -52,6 +52,8 @@ function escapeCsvField(value: string | number | null | undefined): string {
 const CSV_HEADERS = [
   'slug',
   'nome',
+  'email',
+  'telefone',
   'site',
   'instagram',
   'conselho',
@@ -106,8 +108,6 @@ function buildObservacao(row: ConsultationExportRow): string {
   if (row.score_geral != null) parts.push(`Nota ${row.score_geral}`);
   if (row.selo) parts.push(row.selo);
   if (row.veredito) parts.push(row.veredito);
-  const contact = row.phone || row.email;
-  if (contact) parts.push(`Contato: ${contact}`);
   return parts.join(' · ');
 }
 
@@ -135,6 +135,8 @@ export function consultationsToExcelCsv(rows: ConsultationExportRow[]): string {
       [
         slug,
         row.name,
+        row.email || '',
+        row.phone || '',
         siteUrl(row),
         instagramUrl(row),
         professionToConselho(row.profession),

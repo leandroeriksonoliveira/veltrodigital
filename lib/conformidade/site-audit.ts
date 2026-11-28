@@ -63,18 +63,42 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+const PAGE_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  Accept: 'text/html,application/xhtml+xml',
+};
+
+async function fetchPage(url: string): Promise<Response> {
+  return fetch(url, {
+    headers: PAGE_HEADERS,
+    redirect: 'follow',
+    signal: AbortSignal.timeout(15000),
+  });
+}
+
+/** Sites com certificado vencido ou de outro domínio só abrem em HTTP. */
+async function fetchPublicPage(url: string): Promise<Response> {
+  try {
+    return await fetchPage(url);
+  } catch (error) {
+    if (!url.startsWith('https://')) throw error;
+    return fetchPage(`http://${url.slice('https://'.length)}`);
+  }
+}
+
 export async function fetchSiteEvidence(url: string): Promise<SiteEvidence> {
   let normalized = url.trim();
   if (!/^https?:\/\//i.test(normalized)) normalized = `https://${normalized}`;
 
-  const res = await fetch(normalized, {
-    headers: {
-      'User-Agent': 'VeltroDigitalComplianceBot/1.0 (+https://www.veltrodigital.com.br)',
-      Accept: 'text/html',
-    },
-    redirect: 'follow',
-    signal: AbortSignal.timeout(15000),
-  });
+  let res: Response;
+  try {
+    res = await fetchPublicPage(normalized);
+  } catch {
+    throw new Error(
+      'Não foi possível abrir o site. Confira o endereço: ele não respondeu ou o certificado de segurança está inválido.'
+    );
+  }
 
   const html = await res.text();
   const finalUrl = res.url || normalized;

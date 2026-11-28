@@ -212,7 +212,11 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error(err);
-    const message = err instanceof Error ? err.message : 'Erro interno';
+    let message = err instanceof Error ? err.message : 'Erro interno';
+    if (/fetch failed/i.test(message)) {
+      message =
+        'Não foi possível abrir o site. Confira o endereço: ele não respondeu ou o certificado de segurança está inválido.';
+    }
     if (err instanceof z.ZodError) {
       const detail = err.issues[0]?.message;
       return NextResponse.json(

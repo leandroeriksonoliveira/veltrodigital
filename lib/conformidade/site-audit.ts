@@ -95,9 +95,11 @@ export async function fetchSiteEvidence(url: string): Promise<SiteEvidence> {
   try {
     res = await fetchPublicPage(normalized);
   } catch {
-    throw new Error(
-      'Não foi possível abrir o site. Confira o endereço: ele não respondeu ou o certificado de segurança está inválido.'
-    );
+    throw new Error('Site não encontrado.');
+  }
+
+  if (res.status === 404 || res.status === 410) {
+    throw new Error('Site não encontrado.');
   }
 
   const html = await res.text();

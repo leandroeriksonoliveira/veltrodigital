@@ -119,7 +119,15 @@ export async function POST(req: NextRequest) {
     // 1) Site primeiro (páginas legais + HTML para descobrir Instagram)
     let siteEvidence: SiteEvidence | null = null;
     if (siteUrl && !isSocialUrl(siteUrl)) {
-      siteEvidence = await fetchSiteEvidence(siteUrl);
+      try {
+        siteEvidence = await fetchSiteEvidence(siteUrl);
+      } catch (err) {
+        const detail = err instanceof Error ? err.message : '';
+        if (detail === 'Site não encontrado.' || /fetch failed/i.test(detail)) {
+          return NextResponse.json({ error: 'Site não encontrado.' }, { status: 404 });
+        }
+        throw err;
+      }
     }
 
     // 2) Instagram: campo do formulário OU link encontrado no HTML do site (paridade com o lote)
@@ -214,8 +222,7 @@ export async function POST(req: NextRequest) {
     console.error(err);
     let message = err instanceof Error ? err.message : 'Erro interno';
     if (/fetch failed/i.test(message)) {
-      message =
-        'Não foi possível abrir o site. Confira o endereço: ele não respondeu ou o certificado de segurança está inválido.';
+      message = 'Não foi possível concluir a análise agora. Tente de novo.';
     }
     if (err instanceof z.ZodError) {
       const detail = err.issues[0]?.message;
